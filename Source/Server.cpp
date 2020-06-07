@@ -3417,6 +3417,17 @@ bool FOServer::InitReal()
     STATIC_ASSERT( sizeof( void* ) == 8 );
     #endif
 
+	STATIC_ASSERT( sizeof( GameOptions ) == 1072 );
+	STATIC_ASSERT( sizeof( Critter ) == 9336 );
+	STATIC_ASSERT( sizeof( string ) == 28 );
+	STATIC_ASSERT( sizeof( ScriptString ) == 36 );
+	STATIC_ASSERT( sizeof( ScriptArray ) == 28 );
+	STATIC_ASSERT( sizeof( IntVec ) == 16 );
+	STATIC_ASSERT( sizeof( CrVec ) == 16 );
+	STATIC_ASSERT( sizeof( IntSet ) == 16 );
+	STATIC_ASSERT( sizeof( CrMap ) == 16 );
+	STATIC_ASSERT( sizeof( Item ) == 196 );
+
     // Critters parameters
     Critter::ParamsSendMsgLen = sizeof( Critter::ParamsSendCount );
     Critter::ParamsSendCount = 0;
