@@ -194,6 +194,11 @@ bool FOServer::InitScriptSystem()
     }
 
     ASDbgMemoryCanWork = true;
+
+    if( !Script::RunModuleInitFunctions() ) {
+        return false;
+    }
+
     WriteLog( "Script system initialization complete.\n" );
     return true;
 }

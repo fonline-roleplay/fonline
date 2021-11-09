@@ -680,6 +680,34 @@ bool Script::BindReservedFunctions( const char* config, const char* key, Reserve
     return true;
 }
 
+bool Script::RunModuleInitFunctions()
+{
+    EngineData*      edata = (EngineData*) Engine->GetUserData();
+    ScriptModuleVec& modules = edata->Modules;
+
+    for( auto it = modules.begin(), end = modules.end(); it != end; ++it )
+    {
+        asIScriptModule* module = *it;
+        uint             bind_id = Script::Bind( Str::FormatBuf( "%s@module_init", module->GetName() ), "bool %s()", true, true );
+        if( bind_id && Script::PrepareContext( bind_id, _FUNC_, "Script" ) )
+        {
+            if( !Script::RunPrepared() )
+            {
+                WriteLog( "Error executing init function, module<%s>.\n", module->GetName() );
+                return false;
+            }
+
+            if( !Script::GetReturnedBool() )
+            {
+                WriteLog( "Initialization stopped by module<%s>.\n", module->GetName() );
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 #ifdef FONLINE_SERVER
 void Script::Profiler::SetData( uint sample_time, uint save_time, bool dynamic_display )
 {
