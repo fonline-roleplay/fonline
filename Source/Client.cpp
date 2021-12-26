@@ -10027,6 +10027,9 @@ bool FOClient::ReloadScripts()
     }
 
     WriteLog( "Load scripts complete.\n" );
+
+	Script::RunAllModuleInitFunctions( );
+
     return true;
 }
 

@@ -3542,6 +3542,7 @@ bool FOServer::InitReal()
     if( !ItemMngr.CheckProtoFunctions() )
         return false;                          // Check valid of proto functions
 
+	Script::RunAllModuleInitFunctions( );
     // Initialization script
     Script::PrepareContext( ServerFunctions.Init, _FUNC_, "Game" );
     Script::RunPrepared();
