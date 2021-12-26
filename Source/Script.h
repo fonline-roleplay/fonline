@@ -104,6 +104,7 @@ namespace Script
     int  BindImportedFunctions();
     int  Bind( const char* module_name, const char* func_name, const char* decl, bool is_temp, bool disable_log = false );
     int  Bind( const char* script_name, const char* decl, bool is_temp, bool disable_log = false );
+	int  BindByFunction( asIScriptFunction*, bool is_temp, bool disable_log = false );
     int  RebindFunctions();
     bool ReparseScriptName( const char* script_name, char* module_name, char* func_name, bool disable_log = false );
 
@@ -117,6 +118,9 @@ namespace Script
     void BeginExecution();
     void EndExecution();
     void AddEndExecutionCallback( EndExecutionCallback func );
+
+	bool RunModuleInitFunctions( asIScriptModule* module );
+	bool RunAllModuleInitFunctions( );
 
     bool   PrepareContext( int bind_id, const char* call_func, const char* ctx_info );
     void   SetArgUChar( uchar value );

@@ -1946,6 +1946,33 @@ int Script::Bind( const char* script_name, const char* decl, bool is_temp, bool 
     return Bind( module_name, func_name, decl, is_temp, disable_log );
 }
 
+int Script::BindByFunction( asIScriptFunction* script_func, bool is_temp, bool disable_log /* = false*/ )
+{
+	if( !script_func )
+		return 0;
+
+	// Save to temporary bind
+	if( is_temp )
+	{
+		BindedFunctions[ 1 ].IsScriptCall = true;
+		BindedFunctions[ 1 ].ScriptFunc = script_func;
+		BindedFunctions[ 1 ].NativeFuncAddr = 0;
+		return 1;
+	}
+
+	// Find already binded
+	for( int i = 2, j = ( int )BindedFunctions.size( ); i < j; i++ )
+	{
+		BindFunction& bf = BindedFunctions[ i ];
+		if( bf.IsScriptCall && bf.ScriptFunc == script_func )
+			return i;
+	}
+
+	// Create new bind
+	BindedFunctions.push_back( BindFunction( script_func, 0, script_func->GetModuleName(), script_func->GetName(), script_func->GetDeclaration() ) );
+	return ( int )BindedFunctions.size( ) - 1;
+}
+
 int Script::RebindFunctions()
 {
     #ifdef SCRIPT_MULTITHREADING
@@ -2234,6 +2261,56 @@ void Script::AddEndExecutionCallback( EndExecutionCallback func )
     if( it == EndExecutionCallbacks->end() )
         EndExecutionCallbacks->push_back( func );
     #endif
+}
+
+bool Script::RunModuleInitFunctions( asIScriptModule* module )
+{
+	if( !module )
+		return false;
+
+	for( asUINT i = 0; i < module->GetFunctionCount( ); i++ )
+	{
+		asIScriptFunction* func = module->GetFunctionByIndex( i );
+		if( !Str::Compare( func->GetName( ), "ModuleInit" ) )
+			continue;
+
+		if( func->GetParamCount( ) != 0 )
+		{
+			WriteLog( "Init function '{}::{}' can't have arguments.\n", func->GetNamespace( ), func->GetName( ) );
+			return false;
+		}
+		if( func->GetReturnTypeId( ) != asTYPEID_VOID && func->GetReturnTypeId( ) != asTYPEID_BOOL )
+		{
+			WriteLog( "Init function '{}::{}' must have void or bool return type.\n", func->GetNamespace( ), func->GetName( ) );
+			return false;
+		}
+
+		uint bind_id = Script::BindByFunction( func, true );
+		Script::PrepareContext( bind_id, _FUNC_, "ScriptInit" );
+
+		if( !Script::RunPrepared( ) )
+		{
+			WriteLog( "Error executing init function '%s::%s'.\n", func->GetNamespace( ), func->GetName( ) );
+			return false;
+		}
+
+		if( func->GetReturnTypeId( ) == asTYPEID_BOOL && !Script::GetReturnedBool( ) )
+		{
+			WriteLog( "Initialization stopped by init function '%s::%s'.\n", func->GetNamespace( ), func->GetName( ) );
+			return false;
+		}
+	}
+	return true;
+}
+
+bool Script::RunAllModuleInitFunctions( )
+{
+	for( uint i = 0; i < Engine->GetModuleCount( ); i++ )
+	{
+		if( !RunModuleInitFunctions( Engine->GetModuleByIndex( i ) ) )
+			return false;
+	}
+	return true;
 }
 
 bool Script::PrepareContext( int bind_id, const char* call_func, const char* ctx_info )
