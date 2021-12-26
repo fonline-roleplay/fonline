@@ -584,6 +584,9 @@
     <ClInclude Include="..\Source\OverlayWindowsD3D.h">
       <Filter>Client</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\OverlayWindowsOGL.h">
+      <Filter>Client</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Zlib\adler32.c">
@@ -926,6 +929,9 @@
       <Filter>Client</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\OverlayWindowsD3D.cpp">
+      <Filter>Client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\OverlayWindowsOGL.cpp">
       <Filter>Client</Filter>
     </ClCompile>
   </ItemGroup>

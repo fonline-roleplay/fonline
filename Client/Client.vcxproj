@@ -552,6 +552,9 @@
     <ClInclude Include="..\Source\OverlayWindowsD3D.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="..\Source\OverlayWindowsOGL.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseD3D|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="..\Source\ResourceClient.h" />
     <ClInclude Include="..\Source\ScriptWindow.h" />
     <ClInclude Include="..\Source\Sprites.h" />
@@ -743,6 +746,9 @@
     <ClCompile Include="..\Source\OverlayWindows.cpp" />
     <ClCompile Include="..\Source\OverlayWindowsD3D.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\Source\OverlayWindowsOGL.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseD3D|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Source\ScriptWindow.cpp" />
     <ClCompile Include="..\Source\SpriteManagerFont.cpp" />

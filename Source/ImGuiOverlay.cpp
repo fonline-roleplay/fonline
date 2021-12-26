@@ -53,6 +53,7 @@ Overlay * FOnline::GetOverlay( )
 		Assert( IndexMessage::Error_AlreadyInit );
 		return nullptr;
 	}
+
 	Overlayer = CreateOverlay( );
 	return Overlayer;
 }
