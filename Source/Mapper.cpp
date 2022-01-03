@@ -30,7 +30,7 @@ bool FOMapper::Init()
     #if defined ( FO_X86 )
     STATIC_ASSERT( sizeof( SpriteInfo ) == 36 );
     STATIC_ASSERT( sizeof( Sprite ) == 116 );
-    STATIC_ASSERT( sizeof( GameOptions ) == 1312 );
+    STATIC_ASSERT( sizeof( GameOptions ) == 1320 );
     #endif
 
     // Register dll script data
@@ -5516,7 +5516,7 @@ MapObject* FOMapper::SScriptFunc::MapperObject_AddChild( MapObject& mobj, ushort
     return mobj_;
 }
 
-uint FOMapper::SScriptFunc::MapperObject_GetChilds( MapObject& mobj, ScriptArray* objects )
+uint FOMapper::SScriptFunc::MapperObject_GetChilds( MapObject& mobj, CScriptArray* objects )
 {
     if( !mobj.RunTime.FromMap )
         return 0;
@@ -5639,7 +5639,7 @@ MapObject* FOMapper::SScriptFunc::MapperMap_GetObject( ProtoMap& pmap, ushort hx
     return Self->FindMapObject( pmap, hx, hy, mobj_type, pid, skip );
 }
 
-uint FOMapper::SScriptFunc::MapperMap_GetObjects( ProtoMap& pmap, ushort hx, ushort hy, uint radius, int mobj_type, ushort pid, ScriptArray* objects )
+uint FOMapper::SScriptFunc::MapperMap_GetObjects( ProtoMap& pmap, ushort hx, ushort hy, uint radius, int mobj_type, ushort pid, CScriptArray* objects )
 {
     MapObjectPtrVec objects_;
     Self->FindMapObjects( pmap, hx, hy, radius, mobj_type, pid, objects_ );
@@ -5991,7 +5991,7 @@ bool FOMapper::SScriptFunc::Global_ShowMap( ProtoMap* pmap )
     return true;
 }
 
-int FOMapper::SScriptFunc::Global_GetLoadedMaps( ScriptArray* maps )
+int FOMapper::SScriptFunc::Global_GetLoadedMaps( CScriptArray* maps )
 {
     int index = -1;
     for( int i = 0, j = (int) Self->LoadedProtoMaps.size(); i < j; i++ )
@@ -6005,7 +6005,7 @@ int FOMapper::SScriptFunc::Global_GetLoadedMaps( ScriptArray* maps )
     return index;
 }
 
-uint FOMapper::SScriptFunc::Global_GetMapFileNames( ScriptString* dir, ScriptArray* names )
+uint FOMapper::SScriptFunc::Global_GetMapFileNames( ScriptString* dir, CScriptArray* names )
 {
     FileManager::SetDataPath( GameOpt.ServerPath.c_str() );
     string dir_ = FileManager::GetFullPath( NULL, PT_SERVER_MAPS );
@@ -6056,7 +6056,7 @@ void FOMapper::SScriptFunc::Global_DeleteObject( MapObject* mobj )
         Self->DeleteMapObject( mobj );
 }
 
-void FOMapper::SScriptFunc::Global_DeleteObjects( ScriptArray& objects )
+void FOMapper::SScriptFunc::Global_DeleteObjects( CScriptArray& objects )
 {
     for( int i = 0, j = objects.GetSize(); i < j; i++ )
     {
@@ -6077,7 +6077,7 @@ void FOMapper::SScriptFunc::Global_SelectObject( MapObject* mobj, bool set )
     }
 }
 
-void FOMapper::SScriptFunc::Global_SelectObjects( ScriptArray& objects, bool set )
+void FOMapper::SScriptFunc::Global_SelectObjects( CScriptArray& objects, bool set )
 {
     for( int i = 0, j = objects.GetSize(); i < j; i++ )
     {
@@ -6097,7 +6097,7 @@ MapObject* FOMapper::SScriptFunc::Global_GetSelectedObject()
     return Self->SelectedObj.size() ? Self->SelectedObj[ 0 ].MapObj : NULL;
 }
 
-uint FOMapper::SScriptFunc::Global_GetSelectedObjects( ScriptArray* objects )
+uint FOMapper::SScriptFunc::Global_GetSelectedObjects( CScriptArray* objects )
 {
     MapObjectPtrVec objects_;
     objects_.reserve( Self->SelectedObj.size() );
@@ -6108,7 +6108,7 @@ uint FOMapper::SScriptFunc::Global_GetSelectedObjects( ScriptArray* objects )
     return (uint) objects_.size();
 }
 
-uint FOMapper::SScriptFunc::Global_TabGetTileDirs( int tab, ScriptArray* dir_names, ScriptArray* include_subdirs )
+uint FOMapper::SScriptFunc::Global_TabGetTileDirs( int tab, CScriptArray* dir_names, CScriptArray* include_subdirs )
 {
     if( tab < 0 || tab >= TAB_COUNT )
         SCRIPT_ERROR_R0( "Wrong tab arg." );
@@ -6129,7 +6129,7 @@ uint FOMapper::SScriptFunc::Global_TabGetTileDirs( int tab, ScriptArray* dir_nam
     return (uint) ttab.TileDirs.size();
 }
 
-uint FOMapper::SScriptFunc::Global_TabGetItemPids( int tab, ScriptString* sub_tab, ScriptArray* item_pids )
+uint FOMapper::SScriptFunc::Global_TabGetItemPids( int tab, ScriptString* sub_tab, CScriptArray* item_pids )
 {
     if( tab < 0 || tab >= TAB_COUNT )
         SCRIPT_ERROR_R0( "Wrong tab arg." );
@@ -6142,7 +6142,7 @@ uint FOMapper::SScriptFunc::Global_TabGetItemPids( int tab, ScriptString* sub_ta
     return (uint) stab.ItemProtos.size();
 }
 
-uint FOMapper::SScriptFunc::Global_TabGetCritterPids( int tab, ScriptString* sub_tab, ScriptArray* critter_pids )
+uint FOMapper::SScriptFunc::Global_TabGetCritterPids( int tab, ScriptString* sub_tab, CScriptArray* critter_pids )
 {
     if( tab < 0 || tab >= TAB_COUNT )
         SCRIPT_ERROR_R0( "Wrong tab arg." );
@@ -6155,7 +6155,7 @@ uint FOMapper::SScriptFunc::Global_TabGetCritterPids( int tab, ScriptString* sub
     return (uint) stab.NpcProtos.size();
 }
 
-void FOMapper::SScriptFunc::Global_TabSetTileDirs( int tab, ScriptArray* dir_names, ScriptArray* include_subdirs )
+void FOMapper::SScriptFunc::Global_TabSetTileDirs( int tab, CScriptArray* dir_names, CScriptArray* include_subdirs )
 {
     if( tab < 0 || tab >= TAB_COUNT )
         SCRIPT_ERROR_R( "Wrong tab arg." );
@@ -6183,7 +6183,7 @@ void FOMapper::SScriptFunc::Global_TabSetTileDirs( int tab, ScriptArray* dir_nam
         Self->RefreshTiles( tab );
 }
 
-void FOMapper::SScriptFunc::Global_TabSetItemPids( int tab, ScriptString* sub_tab, ScriptArray* item_pids )
+void FOMapper::SScriptFunc::Global_TabSetItemPids( int tab, ScriptString* sub_tab, CScriptArray* item_pids )
 {
     if( tab < 0 || tab >= TAB_COUNT )
         SCRIPT_ERROR_R( "Wrong tab arg." );
@@ -6239,7 +6239,7 @@ void FOMapper::SScriptFunc::Global_TabSetItemPids( int tab, ScriptString* sub_ta
         Self->RefreshCurProtos();
 }
 
-void FOMapper::SScriptFunc::Global_TabSetCritterPids( int tab, ScriptString* sub_tab, ScriptArray* critter_pids )
+void FOMapper::SScriptFunc::Global_TabSetCritterPids( int tab, ScriptString* sub_tab, CScriptArray* critter_pids )
 {
     if( tab < 0 || tab >= TAB_COUNT )
         SCRIPT_ERROR_R( "Wrong tab arg." );
@@ -6839,7 +6839,7 @@ void FOMapper::SScriptFunc::Global_DrawText( ScriptString& text, int x, int y, i
     SprMngr.DrawStr( Rect( x, y, x + w, y + h ), text.c_str(), flags, color, font );
 }
 
-void FOMapper::SScriptFunc::Global_DrawPrimitive( int primitive_type, ScriptArray& data )
+void FOMapper::SScriptFunc::Global_DrawPrimitive( int primitive_type, CScriptArray& data )
 {
     if( !SpritesCanDraw )
         return;
@@ -6960,7 +6960,7 @@ Animation3dVec DrawCritter3dAnim;
 UIntVec        DrawCritter3dCrType;
 BoolVec        DrawCritter3dFailToLoad;
 int            DrawCritter3dLayers[ LAYERS3D_COUNT ];
-void FOMapper::SScriptFunc::Global_DrawCritter3d( uint instance, uint crtype, uint anim1, uint anim2, ScriptArray* layers, ScriptArray* position, uint color )
+void FOMapper::SScriptFunc::Global_DrawCritter3d( uint instance, uint crtype, uint anim1, uint anim2, CScriptArray* layers, CScriptArray* position, uint color )
 {
     // x y
     // rx ry rz

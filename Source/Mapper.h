@@ -444,14 +444,14 @@ public:
         static void          MapperObject_set_PicInv( MapObject& mobj, ScriptString* str );
         static void          MapperObject_Update( MapObject& mobj );
         static MapObject*    MapperObject_AddChild( MapObject& mobj, ushort pid );
-        static uint          MapperObject_GetChilds( MapObject& mobj, ScriptArray* objects );
+        static uint          MapperObject_GetChilds( MapObject& mobj, CScriptArray* objects );
         static void          MapperObject_MoveToHex( MapObject& mobj, ushort hx, ushort hy );
         static void          MapperObject_MoveToHexOffset( MapObject& mobj, int x, int y );
         static void          MapperObject_MoveToDir( MapObject& mobj, uchar dir );
 
         static MapObject*    MapperMap_AddObject( ProtoMap& pmap, ushort hx, ushort hy, int mobj_type, ushort pid );
         static MapObject*    MapperMap_GetObject( ProtoMap& pmap, ushort hx, ushort hy, int mobj_type, ushort pid, uint skip );
-        static uint          MapperMap_GetObjects( ProtoMap& pmap, ushort hx, ushort hy, uint radius, int mobj_type, ushort pid, ScriptArray* objects );
+        static uint          MapperMap_GetObjects( ProtoMap& pmap, ushort hx, ushort hy, uint radius, int mobj_type, ushort pid, CScriptArray* objects );
         static void          MapperMap_UpdateObjects( ProtoMap& pmap );
         static void          MapperMap_Resize( ProtoMap& pmap, ushort width, ushort height );
         static uint          MapperMap_GetTilesCount( ProtoMap& pmap, ushort hx, ushort hy, bool roof );
@@ -475,21 +475,21 @@ public:
         static void       Global_UnloadMap( ProtoMap* pmap );
         static bool       Global_SaveMap( ProtoMap* pmap, ScriptString& file_name, int path_type );
         static bool       Global_ShowMap( ProtoMap* pmap );
-        static int        Global_GetLoadedMaps( ScriptArray* maps );
-        static uint       Global_GetMapFileNames( ScriptString* dir, ScriptArray* names );
+        static int        Global_GetLoadedMaps( CScriptArray* maps );
+        static uint       Global_GetMapFileNames( ScriptString* dir, CScriptArray* names );
         static void       Global_DeleteObject( MapObject* mobj );
-        static void       Global_DeleteObjects( ScriptArray& objects );
+        static void       Global_DeleteObjects( CScriptArray& objects );
         static void       Global_SelectObject( MapObject* mobj, bool set );
-        static void       Global_SelectObjects( ScriptArray& objects, bool set );
+        static void       Global_SelectObjects( CScriptArray& objects, bool set );
         static MapObject* Global_GetSelectedObject();
-        static uint       Global_GetSelectedObjects( ScriptArray* objects );
+        static uint       Global_GetSelectedObjects( CScriptArray* objects );
 
-        static uint Global_TabGetTileDirs( int tab, ScriptArray* dir_names, ScriptArray* include_subdirs );
-        static uint Global_TabGetItemPids( int tab, ScriptString* sub_tab, ScriptArray* item_pids );
-        static uint Global_TabGetCritterPids( int tab, ScriptString* sub_tab, ScriptArray* critter_pids );
-        static void Global_TabSetTileDirs( int tab, ScriptArray* dir_names, ScriptArray* include_subdirs );
-        static void Global_TabSetItemPids( int tab, ScriptString* sub_tab, ScriptArray* item_pids );
-        static void Global_TabSetCritterPids( int tab, ScriptString* sub_tab, ScriptArray* critter_pids );
+        static uint Global_TabGetTileDirs( int tab, CScriptArray* dir_names, CScriptArray* include_subdirs );
+        static uint Global_TabGetItemPids( int tab, ScriptString* sub_tab, CScriptArray* item_pids );
+        static uint Global_TabGetCritterPids( int tab, ScriptString* sub_tab, CScriptArray* critter_pids );
+        static void Global_TabSetTileDirs( int tab, CScriptArray* dir_names, CScriptArray* include_subdirs );
+        static void Global_TabSetItemPids( int tab, ScriptString* sub_tab, CScriptArray* item_pids );
+        static void Global_TabSetCritterPids( int tab, ScriptString* sub_tab, CScriptArray* critter_pids );
         static void Global_TabDelete( int tab );
         static void Global_TabSelect( int tab, ScriptString* sub_tab, bool show );
         static void Global_TabSetName( int tab, ScriptString* tab_name );
@@ -549,10 +549,10 @@ public:
         static void Global_DrawSpriteSize( uint spr_id, int spr_index, int x, int y, int w, int h, bool scratch, bool center, uint color );
         static void Global_DrawSpriteSizeOffs( uint spr_id, int spr_index, int x, int y, int w, int h, bool scratch, bool center, uint color, bool offs );
         static void Global_DrawText( ScriptString& text, int x, int y, int w, int h, uint color, int font, int flags );
-        static void Global_DrawPrimitive( int primitive_type, ScriptArray& data );
+        static void Global_DrawPrimitive( int primitive_type, CScriptArray& data );
         static void Global_DrawMapSprite( ushort hx, ushort hy, ushort proto_id, uint spr_id, int spr_index, int ox, int oy );
         static void Global_DrawCritter2d( uint crtype, uint anim1, uint anim2, uchar dir, int l, int t, int r, int b, bool scratch, bool center, uint color );
-        static void Global_DrawCritter3d( uint instance, uint crtype, uint anim1, uint anim2, ScriptArray* layers, ScriptArray* position, uint color );
+        static void Global_DrawCritter3d( uint instance, uint crtype, uint anim1, uint anim2, CScriptArray* layers, CScriptArray* position, uint color );
 
         static bool          Global_IsCritterCanWalk( uint cr_type );
         static bool          Global_IsCritterCanRun( uint cr_type );

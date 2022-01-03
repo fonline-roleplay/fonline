@@ -86,3 +86,5 @@ Client/Client.vcxproj.user
 FOnlineRP/FOnlineRP.vcxproj.user
 Mapper/Mapper.vcxproj.user
 Mapper/Release/
+ASCompiler/Release/
+Mapper/ReleaseD3D/

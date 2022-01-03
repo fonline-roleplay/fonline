@@ -151,7 +151,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)Mapper.pch</PrecompiledHeaderOutputFile>
       <AssemblerOutput>All</AssemblerOutput>
@@ -222,7 +222,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)Mapper.pch</PrecompiledHeaderOutputFile>
       <AssemblerOutput>All</AssemblerOutput>
@@ -567,12 +567,49 @@
   <ItemGroup>
     <ClInclude Include="..\Source\3dAnimation.h" />
     <ClInclude Include="..\Source\3dStuff.h" />
+    <ClInclude Include="..\Source\AngelScript\Preprocessor\expressions.h" />
+    <ClInclude Include="..\Source\AngelScript\scriptgrid.h" />
+    <ClInclude Include="..\Source\backends\imgui_impl_dx9.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\Source\backends\imgui_impl_opengl2.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseD3D|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\Source\backends\imgui_impl_opengl3.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseD3D|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\Source\backends\imgui_impl_opengl3_loader.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseD3D|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\Source\backends\imgui_impl_win32.h" />
     <ClInclude Include="..\Source\FileSystem.h" />
+    <ClInclude Include="..\Source\FonlineImgui.h" />
+    <ClInclude Include="..\Source\FonlineImguiWindows.h" />
+    <ClInclude Include="..\Source\FonlineImguiWindowsD3D.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\Source\FonlineImguiWindowsOGL.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseD3D|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="..\Source\GL\glew.h" />
     <ClInclude Include="..\Source\GL\glxew.h" />
     <ClInclude Include="..\Source\GL\wglew.h" />
     <ClInclude Include="..\Source\GraphicLoader.h" />
     <ClInclude Include="..\Source\GraphicStructures.h" />
+    <ClInclude Include="..\Source\imconfig.h" />
+    <ClInclude Include="..\Source\imgui.h" />
+    <ClInclude Include="..\Source\ImGuiOverlay.h" />
+    <ClInclude Include="..\Source\imgui_internal.h" />
+    <ClInclude Include="..\Source\imstb_rectpack.h" />
+    <ClInclude Include="..\Source\imstb_textedit.h" />
+    <ClInclude Include="..\Source\imstb_truetype.h" />
+    <ClInclude Include="..\Source\OverlayWindows.h" />
+    <ClInclude Include="..\Source\OverlayWindowsD3D.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\Source\OverlayWindowsOGL.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseD3D|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="..\Source\ResourceMapper.h" />
     <ClInclude Include="..\Source\Common.h" />
     <ClInclude Include="..\Source\ConstantsManager.h" />
@@ -681,6 +718,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\3dStuff.cpp" />
+    <ClCompile Include="..\Source\AngelScript\Preprocessor\expressions.cpp" />
+    <ClCompile Include="..\Source\AngelScript\scriptgrid.cpp" />
+    <ClCompile Include="..\Source\backends\imgui_impl_dx9.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\Source\backends\imgui_impl_opengl2.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseD3D|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\Source\backends\imgui_impl_opengl3.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseD3D|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\Source\backends\imgui_impl_win32.cpp" />
     <ClCompile Include="..\Source\Common.cpp" />
     <ClCompile Include="..\Source\ConstantsManager.cpp" />
     <ClCompile Include="..\Source\CritterCl.cpp" />
@@ -692,6 +741,14 @@
     <ClCompile Include="..\Source\Exception.cpp" />
     <ClCompile Include="..\Source\FileManager.cpp" />
     <ClCompile Include="..\Source\FileSystem.cpp" />
+    <ClCompile Include="..\Source\FonlineImgui.cpp" />
+    <ClCompile Include="..\Source\FonlineImguiWindows.cpp" />
+    <ClCompile Include="..\Source\FonlineImguiWindowsD3D.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\Source\FonlineImguiWindowsOGL.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseD3D|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\Source\GL\glew.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -699,6 +756,12 @@
     </ClCompile>
     <ClCompile Include="..\Source\GraphicLoader.cpp" />
     <ClCompile Include="..\Source\HexManager.cpp" />
+    <ClCompile Include="..\Source\imgui.cpp" />
+    <ClCompile Include="..\Source\ImGuiOverlay.cpp" />
+    <ClCompile Include="..\Source\imgui_demo.cpp" />
+    <ClCompile Include="..\Source\imgui_draw.cpp" />
+    <ClCompile Include="..\Source\imgui_tables.cpp" />
+    <ClCompile Include="..\Source\imgui_widgets.cpp" />
     <ClCompile Include="..\Source\IniParser.cpp" />
     <ClCompile Include="..\Source\Item.cpp" />
     <ClCompile Include="..\Source\ItemHex.cpp" />
@@ -708,6 +771,13 @@
     <ClCompile Include="..\Source\MainMapper.cpp" />
     <ClCompile Include="..\Source\Mapper.cpp" />
     <ClCompile Include="..\Source\MsgFiles.cpp" />
+    <ClCompile Include="..\Source\OverlayWindows.cpp" />
+    <ClCompile Include="..\Source\OverlayWindowsD3D.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\Source\OverlayWindowsOGL.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseD3D|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\Source\ProtoMap.cpp" />
     <ClCompile Include="..\Source\ResourceManager.cpp" />
     <ClCompile Include="..\Source\Script.cpp" />

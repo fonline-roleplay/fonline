@@ -92,12 +92,12 @@ void RunMain( asIScriptModule* module, const char* func_str )
     // Run
     printf( "Executing '%s'.\n", func_str );
     asIScriptContext* ctx = Engine->CreateContext();
-    int               func = module->GetFunctionIdByDecl( func_decl );
-    if( func < 0 )
-    {
-        printf( "Function '%s' not found.\n", func_decl );
-        return;
-    }
+	auto func = module->GetFunctionByDecl( func_decl );
+	if( !func )
+	{
+		printf( "Function '%s' not found.\n", func_decl );
+		return;
+	}
     int result = ctx->Prepare( func );
     if( result < 0 )
     {
@@ -432,7 +432,7 @@ int main( int argc, char* argv[] )
         vector< int > bad_typeids_class;
         for( int m = 0, n = module->GetObjectTypeCount(); m < n; m++ )
         {
-            asIObjectType* ot = module->GetObjectTypeByIndex( m );
+			asITypeInfo* ot = module->GetObjectTypeByIndex( m );
             for( int i = 0, j = ot->GetPropertyCount(); i < j; i++ )
             {
                 int type = 0;
@@ -458,7 +458,7 @@ int main( int argc, char* argv[] )
 
             while( type & asTYPEID_TEMPLATE )
             {
-                asIObjectType* obj = (asIObjectType*) Engine->GetObjectTypeById( type );
+				asITypeInfo* obj = ( asITypeInfo*) Engine->GetTypeInfoById( type );
                 if( !obj )
                     break;
                 type = obj->GetSubTypeId();

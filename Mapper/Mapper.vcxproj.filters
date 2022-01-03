@@ -26,6 +26,9 @@
     <Filter Include="GL">
       <UniqueIdentifier>{c107ac11-a3bd-4e17-acf7-00fc62dfb9b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{2127ed1c-c5b5-4c61-a18d-ee7b213d4376}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="Mapper.ico">
@@ -377,6 +380,69 @@
     <ClInclude Include="..\Source\GL\wglew.h">
       <Filter>GL</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\AngelScript\scriptgrid.h">
+      <Filter>AngelScript</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\FonlineImguiWindows.h">
+      <Filter>Mapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\FonlineImguiWindowsD3D.h">
+      <Filter>Mapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\FonlineImguiWindowsOGL.h">
+      <Filter>Mapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\FonlineImgui.h">
+      <Filter>Mapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\imgui_internal.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\imconfig.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\imgui.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\imstb_textedit.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\imstb_truetype.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\imstb_rectpack.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\backends\imgui_impl_opengl3.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\backends\imgui_impl_opengl3_loader.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\backends\imgui_impl_win32.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\backends\imgui_impl_dx9.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\backends\imgui_impl_opengl2.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\ImGuiOverlay.h">
+      <Filter>Mapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\OverlayWindowsD3D.h">
+      <Filter>Mapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\OverlayWindowsOGL.h">
+      <Filter>Mapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\OverlayWindows.h">
+      <Filter>Mapper</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\AngelScript\Preprocessor\expressions.h">
+      <Filter>AngelScript\Preprocessor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Common.cpp">
@@ -648,6 +714,63 @@
     </ClCompile>
     <ClCompile Include="..\Source\GL\glew.c">
       <Filter>GL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\AngelScript\scriptgrid.cpp">
+      <Filter>AngelScript</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\FonlineImguiWindowsD3D.cpp">
+      <Filter>Mapper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\FonlineImguiWindowsOGL.cpp">
+      <Filter>Mapper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\FonlineImgui.cpp">
+      <Filter>Mapper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\FonlineImguiWindows.cpp">
+      <Filter>Mapper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\imgui_tables.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\imgui_widgets.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\imgui.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\imgui_demo.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\imgui_draw.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\backends\imgui_impl_win32.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\backends\imgui_impl_dx9.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\backends\imgui_impl_opengl2.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\backends\imgui_impl_opengl3.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\ImGuiOverlay.cpp">
+      <Filter>Mapper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\OverlayWindowsOGL.cpp">
+      <Filter>Mapper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\OverlayWindows.cpp">
+      <Filter>Mapper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\OverlayWindowsD3D.cpp">
+      <Filter>Mapper</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\AngelScript\Preprocessor\expressions.cpp">
+      <Filter>AngelScript\Preprocessor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

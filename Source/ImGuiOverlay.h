@@ -6,8 +6,8 @@
 
 namespace FOnline
 {
-	class Overlay;
 	struct OverlayFlag;
+	class Overlay;
 	
 	extern Overlay* CreateOverlay( );
 	extern void DestroyOverlay( Overlay* overlay );
@@ -30,7 +30,7 @@ namespace FOnline
 	protected:
 		Overlay( );
 
-		OverlayFlag* GetFlag( );
+		const OverlayFlag* GetFlag( );
 	
 	public:
 		virtual void Init( ) = 0;

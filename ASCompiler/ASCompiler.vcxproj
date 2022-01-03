@@ -22,7 +22,7 @@
     <CharacterSet>MultiByte</CharacterSet>
     <CLRSupport>false</CLRSupport>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v100</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -144,6 +144,7 @@
     <ClInclude Include="..\Source\AngelScript\as_typeinfo.h" />
     <ClInclude Include="..\Source\AngelScript\as_variablescope.h" />
     <ClInclude Include="..\Source\AngelScript\Preprocessor\define_table.h" />
+    <ClInclude Include="..\Source\AngelScript\Preprocessor\expressions.h" />
     <ClInclude Include="..\Source\AngelScript\Preprocessor\lex.h" />
     <ClInclude Include="..\Source\AngelScript\Preprocessor\lexem_list.h" />
     <ClInclude Include="..\Source\AngelScript\Preprocessor\line_number_translator.h" />
@@ -281,6 +282,7 @@
     <ClCompile Include="..\Source\AngelScript\as_variablescope.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\Source\AngelScript\Preprocessor\expressions.cpp" />
     <ClCompile Include="..\Source\AngelScript\Preprocessor\lex.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>

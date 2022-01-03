@@ -80,7 +80,7 @@ void FOnline::Overlay::Finish( )
 {
 }
 
-OverlayFlag * FOnline::Overlay::GetFlag( )
+const OverlayFlag * FOnline::Overlay::GetFlag( )
 {
 	return &Flag;
 }

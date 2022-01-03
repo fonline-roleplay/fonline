@@ -13,6 +13,8 @@ struct AIDataPlane
     int Priority;
     int Identifier;
     int IdentifierExt;
+	int Delay;
+	int IsNotProccess;
 
     struct
     {
@@ -53,6 +55,31 @@ struct AIDataPlane
 
     void AddRef()  {}
     void Release() {}
+};
+
+struct SceneryCl
+{
+	ushort ProtoId;
+	uchar  Flags;
+	uchar  SpriteCut;
+	ushort MapX;
+	ushort MapY;
+	short  OffsetX;
+	short  OffsetY;
+	uint   LightColor;
+	uchar  LightDistance;
+	uchar  LightFlags;
+	char   LightIntensity;
+	uchar  InfoOffset;
+	uchar  AnimStayBegin;
+	uchar  AnimStayEnd;
+	ushort AnimWait;
+	uint   PicMapHash;
+	short  Dir;
+	ushort Reserved1;
+
+	void AddRef( ) {}
+	void Release( ) {}
 };
 
 struct GameVar
@@ -432,6 +459,7 @@ struct Map
         int ScriptId;
         int MapDayTime[ 4 ];
         int MapDayColor[ 12 ];
+		int ProccessSleep;
     } Data;
 
     int  TurnBasedRound;
@@ -767,7 +795,12 @@ struct BindClass
     static void Map_GetCar()                   {}
     static void Map_GetSceneryHex()            {}
     static void Map_GetSceneriesHex()          {}
+	static void Map_GetWalls( )                {}
+	static void Map_GetSceneryClients( )       {}
     static void Map_GetSceneriesHexEx()        {}
+	static void Map_GetMObjectsHexEx( )        {}
+
+	
     static void Map_GetSceneriesByPid()        {}
     static void Map_GetCritterHex()            {}
     static void Map_GetCritterById()           {}
