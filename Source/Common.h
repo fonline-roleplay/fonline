@@ -189,10 +189,23 @@ struct ScoreType
 class FOWindow: public Fl_Window
 {
 public:
-    FOWindow(): Fl_Window( 0, 0, "" ), focused( true ) {}
+    FOWindow(): Fl_Window( 0, 0, "" ), focused( true ), RefCounter( 1 ){}
     virtual ~FOWindow() {}
     virtual int handle( int event );
     bool focused;
+
+	IntVec KeyboardEvents;
+	Mutex  KeyboardEventsLocker;
+	IntVec MouseEvents;
+	Mutex  MouseEventsLocker;
+
+	int  RefCounter;
+	void AddRef( ) { RefCounter++; }
+	void Release( )
+	{
+		RefCounter--;
+		if( !RefCounter ) delete this;
+	}
 };
 extern FOWindow* MainWindow; // Initialized and handled in MainClient.cpp / MainMapper.cpp
 
@@ -331,6 +344,7 @@ struct ClientScriptFunctions
     int FilenameLogfile;
     int FilenameScreenshot;
     int CritterCheckMoveItem;
+    int FOWindowEvent;
 } extern ClientFunctions;
 
 struct MapperScriptFunctions

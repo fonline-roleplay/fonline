@@ -871,6 +871,23 @@ BIND_ASSERT( engine->RegisterGlobalFunction( "CraftItem@ GetCraftItem(uint num)"
 #endif
 
 #ifdef BIND_CLIENT
+BIND_ASSERT( engine->RegisterInterface( "FOWindowEventData" ) );
+
+BIND_ASSERT( engine->RegisterEnum( "FOWindowEvent" ) );
+BIND_ASSERT( engine->RegisterEnum( "FOWindowEventResult" ) );
+
+BIND_ASSERT( engine->RegisterEnumValue( "FOWindowEvent", "None", 0 ) );
+BIND_ASSERT( engine->RegisterEnumValue( "FOWindowEvent", "Init", 1 ) );
+BIND_ASSERT( engine->RegisterEnumValue( "FOWindowEvent", "Show", 2 ) );
+BIND_ASSERT( engine->RegisterEnumValue( "FOWindowEvent", "Hide", 3 ) );
+BIND_ASSERT( engine->RegisterEnumValue( "FOWindowEvent", "Custom", 4 ) );
+BIND_ASSERT( engine->RegisterEnumValue( "FOWindowEvent", "Finish", 5 ) );
+BIND_ASSERT( engine->RegisterEnumValue( "FOWindowEventResult", "None", 0 ) );
+
+BIND_ASSERT( engine->RegisterObjectType( "FOWindow", 0, asOBJ_REF ) );
+BIND_ASSERT( engine->RegisterObjectBehaviour( "FOWindow", asBEHAVE_ADDREF, "void f()", asMETHOD( FOWindow, AddRef ), asCALL_THISCALL ) );
+BIND_ASSERT( engine->RegisterObjectBehaviour( "FOWindow", asBEHAVE_RELEASE, "void f()", asMETHOD( FOWindow, Release ), asCALL_THISCALL ) );
+
 BIND_ASSERT( engine->RegisterObjectType( "CritterCl", 0, asOBJ_REF ) );
 BIND_ASSERT( engine->RegisterObjectBehaviour( "CritterCl", asBEHAVE_ADDREF, "void f()", asMETHOD( CritterCl, AddRef ), asCALL_THISCALL ) );
 BIND_ASSERT( engine->RegisterObjectBehaviour( "CritterCl", asBEHAVE_RELEASE, "void f()", asMETHOD( CritterCl, Release ), asCALL_THISCALL ) );
@@ -1092,6 +1109,8 @@ BIND_ASSERT( engine->RegisterGlobalFunction( "void SetEffect(int effectType, int
 BIND_ASSERT( engine->RegisterGlobalFunction( "void RefreshMap(bool onlyTiles, bool onlyRoof, bool onlyLight)", asFUNCTION( BIND_CLASS Global_RefreshMap ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "void MouseClick(int x, int y, int button, int cursor)", asFUNCTION( BIND_CLASS Global_MouseClick ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "void KeyboardPress(uint8 key1, uint8 key2)", asFUNCTION( BIND_CLASS Global_KeyboardPress ), asCALL_CDECL ) );
+
+BIND_ASSERT( engine->RegisterGlobalFunction( "FOWindow@+ get_MainWindow()", asFUNCTION( BIND_CLASS Global_GetMainWindows ), asCALL_CDECL ) ); 
 
 //==========================hotrin 01.12.2021========================
 BIND_ASSERT( engine->RegisterGlobalFunction( "void OpenWebLink(string& text)", asFUNCTION( BIND_CLASS Global_OpenWebLink ), asCALL_CDECL ) );

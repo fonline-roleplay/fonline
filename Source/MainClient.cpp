@@ -241,10 +241,10 @@ int FOWindow::handle( int event )
     if( event == FL_KEYDOWN || event == FL_KEYUP )
     {
         int event_key = Fl::event_key();
-        FOEngine->KeyboardEventsLocker.Lock();
-        FOEngine->KeyboardEvents.push_back( event );
-        FOEngine->KeyboardEvents.push_back( event_key );
-        FOEngine->KeyboardEventsLocker.Unlock();
+        KeyboardEventsLocker.Lock();
+        KeyboardEvents.push_back( event );
+        KeyboardEvents.push_back( event_key );
+        KeyboardEventsLocker.Unlock();
         return 1;
     }
     // Mouse
@@ -252,19 +252,19 @@ int FOWindow::handle( int event )
     {
         int event_button = Fl::event_button();
         int event_dy = Fl::event_dy();
-        FOEngine->MouseEventsLocker.Lock();
-        FOEngine->MouseEvents.push_back( event );
-        FOEngine->MouseEvents.push_back( event_button );
-        FOEngine->MouseEvents.push_back( event_dy );
-        FOEngine->MouseEventsLocker.Unlock();
+        MouseEventsLocker.Lock();
+        MouseEvents.push_back( event );
+        MouseEvents.push_back( event_button );
+        MouseEvents.push_back( event_dy );
+        MouseEventsLocker.Unlock();
         return 1;
     }
 
     // Focus
     if( event == FL_FOCUS )
-        MainWindow->focused = true;
+        focused = true;
     if( event == FL_UNFOCUS )
-        MainWindow->focused = false;
+        focused = false;
 
     return 0;
 }

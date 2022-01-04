@@ -7,6 +7,14 @@ struct SyncObject
     void Lock() {}
 };
 
+struct FOWindow
+{
+	int focused;
+
+	void AddRef( ) {}
+	void Release( ) {}
+};
+
 struct AIDataPlane
 {
     int Type;
@@ -1025,6 +1033,8 @@ struct BindClass
     static void Global_WaitPing()               {}
     static void Global_SetEffect()              {}
     static void Global_RefreshMap()             {}
+
+	static void Global_GetMainWindows( )        {}
 
     static int  ConsoleActive;
     static int  GmapActive, GmapWait;

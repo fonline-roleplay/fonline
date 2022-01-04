@@ -75,10 +75,6 @@ public:
     bool IsCurMode( int check_cur ) { return ( check_cur == CurMode ); }
     void SetCurPos( int x, int y );
 
-    IntVec KeyboardEvents;
-    Mutex  KeyboardEventsLocker;
-    IntVec MouseEvents;
-    Mutex  MouseEventsLocker;
     void ParseKeyboard();
     void ParseMouse();
 
@@ -469,7 +465,7 @@ public:
 /************************************************************************/
     bool        ReloadScripts();
     int         ScriptGetHitProc( CritterCl* cr, int hit_location );
-    void        DrawIfaceLayer( uint layer );
+    void        DrawIfaceLayer( FOWindow* window, uint layer );
     static bool PragmaCallbackCrData( const char* text );
 
     struct SScriptFunc
@@ -649,6 +645,8 @@ public:
         static void          Global_RefreshMap( bool only_tiles, bool only_roof, bool only_light );
         static void          Global_MouseClick( int x, int y, int button, int cursor );
         static void          Global_KeyboardPress( uchar key1, uchar key2 );
+
+		static FOWindow*     Global_GetMainWindows( );
 
         static bool&         ConsoleActive;
         static bool&         GmapActive, & GmapWait;

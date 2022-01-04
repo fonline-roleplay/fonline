@@ -878,7 +878,7 @@ int FOClient::MainLoop()
         return 0;
 
     ProcessScreenEffectQuake();
-    DrawIfaceLayer( 0 );
+    DrawIfaceLayer( MainWindow, 0 );
 
     switch( GetMainScreen() )
     {
@@ -889,7 +889,7 @@ int FOClient::MainLoop()
             if( SaveLoadProcessDraft )
                 SaveLoadFillDraft();
             ProcessScreenEffectMirror();
-            DrawIfaceLayer( 1 );
+            DrawIfaceLayer( MainWindow, 1 );
             IntDraw();
         }
         else
@@ -919,10 +919,10 @@ int FOClient::MainLoop()
         break;
     }
 
-    DrawIfaceLayer( 2 );
+    DrawIfaceLayer( MainWindow, 2 );
     ConsoleDraw();
     MessBoxDraw();
-    DrawIfaceLayer( 3 );
+    DrawIfaceLayer( MainWindow, 3 );
 
     CHECK_MULTIPLY_WINDOWS4;
 
@@ -958,13 +958,13 @@ int FOClient::MainLoop()
                     }
             }
        }*/
-    DrawIfaceLayer( 4 );
+    DrawIfaceLayer( MainWindow, 4 );
 
 	FonlineImgui::RenderAll( );
 
     LMenuDraw();
     CurDraw();
-    DrawIfaceLayer( 5 );
+    DrawIfaceLayer( MainWindow, 5 );
     SprMngr.Flush();
     ProcessScreenEffectFading();
 
@@ -1178,15 +1178,18 @@ void FOClient::ParseKeyboard()
     // Stop processing if window not active
     if( !MainWindow->focused )
     {
-        KeyboardEventsLocker.Lock();
-        KeyboardEvents.clear();
-        KeyboardEventsLocker.Unlock();
+		MainWindow->KeyboardEventsLocker.Lock();
+		MainWindow->KeyboardEvents.clear();
+		MainWindow->KeyboardEventsLocker.Unlock();
         DropScroll();
 
         Keyb::Lost();
         Timer::StartAccelerator( ACCELERATE_NONE );
-        if( Script::PrepareContext( ClientFunctions.InputLost, _FUNC_, "Game" ) )
-            Script::RunPrepared();
+		if( Script::PrepareContext( ClientFunctions.InputLost, _FUNC_, "Game" ) )
+		{
+			Script::SetArgObject( MainWindow );
+			Script::RunPrepared( );
+		}
         return;
     }
 
@@ -1200,15 +1203,15 @@ void FOClient::ParseKeyboard()
     }
 
     // Get buffered data
-    KeyboardEventsLocker.Lock();
-    if( KeyboardEvents.empty() )
+	MainWindow->KeyboardEventsLocker.Lock();
+    if( MainWindow->KeyboardEvents.empty() )
     {
-        KeyboardEventsLocker.Unlock();
+		MainWindow->KeyboardEventsLocker.Unlock();
         return;
     }
-    IntVec events = KeyboardEvents;
-    KeyboardEvents.clear();
-    KeyboardEventsLocker.Unlock();
+    IntVec events = MainWindow->KeyboardEvents;
+	MainWindow->KeyboardEvents.clear();
+	MainWindow->KeyboardEventsLocker.Unlock();
 
     // Process events
     for( uint i = 0; i < events.size(); i += 2 )
@@ -1254,6 +1257,7 @@ void FOClient::ParseKeyboard()
         bool script_result = false;
         if( dikdw && Script::PrepareContext( ClientFunctions.KeyDown, _FUNC_, "Game" ) )
         {
+			Script::SetArgObject( MainWindow );
             Script::SetArgUChar( dikdw );
             if( Script::RunPrepared() )
                 script_result = Script::GetReturnedBool();
@@ -1261,6 +1265,7 @@ void FOClient::ParseKeyboard()
 
         if( dikup && Script::PrepareContext( ClientFunctions.KeyUp, _FUNC_, "Game" ) )
         {
+			Script::SetArgObject( MainWindow );
             Script::SetArgUChar( dikup );
             if( Script::RunPrepared() )
                 script_result = Script::GetReturnedBool();
@@ -1666,14 +1671,17 @@ void FOClient::ParseMouse()
     // Stop processing if window not active
     if( !MainWindow->focused )
     {
-        MouseEventsLocker.Lock();
-        MouseEvents.clear();
-        MouseEventsLocker.Unlock();
+		MainWindow->MouseEventsLocker.Lock();
+		MainWindow->MouseEvents.clear();
+		MainWindow->MouseEventsLocker.Unlock();
 
         IfaceHold = IFACE_NONE;
         Timer::StartAccelerator( ACCELERATE_NONE );
-        if( Script::PrepareContext( ClientFunctions.InputLost, _FUNC_, "Game" ) )
-            Script::RunPrepared();
+		if( Script::PrepareContext( ClientFunctions.InputLost, _FUNC_, "Game" ) )
+		{
+			Script::SetArgObject( MainWindow );
+			Script::RunPrepared( );
+		}
         return;
     }
 
@@ -1845,6 +1853,7 @@ void FOClient::ParseMouse()
 
         if( Script::PrepareContext( ClientFunctions.MouseMove, _FUNC_, "Game" ) )
         {
+			Script::SetArgObject( MainWindow );
             Script::SetArgUInt( GameOpt.MouseX );
             Script::SetArgUInt( GameOpt.MouseY );
             Script::RunPrepared();
@@ -1852,15 +1861,15 @@ void FOClient::ParseMouse()
     }
 
     // Get buffered data
-    MouseEventsLocker.Lock();
-    if( MouseEvents.empty() )
+	MainWindow->MouseEventsLocker.Lock();
+    if( MainWindow->MouseEvents.empty() )
     {
-        MouseEventsLocker.Unlock();
+		MainWindow->MouseEventsLocker.Unlock();
         return;
     }
-    IntVec events = MouseEvents;
-    MouseEvents.clear();
-    MouseEventsLocker.Unlock();
+    IntVec events = MainWindow->MouseEvents;
+	MainWindow->MouseEvents.clear();
+	MainWindow->MouseEventsLocker.Unlock();
 
     // Process events
     for( uint i = 0; i < events.size(); i += 3 )
@@ -1886,42 +1895,49 @@ void FOClient::ParseMouse()
         bool script_result = false;
         if( event == FL_MOUSEWHEEL && Script::PrepareContext( ClientFunctions.MouseDown, _FUNC_, "Game" ) )
         {
+			Script::SetArgObject( MainWindow );
             Script::SetArgUInt( event_dy > 0 ? MOUSE_CLICK_WHEEL_UP : MOUSE_CLICK_WHEEL_DOWN );
             if( Script::RunPrepared() )
                 script_result = Script::GetReturnedBool();
         }
         if( event == FL_PUSH && event_button == FL_LEFT_MOUSE && Script::PrepareContext( ClientFunctions.MouseDown, _FUNC_, "Game" ) )
         {
+			Script::SetArgObject( MainWindow );
             Script::SetArgUInt( MOUSE_CLICK_LEFT );
             if( Script::RunPrepared() )
                 script_result = Script::GetReturnedBool();
         }
         if( event == FL_RELEASE && event_button == FL_LEFT_MOUSE && Script::PrepareContext( ClientFunctions.MouseUp, _FUNC_, "Game" ) )
         {
+			Script::SetArgObject( MainWindow );
             Script::SetArgUInt( MOUSE_CLICK_LEFT );
             if( Script::RunPrepared() )
                 script_result = Script::GetReturnedBool();
         }
         if( event == FL_PUSH && event_button == FL_RIGHT_MOUSE && Script::PrepareContext( ClientFunctions.MouseDown, _FUNC_, "Game" ) )
         {
+			Script::SetArgObject( MainWindow );
             Script::SetArgUInt( MOUSE_CLICK_RIGHT );
             if( Script::RunPrepared() )
                 script_result = Script::GetReturnedBool();
         }
         if( event == FL_RELEASE && event_button == FL_RIGHT_MOUSE && Script::PrepareContext( ClientFunctions.MouseUp, _FUNC_, "Game" ) )
         {
+			Script::SetArgObject( MainWindow );
             Script::SetArgUInt( MOUSE_CLICK_RIGHT );
             if( Script::RunPrepared() )
                 script_result = Script::GetReturnedBool();
         }
         if( event == FL_PUSH && event_button == FL_MIDDLE_MOUSE && Script::PrepareContext( ClientFunctions.MouseDown, _FUNC_, "Game" ) )
         {
+			Script::SetArgObject( MainWindow );
             Script::SetArgUInt( MOUSE_CLICK_MIDDLE );
             if( Script::RunPrepared() )
                 script_result = Script::GetReturnedBool();
         }
         if( event == FL_RELEASE && event_button == FL_MIDDLE_MOUSE && Script::PrepareContext( ClientFunctions.MouseUp, _FUNC_, "Game" ) )
         {
+			Script::SetArgObject( MainWindow );
             Script::SetArgUInt( MOUSE_CLICK_MIDDLE );
             if( Script::RunPrepared() )
                 script_result = Script::GetReturnedBool();
@@ -1939,60 +1955,70 @@ void FOClient::ParseMouse()
         }
         if( event == FL_PUSH && event_button == FL_BUTTON( 1 ) && Script::PrepareContext( ClientFunctions.MouseDown, _FUNC_, "Game" ) )
         {
+			Script::SetArgObject( MainWindow );
             Script::SetArgUInt( MOUSE_CLICK_EXT0 );
             if( Script::RunPrepared() )
                 script_result = Script::GetReturnedBool();
         }
         if( event == FL_RELEASE && event_button == FL_BUTTON( 1 ) && Script::PrepareContext( ClientFunctions.MouseUp, _FUNC_, "Game" ) )
         {
+			Script::SetArgObject( MainWindow );
             Script::SetArgUInt( MOUSE_CLICK_EXT0 );
             if( Script::RunPrepared() )
                 script_result = Script::GetReturnedBool();
         }
         if( event == FL_PUSH && event_button == FL_BUTTON( 2 ) && Script::PrepareContext( ClientFunctions.MouseDown, _FUNC_, "Game" ) )
         {
+			Script::SetArgObject( MainWindow );
             Script::SetArgUInt( MOUSE_CLICK_EXT1 );
             if( Script::RunPrepared() )
                 script_result = Script::GetReturnedBool();
         }
         if( event == FL_RELEASE && event_button == FL_BUTTON( 2 ) && Script::PrepareContext( ClientFunctions.MouseUp, _FUNC_, "Game" ) )
         {
+			Script::SetArgObject( MainWindow );
             Script::SetArgUInt( MOUSE_CLICK_EXT1 );
             if( Script::RunPrepared() )
                 script_result = Script::GetReturnedBool();
         }
         if( event == FL_PUSH && event_button == FL_BUTTON( 3 ) && Script::PrepareContext( ClientFunctions.MouseDown, _FUNC_, "Game" ) )
         {
+			Script::SetArgObject( MainWindow );
             Script::SetArgUInt( MOUSE_CLICK_EXT2 );
             if( Script::RunPrepared() )
                 script_result = Script::GetReturnedBool();
         }
         if( event == FL_RELEASE && event_button == FL_BUTTON( 3 ) && Script::PrepareContext( ClientFunctions.MouseUp, _FUNC_, "Game" ) )
         {
+			Script::SetArgObject( MainWindow );
             Script::SetArgUInt( MOUSE_CLICK_EXT2 );
             if( Script::RunPrepared() )
                 script_result = Script::GetReturnedBool();
         }
         if( event == FL_PUSH && event_button == FL_BUTTON( 4 ) && Script::PrepareContext( ClientFunctions.MouseDown, _FUNC_, "Game" ) )
         {
+			Script::SetArgObject( MainWindow );
             Script::SetArgUInt( MOUSE_CLICK_EXT3 );
             if( Script::RunPrepared() )
                 script_result = Script::GetReturnedBool();
         }
         if( event == FL_RELEASE && event_button == FL_BUTTON( 4 ) && Script::PrepareContext( ClientFunctions.MouseUp, _FUNC_, "Game" ) )
         {
+			Script::SetArgObject( MainWindow );
             Script::SetArgUInt( MOUSE_CLICK_EXT3 );
             if( Script::RunPrepared() )
                 script_result = Script::GetReturnedBool();
         }
         if( event == FL_PUSH && event_button == FL_BUTTON( 5 ) && Script::PrepareContext( ClientFunctions.MouseDown, _FUNC_, "Game" ) )
         {
+			Script::SetArgObject( MainWindow );
             Script::SetArgUInt( MOUSE_CLICK_EXT4 );
             if( Script::RunPrepared() )
                 script_result = Script::GetReturnedBool();
         }
         if( event == FL_RELEASE && event_button == FL_BUTTON( 5 ) && Script::PrepareContext( ClientFunctions.MouseUp, _FUNC_, "Game" ) )
         {
+			Script::SetArgObject( MainWindow );
             Script::SetArgUInt( MOUSE_CLICK_EXT4 );
             if( Script::RunPrepared() )
                 script_result = Script::GetReturnedBool();
@@ -9967,14 +9993,14 @@ bool FOClient::ReloadScripts()
         { &ClientFunctions.Loop, "loop", "uint %s()" },
         { &ClientFunctions.GetActiveScreens, "get_active_screens", "void %s(int[]&)" },
         { &ClientFunctions.ScreenChange, "screen_change", "void %s(bool,int,int,int,int)" },
-        { &ClientFunctions.RenderIface, "render_iface", "void %s(uint)" },
+        { &ClientFunctions.RenderIface, "render_iface", "void %s(FOWindow@, uint)" },
         { &ClientFunctions.RenderMap, "render_map", "void %s()" },
-        { &ClientFunctions.MouseDown, "mouse_down", "bool %s(int)" },
-        { &ClientFunctions.MouseUp, "mouse_up", "bool %s(int)" },
-        { &ClientFunctions.MouseMove, "mouse_move", "void %s(int,int)" },
-        { &ClientFunctions.KeyDown, "key_down", "bool %s(uint8)" },
-        { &ClientFunctions.KeyUp, "key_up", "bool %s(uint8)" },
-        { &ClientFunctions.InputLost, "input_lost", "void %s()" },
+        { &ClientFunctions.MouseDown, "mouse_down", "bool %s(FOWindow@,int)" },
+        { &ClientFunctions.MouseUp, "mouse_up", "bool %s(FOWindow@,int)" },
+        { &ClientFunctions.MouseMove, "mouse_move", "void %s(FOWindow@,int,int)" },
+        { &ClientFunctions.KeyDown, "key_down", "bool %s(FOWindow@,uint8)" },
+        { &ClientFunctions.KeyUp, "key_up", "bool %s(FOWindow@,uint8)" },
+        { &ClientFunctions.InputLost, "input_lost", "void %s(FOWindow@)" },
         { &ClientFunctions.CritterIn, "critter_in", "void %s(CritterCl&)" },
         { &ClientFunctions.CritterOut, "critter_out", "void %s(CritterCl&)" },
         { &ClientFunctions.ItemMapIn, "item_map_in", "void %s(ItemCl&)" },
@@ -10006,6 +10032,7 @@ bool FOClient::ReloadScripts()
         { &ClientFunctions.FilenameLogfile, "filename_logfile", "void %s( string& )" },
         { &ClientFunctions.FilenameScreenshot, "filename_screenshot", "void %s( string& )" },
         { &ClientFunctions.CritterCheckMoveItem, "critter_check_move_item", "bool %s(CritterCl&,ItemCl&,uint8,ItemCl@)" },
+		{ &ClientFunctions.FOWindowEvent, "window_event", "FOWindowEventResult %s(FOWindow@, FOWindowEvent, FOWindowEventData@)" },
     };
     const char*            config = msg_script.GetStr( STR_INTERNAL_SCRIPT_CONFIG );
     if( !Script::BindReservedFunctions( config, "client", BindGameFunc, sizeof( BindGameFunc ) / sizeof( BindGameFunc[ 0 ] ) ) )
@@ -10054,11 +10081,12 @@ int FOClient::ScriptGetHitProc( CritterCl* cr, int hit_location )
     return 0;
 }
 
-void FOClient::DrawIfaceLayer( uint layer )
+void FOClient::DrawIfaceLayer( FOWindow* window, uint layer )
 {
     if( Script::PrepareContext( ClientFunctions.RenderIface, _FUNC_, "Game" ) )
     {
         SpritesCanDraw = true;
+		Script::SetArgObject( window );
         Script::SetArgUInt( layer );
         Script::RunPrepared();
         SpritesCanDraw = false;
@@ -11385,45 +11413,45 @@ void FOClient::SScriptFunc::Global_RefreshMap( bool only_tiles, bool only_roof, 
 
 void FOClient::SScriptFunc::Global_MouseClick( int x, int y, int button, int cursor )
 {
-    Self->MouseEventsLocker.Lock();
-    IntVec prev_events = Self->MouseEvents;
-    Self->MouseEvents.clear();
+	MainWindow->MouseEventsLocker.Lock();
+    IntVec prev_events = MainWindow->MouseEvents;
+	MainWindow->MouseEvents.clear();
     int    prev_x = GameOpt.MouseX;
     int    prev_y = GameOpt.MouseY;
     int    prev_cursor = Self->CurMode;
     GameOpt.MouseX = x;
     GameOpt.MouseY = y;
-    Self->CurMode = cursor;
-    Self->MouseEvents.push_back( FL_PUSH );
-    Self->MouseEvents.push_back( button );
-    Self->MouseEvents.push_back( 0 );
-    Self->MouseEvents.push_back( FL_RELEASE );
-    Self->MouseEvents.push_back( button );
-    Self->MouseEvents.push_back( 0 );
+	Self->CurMode = cursor;
+	MainWindow->MouseEvents.push_back( FL_PUSH );
+	MainWindow->MouseEvents.push_back( button );
+	MainWindow->MouseEvents.push_back( 0 );
+	MainWindow->MouseEvents.push_back( FL_RELEASE );
+	MainWindow->MouseEvents.push_back( button );
+	MainWindow->MouseEvents.push_back( 0 );
     Self->ParseMouse();
-    Self->MouseEvents = prev_events;
+	MainWindow->MouseEvents = prev_events;
     GameOpt.MouseX = prev_x;
     GameOpt.MouseY = prev_y;
     Self->CurMode = prev_cursor;
-    Self->MouseEventsLocker.Unlock();
+	MainWindow->MouseEventsLocker.Unlock();
 }
 
 void FOClient::SScriptFunc::Global_KeyboardPress( uchar key1, uchar key2 )
 {
-    Self->KeyboardEventsLocker.Lock();
-    IntVec prev_events = Self->KeyboardEvents;
-    Self->KeyboardEvents.clear();
-    Self->KeyboardEvents.push_back( FL_KEYDOWN );
-    Self->KeyboardEvents.push_back( key1 );
-    Self->KeyboardEvents.push_back( FL_KEYDOWN );
-    Self->KeyboardEvents.push_back( key2 );
-    Self->KeyboardEvents.push_back( FL_KEYUP );
-    Self->KeyboardEvents.push_back( key2 );
-    Self->KeyboardEvents.push_back( FL_KEYUP );
-    Self->KeyboardEvents.push_back( key1 );
-    Self->ParseKeyboard();
-    Self->KeyboardEvents = prev_events;
-    Self->KeyboardEventsLocker.Unlock();
+	MainWindow->KeyboardEventsLocker.Lock();
+    IntVec prev_events = MainWindow->KeyboardEvents;
+	MainWindow->KeyboardEvents.clear();
+	MainWindow->KeyboardEvents.push_back( FL_KEYDOWN );
+	MainWindow->KeyboardEvents.push_back( key1 );
+	MainWindow->KeyboardEvents.push_back( FL_KEYDOWN );
+	MainWindow->KeyboardEvents.push_back( key2 );
+	MainWindow->KeyboardEvents.push_back( FL_KEYUP );
+	MainWindow->KeyboardEvents.push_back( key2 );
+	MainWindow->KeyboardEvents.push_back( FL_KEYUP );
+	MainWindow->KeyboardEvents.push_back( key1 );
+	Self->ParseKeyboard();
+	MainWindow->KeyboardEvents = prev_events;
+	MainWindow->KeyboardEventsLocker.Unlock();
 }
 
 void FOClient::SScriptFunc::Global_GetTime( ushort& year, ushort& month, ushort& day, ushort& day_of_week, ushort& hour, ushort& minute, ushort& second, ushort& milliseconds )
@@ -12266,6 +12294,11 @@ int FOClient::SScriptFunc::Global_GetLastCursor()
 void FOClient::SScriptFunc::Global_ChangeCursor( int cursor )
 {
     Self->SetCurMode( cursor );
+}
+
+FOWindow* FOClient::SScriptFunc::Global_GetMainWindows( )
+{
+	return MainWindow;
 }
 
 bool&  FOClient::SScriptFunc::ConsoleActive = FOClient::ConsoleActive;
