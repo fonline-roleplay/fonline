@@ -8,18 +8,19 @@ ImFontAtlas FOnline::FonlineImgui::FontAtlas;
 std::vector<FonlineImgui*> ScriptInstance;
 std::vector<FonlineImgui*> Pool;
 
-void FonlineImgui::ScriptFrame( )
+void FonlineImgui::ScriptFrame( FOWindow* window )
 {
+
 }
 
-void FOnline::FonlineImgui::WorkContext( )
+void FOnline::FonlineImgui::WorkContext( std::string info )
 {
 	auto context = ImGui::GetCurrentContext( );
 	if( context == Context )
 	{
 		if( !WorkCounter )
 		{
-			WriteLog( "Error imgui <work context counter>, current context invalid\n" );
+			WriteLog( "Error imgui '%s_%s' <work context counter>, current context invalid\n", Name.c_str(), info.c_str() );
 			return;
 		}
 		WorkCounter++;
@@ -27,24 +28,24 @@ void FOnline::FonlineImgui::WorkContext( )
 	}
 	if( ImGui::GetCurrentContext( ) != nullptr )
 	{
-		WriteLog( "Error imgui <work context>, current context invalid\n" );
+		WriteLog( "Error imgui '%s_%s' <work context>, current context invalid\n", Name.c_str( ), info.c_str( ) );
 		return;
 	}
 	WorkCounter = 1;
 	ImGui::SetCurrentContext( Context );
 }
 
-void FOnline::FonlineImgui::DropContext( )
+void FOnline::FonlineImgui::DropContext( std::string info )
 {
 	if( ImGui::GetCurrentContext( ) != Context )
 	{
-		WriteLog( "Error imgui <drop context>, current context invalid\n" );
+		WriteLog( "Error imgui '%s_%s' <drop context>, current context invalid\n", Name.c_str( ), info.c_str( ) );
 		return;
 	}
 
 	if( !WorkCounter )
 	{
-		WriteLog( "Error imgui <drop context counter>, current context invalid\n" );
+		WriteLog( "Error imgui '%s_%s' <drop context counter>, current context invalid\n", Name.c_str( ), info.c_str( ) );
 	}
 	else if( !--WorkCounter )
 	{
@@ -52,7 +53,7 @@ void FOnline::FonlineImgui::DropContext( )
 	}
 }
 
-FonlineImgui::FonlineImgui( ) : Context( nullptr ), IsDemoWindow( false ), Window( nullptr ), WorkCounter( 0 )
+FonlineImgui::FonlineImgui( std::string name ) : Context( nullptr ), IsDemoWindow( false ), Window( nullptr ), WorkCounter( 0 ), Name( name ), InitFlag( false )
 {
 }
 
@@ -61,15 +62,16 @@ void FonlineImgui::ShowDemo( )
 	IsDemoWindow = true;
 }
 
-void FonlineImgui::Init( FOWindow* window, Device_ device )
+void FonlineImgui::Init( ImGuiWindowsData window, Device_ device )
 {
 	// imgui
 	bool isMain = IsMain( );
 	if( isMain )
 	{
 		IMGUI_CHECKVERSION( );
-		WriteLog( "Init imgui. Version: %s\n", IMGUI_VERSION );
+		WriteLog( "Init imgui. Version: %s.\n", IMGUI_VERSION );
 	}
+	WriteLog( "Init imgui_%s.\n", Name.c_str() );
 
 	Context = ImGui::CreateContext( &FontAtlas );
 	WorkCounter = 1;
@@ -88,18 +90,19 @@ void FonlineImgui::Init( FOWindow* window, Device_ device )
 	InitGraphics( device );
 	Window = window;
 
-	DropContext( );
+	DropContext( "Init" );
 	if( isMain )
 	{
 	#ifndef OVERLAY_OFF
 		 GetOverlay( )->Init();
 	#endif
 	}
+	InitFlag = true;
 }
 
 void FonlineImgui::Finish( )
 {
-	WorkContext( );
+	WorkContext( "Finish" );
 	FinishGraphics( );
 	FinishOS( );
 	ImGui::SetCurrentContext( nullptr );
@@ -112,11 +115,11 @@ void FonlineImgui::Finish( )
 	}
 }
 
-void FonlineImgui::Frame( )
+void FonlineImgui::Frame( FOWindow* window )
 {
 	NewFrame( );
 
-	ScriptFrame( );
+	ScriptFrame( window );
 	if( IsDemoWindow )
 		ImGui::ShowDemoWindow( &IsDemoWindow );
 
@@ -125,15 +128,15 @@ void FonlineImgui::Frame( )
 
 void FonlineImgui::RenderIface( )
 {
-	WorkContext( );
+	WorkContext( "RenderIface" );
 	ImGui::Render( );
 	RenderGraphics( );
-	DropContext( );
+	DropContext( "RenderIface" );
 }
 
 void FonlineImgui::NewFrame( )
 {
-	WorkContext( );
+	WorkContext( "NewFrame" );
 	NewFrameGraphics( );
 	NewFrameOS( );
 	ImGui::NewFrame( );
@@ -142,7 +145,7 @@ void FonlineImgui::NewFrame( )
 void FonlineImgui::EndFrame( )
 {
 	ImGui::EndFrame( );
-	DropContext( );
+	DropContext( "EndFrame" );
 }
 
 void FonlineImgui::RenderAll( )

@@ -8,6 +8,8 @@
 # include <signal.h>
 #endif
 
+#include "ImGuiOverlay.h"
+
 FOWindow* MainWindow = NULL;
 FOClient* FOEngine = NULL;
 Thread    Game;
@@ -16,6 +18,8 @@ void GameThread( void* );
 int main( int argc, char** argv )
 {
     setlocale( LC_ALL, "Russian" );
+	int is_multithreading = Fl::lock( );
+
     RestoreMainDirectory();
 
     // Threading
@@ -111,7 +115,6 @@ int main( int argc, char** argv )
     #ifdef FO_LINUX
     XInitThreads();
     #endif
-    Fl::lock();
 
     // Check for already runned window
     #ifndef DEV_VESRION
@@ -130,15 +133,19 @@ int main( int argc, char** argv )
     GetClientOptions();
 
     // Create window
-    MainWindow = new FOWindow();
-    MainWindow->label( GetWindowName() );
-    MainWindow->position( ( Fl::w() - MODE_WIDTH ) / 2, ( Fl::h() - MODE_HEIGHT ) / 2 );
-    MainWindow->size( MODE_WIDTH, MODE_HEIGHT );
+    MainWindow = CreateMainWindow( );
+    MainWindow->SetLabel( GetWindowName() );
+	{
+		int w, h;
+		MainWindow->GetDesktopResolution( w, h );
+		MainWindow->SetPosition( ( w - MODE_WIDTH ) / 2, ( h - MODE_HEIGHT ) / 2 );
+	}
+    MainWindow->SetSize( MODE_WIDTH, MODE_HEIGHT );
     // MainWindow->size_range( 100, 100 );
 
     // Icon
     #ifdef FO_WINDOWS
-    MainWindow->icon( (char*) LoadIcon( fl_display, MAKEINTRESOURCE( 101 ) ) );
+    MainWindow->SetIcon( (char*) LoadIcon( fl_display, MAKEINTRESOURCE( 101 ) ) );
     #else // FO_LINUX
     // Todo: Linux
     #endif
@@ -149,11 +156,11 @@ int main( int argc, char** argv )
     #endif
 
     // Show window
-    MainWindow->show();
+    MainWindow->Show();
 
     // Hide cursor
     #ifdef FO_WINDOWS
-    MainWindow->cursor(FL_CURSOR_NONE, FL_BLACK);
+    MainWindow->SetCursor(FL_CURSOR_NONE, FL_BLACK);
     #else
     char   data[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
     XColor black;
@@ -169,22 +176,22 @@ int main( int argc, char** argv )
     if( GameOpt.FullScreen )
     {
         int sx, sy, sw, sh;
-        Fl::screen_xywh( sx, sy, sw, sh );
-        MainWindow->border( 0 );
-        MainWindow->size( sw, sh );
-        MainWindow->position( 0, 0 );
+        MainWindow->GetDesktopXYWH( sx, sy, sw, sh );
+        MainWindow->SetBorder( 0 );
+        MainWindow->SetSize( sw, sh );
+        MainWindow->SetPosition( 0, 0 );
     }
     #endif
-
+	
     // Hide menu
     #ifdef FO_WINDOWS
-    SetWindowLong( fl_xid( MainWindow ), GWL_STYLE, GetWindowLong( fl_xid( MainWindow ), GWL_STYLE ) & ( ~WS_SYSMENU ) );
+    SetWindowLong( MainWindow->GetHandle(), GWL_STYLE, GetWindowLong( MainWindow->GetHandle( ), GWL_STYLE ) & ( ~WS_SYSMENU ) );
     #endif
 
     // Place on top
     #ifdef FO_WINDOWS
     if( GameOpt.AlwaysOnTop )
-        SetWindowPos( fl_xid( MainWindow ), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE );
+        SetWindowPos( MainWindow->GetHandle( ), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE );
     #endif
 
     // Start
@@ -192,10 +199,30 @@ int main( int argc, char** argv )
     Game.Start( GameThread, "Main" );
 
     // Loop
-    while( !GameOpt.Quit && Fl::wait() )
-        ;
-    Fl::unlock();
-    GameOpt.Quit = true;
+	int visible_window = 0;
+	while( !GameOpt.Quit )
+	{
+		visible_window = Fl::wait( );
+		if( visible_window == 0 )
+			break;
+
+		while( true )
+		{
+			void* flmessage = Fl::thread_message( );
+			if( !flmessage )
+				break;
+			FlMessage* mess = ( FlMessage* )flmessage;
+			switch( mess->msg )
+			{
+				case FlMessageIndex::OverlayWindowInit:
+					((FOnline::Overlay*)mess->handle)->InitWindow();
+					break;
+				default: break;
+			}
+		}
+	}
+
+	GameOpt.Quit = true;
     Game.Wait();
 
     // Finish
@@ -205,7 +232,7 @@ int main( int argc, char** argv )
     #endif
     WriteLog( "FOnline finished.\n" );
     LogFinish( -1 );
-
+	pthread_win32_process_detach_np( );
     return 0;
 }
 
@@ -232,39 +259,7 @@ void GameThread( void* )
     delete FOEngine;
 }
 
-int FOWindow::handle( int event )
+bool IsApplicationRun( )
 {
-    if( !FOEngine || GameOpt.Quit )
-        return 0;
-
-    // Keyboard
-    if( event == FL_KEYDOWN || event == FL_KEYUP )
-    {
-        int event_key = Fl::event_key();
-        KeyboardEventsLocker.Lock();
-        KeyboardEvents.push_back( event );
-        KeyboardEvents.push_back( event_key );
-        KeyboardEventsLocker.Unlock();
-        return 1;
-    }
-    // Mouse
-    else if( event == FL_PUSH || event == FL_RELEASE || ( event == FL_MOUSEWHEEL && Fl::event_dy() != 0 ) )
-    {
-        int event_button = Fl::event_button();
-        int event_dy = Fl::event_dy();
-        MouseEventsLocker.Lock();
-        MouseEvents.push_back( event );
-        MouseEvents.push_back( event_button );
-        MouseEvents.push_back( event_dy );
-        MouseEventsLocker.Unlock();
-        return 1;
-    }
-
-    // Focus
-    if( event == FL_FOCUS )
-        focused = true;
-    if( event == FL_UNFOCUS )
-        focused = false;
-
-    return 0;
+	return FOEngine != 0;
 }

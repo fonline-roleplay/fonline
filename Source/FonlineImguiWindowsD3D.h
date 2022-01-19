@@ -7,10 +7,15 @@ namespace FOnline
 {
 	class FonlineImguiWindowsD3D : public FonlineImguiWindows
 	{
+		FonlineImguiWindowsD3D( ): FonlineImguiWindows( "error" ) {}
+
 		void InitGraphics( Device_ device ) override;
 		void FinishGraphics( ) override;
 		void NewFrameGraphics( ) override;
 		void RenderGraphics( ) override;
+
+	public:
+		FonlineImguiWindowsD3D( std::string name ): FonlineImguiWindows( name ) {}
 	};
-#endif // FONLINE_IMGUI_WINDOWS_H
+#endif // FONLINE_IMGUI_WINDOWSD3D_H
 }

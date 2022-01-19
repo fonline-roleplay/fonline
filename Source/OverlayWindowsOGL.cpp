@@ -38,6 +38,11 @@ OverlayWindowsOGL::OverlayWindowsOGL( )
 
 }
 
+void FOnline::OverlayWindowsOGL::Render( )
+{
+
+}
+
 void OverlayWindowsOGL::Finish( )
 {
 	OverlayWindows::Finish( );

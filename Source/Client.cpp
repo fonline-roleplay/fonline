@@ -5,16 +5,8 @@
 #include "Version.h"
 
 #include "imgui.h"
+#include "ImGuiOverlay.h"
 
-#ifdef FO_D3D
-#include "backends/imgui_impl_dx9.h"
-#endif
-#ifndef FO_D3D
-#include "backends/imgui_impl_opengl2.h"
-#endif
-#ifdef FO_WINDOWS
-#include "backends/imgui_impl_win32.h"
-#endif
 // Check buffer for error
 #define CHECK_IN_BUFF_ERROR                          \
     if( Bin.IsError() )                              \
@@ -972,6 +964,8 @@ int FOClient::MainLoop()
 
     SprMngr.EndScene();
 
+	FOnline::LoopOverlay( );
+
     // Fixed FPS
     if( !GameOpt.VSync && GameOpt.FixedFPS )
     {
@@ -1176,20 +1170,11 @@ void FOClient::ProcessScreenEffectMirror()
 void FOClient::ParseKeyboard()
 {
     // Stop processing if window not active
-    if( !MainWindow->focused )
+    if( !MainWindow->ParseFocus() )
     {
-		MainWindow->KeyboardEventsLocker.Lock();
-		MainWindow->KeyboardEvents.clear();
-		MainWindow->KeyboardEventsLocker.Unlock();
         DropScroll();
-
         Keyb::Lost();
         Timer::StartAccelerator( ACCELERATE_NONE );
-		if( Script::PrepareContext( ClientFunctions.InputLost, _FUNC_, "Game" ) )
-		{
-			Script::SetArgObject( MainWindow );
-			Script::RunPrepared( );
-		}
         return;
     }
 
@@ -1203,15 +1188,9 @@ void FOClient::ParseKeyboard()
     }
 
     // Get buffered data
-	MainWindow->KeyboardEventsLocker.Lock();
-    if( MainWindow->KeyboardEvents.empty() )
-    {
-		MainWindow->KeyboardEventsLocker.Unlock();
-        return;
-    }
-    IntVec events = MainWindow->KeyboardEvents;
-	MainWindow->KeyboardEvents.clear();
-	MainWindow->KeyboardEventsLocker.Unlock();
+	IntVec events = MainWindow->GetKeyboardEvents();
+	if( events.empty( ) )
+		return;
 
     // Process events
     for( uint i = 0; i < events.size(); i += 2 )
@@ -1375,7 +1354,7 @@ void FOClient::ParseKeyboard()
                 break;
             case DIK_F12:
                 #ifdef FO_WINDOWS
-                ShowWindow( fl_xid( MainWindow ), SW_MINIMIZE );
+                ShowWindow( MainWindow->GetHandle(), SW_MINIMIZE );
                 #endif
                 break;
 
@@ -1518,28 +1497,28 @@ void FOClient::ParseKeyboard()
                         Fl::lock();
                         Fl::screen_xywh( sx, sy, sw, sh );
                         Fl::unlock();
-                        x = MainWindow->x();
-                        y = MainWindow->y();
-                        w = MainWindow->w();
-                        h = MainWindow->h();
+                        x = MainWindow->GetX();
+                        y = MainWindow->GetY();
+                        w = MainWindow->GetW();
+                        h = MainWindow->GetH();
                         valid = 1;
-                        MainWindow->border( 0 );
-                        MainWindow->size( sw, sh );
-                        MainWindow->position( 0, 0 );
+                        MainWindow->SetBorder( 0 );
+                        MainWindow->SetSize( sw, sh );
+                        MainWindow->SetPosition( 0, 0 );
                         GameOpt.FullScreen = true;
                     }
                     else
                     {
-                        MainWindow->border( 1 );
+                        MainWindow->SetBorder( 1 );
                         if( valid )
                         {
-                            MainWindow->size( w, h );
-                            MainWindow->position( x, y );
+                            MainWindow->SetSize( w, h );
+                            MainWindow->SetPosition( x, y );
                         }
                         else
                         {
-                            MainWindow->size( MODE_WIDTH, MODE_HEIGHT );
-                            MainWindow->position( ( Fl::w() - MODE_WIDTH ) / 2, ( Fl::h() - MODE_HEIGHT ) / 2 );
+                            MainWindow->SetSize( MODE_WIDTH, MODE_HEIGHT );
+                            MainWindow->SetPosition( ( Fl::w() - MODE_WIDTH ) / 2, ( Fl::h() - MODE_HEIGHT ) / 2 );
                         }
                         // MainWindow->size_range( 100, 100 );
                         GameOpt.FullScreen = false;
@@ -1653,35 +1632,24 @@ void FOClient::ParseMouse()
 {
     // Mouse position
     int mx = 0, my = 0;
-    Fl::lock();
-    Fl::get_mouse( mx, my );
-    Fl::unlock();
+	MainWindow->GetMouse( mx, my );
     #ifdef FO_D3D
-    GameOpt.MouseX = mx - ( !GameOpt.FullScreen ? MainWindow->x() : 0 );
-    GameOpt.MouseY = my - ( !GameOpt.FullScreen ? MainWindow->y() : 0 );
+    GameOpt.MouseX = mx - ( !GameOpt.FullScreen ? MainWindow->GetX() : 0 );
+    GameOpt.MouseY = my - ( !GameOpt.FullScreen ? MainWindow->GetY() : 0 );
     #else
-    GameOpt.MouseX = mx - MainWindow->x();
-    GameOpt.MouseY = my - MainWindow->y();
+    GameOpt.MouseX = mx - MainWindow->GetX();
+    GameOpt.MouseY = my - MainWindow->GetY();
     #endif
-    GameOpt.MouseX = GameOpt.MouseX * MODE_WIDTH / MainWindow->w();
-    GameOpt.MouseY = GameOpt.MouseY * MODE_HEIGHT / MainWindow->h();
+    GameOpt.MouseX = GameOpt.MouseX * MODE_WIDTH / MainWindow->GetW();
+    GameOpt.MouseY = GameOpt.MouseY * MODE_HEIGHT / MainWindow->GetH();
     GameOpt.MouseX = CLAMP( GameOpt.MouseX, 0, MODE_WIDTH - 1 );
     GameOpt.MouseY = CLAMP( GameOpt.MouseY, 0, MODE_HEIGHT - 1 );
 
     // Stop processing if window not active
-    if( !MainWindow->focused )
+    if( !MainWindow->ParseFocus( ) )
     {
-		MainWindow->MouseEventsLocker.Lock();
-		MainWindow->MouseEvents.clear();
-		MainWindow->MouseEventsLocker.Unlock();
-
         IfaceHold = IFACE_NONE;
         Timer::StartAccelerator( ACCELERATE_NONE );
-		if( Script::PrepareContext( ClientFunctions.InputLost, _FUNC_, "Game" ) )
-		{
-			Script::SetArgObject( MainWindow );
-			Script::RunPrepared( );
-		}
         return;
     }
 
@@ -1860,18 +1828,8 @@ void FOClient::ParseMouse()
         }
     }
 
-    // Get buffered data
-	MainWindow->MouseEventsLocker.Lock();
-    if( MainWindow->MouseEvents.empty() )
-    {
-		MainWindow->MouseEventsLocker.Unlock();
-        return;
-    }
-    IntVec events = MainWindow->MouseEvents;
-	MainWindow->MouseEvents.clear();
-	MainWindow->MouseEventsLocker.Unlock();
-
     // Process events
+	IntVec events = MainWindow->GetMouseEvents( );
     for( uint i = 0; i < events.size(); i += 3 )
     {
         int event = events[ i ];
@@ -8876,7 +8834,7 @@ void FOClient::DropScroll()
 
 bool FOClient::IsCurInWindow()
 {
-    if( !MainWindow->focused )
+    if( !MainWindow->IsFocus( ) )
         return false;
 
     if( !GameOpt.FullScreen )
@@ -8885,23 +8843,21 @@ bool FOClient::IsCurInWindow()
             return true;
 
         int mx = 0, my = 0;
-        Fl::lock();
-        Fl::get_mouse( mx, my );
-        Fl::unlock();
-        return mx >= MainWindow->x() && mx <= MainWindow->x() + MainWindow->w() &&
-               my >= MainWindow->y() && my <= MainWindow->y() + MainWindow->h();
+		MainWindow->GetMouse( mx, my );
+        return mx >= MainWindow->GetX() && mx <= MainWindow->GetX() + MainWindow->GetW() &&
+               my >= MainWindow->GetY() && my <= MainWindow->GetY() + MainWindow->GetH();
     }
     return true;
 }
 
 void FOClient::FlashGameWindow()
 {
-    if( MainWindow->focused )
+    if( MainWindow->IsFocus() )
         return;
 
     #ifdef FO_WINDOWS
     if( GameOpt.MessNotify )
-        FlashWindow( fl_xid( MainWindow ), true );
+        FlashWindow( MainWindow->GetHandle(), true );
     if( GameOpt.SoundNotify )
         Beep( 100, 200 );
     #else     // FO_LINUX
@@ -10033,6 +9989,7 @@ bool FOClient::ReloadScripts()
         { &ClientFunctions.FilenameScreenshot, "filename_screenshot", "void %s( string& )" },
         { &ClientFunctions.CritterCheckMoveItem, "critter_check_move_item", "bool %s(CritterCl&,ItemCl&,uint8,ItemCl@)" },
 		{ &ClientFunctions.FOWindowEvent, "window_event", "FOWindowEventResult %s(FOWindow@, FOWindowEvent, FOWindowEventData@)" },
+		{ &ClientFunctions.ImGuiRender, "imgui_render", "void %s( FOWindow@ )" }, 
     };
     const char*            config = msg_script.GetStr( STR_INTERNAL_SCRIPT_CONFIG );
     if( !Script::BindReservedFunctions( config, "client", BindGameFunc, sizeof( BindGameFunc ) / sizeof( BindGameFunc[ 0 ] ) ) )
@@ -11413,45 +11370,44 @@ void FOClient::SScriptFunc::Global_RefreshMap( bool only_tiles, bool only_roof, 
 
 void FOClient::SScriptFunc::Global_MouseClick( int x, int y, int button, int cursor )
 {
-	MainWindow->MouseEventsLocker.Lock();
-    IntVec prev_events = MainWindow->MouseEvents;
-	MainWindow->MouseEvents.clear();
-    int    prev_x = GameOpt.MouseX;
-    int    prev_y = GameOpt.MouseY;
-    int    prev_cursor = Self->CurMode;
-    GameOpt.MouseX = x;
-    GameOpt.MouseY = y;
+	IntVec events;
+	events.push_back( FL_PUSH );
+	events.push_back( button );
+	events.push_back( 0 );
+	events.push_back( FL_RELEASE );
+	events.push_back( button );
+	events.push_back( 0 );
+
+	int    prev_x = GameOpt.MouseX;
+	int    prev_y = GameOpt.MouseY;
+	int    prev_cursor = Self->CurMode;
+	GameOpt.MouseX = x;
+	GameOpt.MouseY = y;
 	Self->CurMode = cursor;
-	MainWindow->MouseEvents.push_back( FL_PUSH );
-	MainWindow->MouseEvents.push_back( button );
-	MainWindow->MouseEvents.push_back( 0 );
-	MainWindow->MouseEvents.push_back( FL_RELEASE );
-	MainWindow->MouseEvents.push_back( button );
-	MainWindow->MouseEvents.push_back( 0 );
-    Self->ParseMouse();
-	MainWindow->MouseEvents = prev_events;
-    GameOpt.MouseX = prev_x;
-    GameOpt.MouseY = prev_y;
-    Self->CurMode = prev_cursor;
-	MainWindow->MouseEventsLocker.Unlock();
+
+	IntVec prev_events = MainWindow->SwapMouseEvents( events );
+	Self->ParseMouse( );
+
+	GameOpt.MouseX = prev_x;
+	GameOpt.MouseY = prev_y;
+	Self->CurMode = prev_cursor;
+	MainWindow->SetMouseEvents( prev_events );
 }
 
 void FOClient::SScriptFunc::Global_KeyboardPress( uchar key1, uchar key2 )
 {
-	MainWindow->KeyboardEventsLocker.Lock();
-    IntVec prev_events = MainWindow->KeyboardEvents;
-	MainWindow->KeyboardEvents.clear();
-	MainWindow->KeyboardEvents.push_back( FL_KEYDOWN );
-	MainWindow->KeyboardEvents.push_back( key1 );
-	MainWindow->KeyboardEvents.push_back( FL_KEYDOWN );
-	MainWindow->KeyboardEvents.push_back( key2 );
-	MainWindow->KeyboardEvents.push_back( FL_KEYUP );
-	MainWindow->KeyboardEvents.push_back( key2 );
-	MainWindow->KeyboardEvents.push_back( FL_KEYUP );
-	MainWindow->KeyboardEvents.push_back( key1 );
+	IntVec events;
+	events.push_back( FL_KEYDOWN );
+	events.push_back( key1 );
+	events.push_back( FL_KEYDOWN );
+	events.push_back( key2 );
+	events.push_back( FL_KEYUP );
+	events.push_back( key2 );
+	events.push_back( FL_KEYUP );
+	events.push_back( key1 );
+	IntVec prev_events = MainWindow->SwapKeyboardEvents( events );
 	Self->ParseKeyboard();
-	MainWindow->KeyboardEvents = prev_events;
-	MainWindow->KeyboardEventsLocker.Unlock();
+	MainWindow->SetKeyboardEvents( prev_events );
 }
 
 void FOClient::SScriptFunc::Global_GetTime( ushort& year, ushort& month, ushort& day, ushort& day_of_week, ushort& hour, ushort& minute, ushort& second, ushort& milliseconds )

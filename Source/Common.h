@@ -186,28 +186,85 @@ struct ScoreType
 # include "FL/Fl_Window.H"
 # include "FL/x.H"
 
-class FOWindow: public Fl_Window
+typedef HWND WindowHandle;
+
+namespace FlMessageIndex
 {
-public:
-    FOWindow(): Fl_Window( 0, 0, "" ), focused( true ), RefCounter( 1 ){}
-    virtual ~FOWindow() {}
-    virtual int handle( int event );
-    bool focused;
+	enum Enum
+	{
+		None,
+		OverlayWindowInit,
+	};
+}
 
-	IntVec KeyboardEvents;
-	Mutex  KeyboardEventsLocker;
-	IntVec MouseEvents;
-	Mutex  MouseEventsLocker;
+struct FlMessage
+{
+	FlMessageIndex::Enum msg;
+	union
+	{
+		void* handle;
+	};
+};
 
+class FOWindow
+{
 	int  RefCounter;
+
+public:
+	FOWindow(): RefCounter( 1 ) {}
+
 	void AddRef( ) { RefCounter++; }
 	void Release( )
 	{
 		RefCounter--;
 		if( !RefCounter ) delete this;
 	}
+
+	virtual WindowHandle GetHandle( ) = 0;
+
+	virtual void SetLabel( const char* label ) = 0;
+	virtual void SetPosition( int x, int y ) = 0;
+	virtual void SetSize( int width, int height ) = 0;
+
+	virtual void SetBorder( int border ) = 0;
+
+	virtual void SetIcon( const void* ic ) = 0;
+	virtual void SetCursor( int cursot, int color ) = 0;
+	virtual void Show( ) = 0;
+	
+	virtual bool ParseFocus( ) = 0;
+	virtual IntVec GetKeyboardEvents( ) = 0;
+	virtual IntVec SwapKeyboardEvents( IntVec& newEvents ) = 0;
+	virtual void SetKeyboardEvents( IntVec& events ) = 0;
+
+	virtual IntVec GetMouseEvents( ) = 0;
+	virtual IntVec SwapMouseEvents( IntVec& newEvents ) = 0;
+	virtual void SetMouseEvents( IntVec& events ) = 0;
+
+	virtual bool IsActive( ) = 0;
+	virtual bool IsFocus( ) = 0;
+
+	virtual void ClearKeyboardEvents( ) = 0;
+	virtual void ClearMouseEvents( ) = 0;
+
+	virtual int GetX( ) = 0;
+	virtual int GetY( ) = 0;
+	virtual int GetW( ) = 0;
+	virtual int GetH( ) = 0;
+
+	virtual void GetMouse( int& x, int& y ) = 0;
+
+	virtual int Lock( ) = 0;
+	virtual void Unlock( ) = 0;
+
+	virtual void GetDesktopResolution( int& w, int& h ) = 0;
+	virtual void GetDesktopXYWH( int& x, int& y, int& w, int& h ) = 0;
 };
+
+extern FOWindow* CreateMainWindow( );
 extern FOWindow* MainWindow; // Initialized and handled in MainClient.cpp / MainMapper.cpp
+
+extern bool IsApplicationRun( );
 
 # ifdef FO_D3D
 #  include <dxerr.h>
@@ -345,6 +402,7 @@ struct ClientScriptFunctions
     int FilenameScreenshot;
     int CritterCheckMoveItem;
     int FOWindowEvent;
+	int ImGuiRender;
 } extern ClientFunctions;
 
 struct MapperScriptFunctions
@@ -932,5 +990,5 @@ public:
 string Deprecated_GetPicName( int pid, int type, ushort pic_num );
 uint   Deprecated_GetPicHash( int pid, int type, ushort pic_num );
 void   Deprecated_CondExtToAnim2( uchar cond, uchar cond_ext, uint& anim2ko, uint& anim2dead );
-
 #endif // __COMMON__
+

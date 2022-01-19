@@ -434,7 +434,12 @@ void RestoreMainDirectory()
 void ShowMessage( const char* message )
 {
     #ifdef FO_WINDOWS
-    MessageBox( NULL, message, "FOnline", MB_OK );
+	static int recurse = 0;
+	if( !recurse++ )
+	{
+		MessageBox( NULL, message, "FOnline", MB_OK );
+		recurse--;
+	}
     #else // FO_LINUX
     // Todo: Linux
     #endif
@@ -742,6 +747,388 @@ const char* GetWindowName()
 /*                                                                      */
 /************************************************************************/
 #if defined ( FONLINE_CLIENT ) || defined ( FONLINE_MAPPER )
+
+class FOnlineWindow_Fl_implement: public Fl_Window
+{
+	IntVec KeyboardEvents;
+	Mutex  KeyboardEventsLocker;
+
+	IntVec MouseEvents;
+	Mutex  MouseEventsLocker;
+
+public:
+	FOnlineWindow_Fl_implement( ): Fl_Window( 0, 0, "" ), focused( true ) {}
+	virtual ~FOnlineWindow_Fl_implement( ) {}
+	virtual int handle( int event );
+	bool focused;
+
+	bool ParseFocus( );
+	IntVec GetKeyboardEvents( );
+	IntVec SwapKeyboardEvents( IntVec& newEvents );
+	void SetKeyboardEvents( IntVec& events );
+
+	IntVec GetMouseEvents( );
+	IntVec SwapMouseEvents( IntVec& newEvents );
+	void SetMouseEvents( IntVec& events );
+
+	void ClearKeyboardEvents( )
+	{
+		KeyboardEventsLocker.Lock( );
+		KeyboardEvents.clear( );
+		KeyboardEventsLocker.Unlock( );
+	}
+
+	void ClearMouseEvents( )
+	{
+		MouseEventsLocker.Lock( );
+		MouseEvents.clear( );
+		MouseEventsLocker.Unlock( );
+	}
+
+	int Lock( )
+	{
+		return Fl::lock( );
+	}
+
+	void Unlock( )
+	{
+		Fl::unlock( );
+	}
+
+	void GetMouse( int& x, int& y )
+	{
+		//Lock( );
+		Fl::get_mouse( x, y );
+		//Unlock( );
+	}
+};
+
+template<typename implement>
+class FOWindowImplementation: public FOWindow
+{
+public:
+	FOWindowImplementation( )
+	{
+		Window = new implement( );
+	}
+
+	~FOWindowImplementation( )
+	{
+		delete Window;
+	}
+
+	WindowHandle GetHandle( ) override;
+
+	void SetLabel( const char* label ) override;
+	void SetPosition( int x, int y ) override;
+	void SetSize( int width, int height ) override;
+
+	void SetIcon( const void* ic ) override;
+	void SetCursor( int cursot, int color ) override;
+	void Show( ) override;
+
+	bool IsActive( ) override;
+	bool IsFocus( ) override;
+
+	int GetX( ) override;
+	int GetY( ) override;
+	int GetW( ) override;
+	int GetH( ) override;
+
+	bool ParseFocus( ) override
+	{
+		return Window->ParseFocus( );
+	}
+
+	IntVec GetKeyboardEvents( ) override
+	{
+		return Window->GetKeyboardEvents( );
+	}
+
+	IntVec SwapKeyboardEvents( IntVec& newEvents ) override
+	{
+		return Window->SwapKeyboardEvents( newEvents );
+	}
+
+	void SetKeyboardEvents( IntVec& events ) override
+	{
+		Window->SetKeyboardEvents( events );
+	}
+
+	IntVec GetMouseEvents( ) override
+	{
+		return Window->GetMouseEvents( );
+	}
+
+	IntVec SwapMouseEvents( IntVec& newEvents ) override
+	{
+		return Window->SwapMouseEvents( newEvents );
+	}
+
+	void SetMouseEvents( IntVec& events ) override
+	{
+		Window->SetMouseEvents( events );
+	}
+
+	void ClearKeyboardEvents( ) override
+	{
+		Window->ClearKeyboardEvents( );
+	}
+
+	void ClearMouseEvents( ) override
+	{
+		Window->ClearMouseEvents( );
+	}
+
+	int Lock( ) override
+	{
+		return Window->Lock( );
+	}
+
+	void Unlock( ) override
+	{
+		return Window->Unlock( );
+	}
+
+	void GetMouse( int& x, int& y ) override
+	{
+		Window->GetMouse( x, y );
+	}
+
+	void SetBorder( int border ) override;
+	void GetDesktopResolution( int& w, int& h ) override;
+	void GetDesktopXYWH( int& x, int& y, int& w, int& h ) override;
+
+	implement *Window;
+};
+
+template<>
+WindowHandle FOWindowImplementation<FOnlineWindow_Fl_implement>::GetHandle( )
+{
+	return fl_xid( Window );
+}
+
+template<>
+void FOWindowImplementation<FOnlineWindow_Fl_implement>::SetLabel( const char* label )
+{
+	Window->label( label );
+}
+
+template<>
+void FOWindowImplementation<FOnlineWindow_Fl_implement>::SetPosition( int x, int y )
+{
+	Window->position( x, y );
+}
+
+template<>
+void FOWindowImplementation<FOnlineWindow_Fl_implement>::SetSize( int width, int height )
+{
+	Window->size( width, height );
+}
+
+template<>
+void FOWindowImplementation<FOnlineWindow_Fl_implement>::SetIcon( const void* ic )
+{
+	Window->icon( ic );
+}
+
+template<>
+void FOWindowImplementation<FOnlineWindow_Fl_implement>::SetCursor( int cursor, int color )
+{
+	Window->cursor( ( Fl_Cursor ) cursor, ( Fl_Color )color );
+}
+
+template<>
+void FOWindowImplementation<FOnlineWindow_Fl_implement>::Show( )
+{
+	Window->show( );
+}
+
+template<>
+bool FOWindowImplementation<FOnlineWindow_Fl_implement>::IsActive( )
+{
+	return Window->active( ) != 0;
+}
+
+template<>
+bool FOWindowImplementation<FOnlineWindow_Fl_implement>::IsFocus( )
+{
+	return Window->focused != 0;
+}
+
+template<>
+int FOWindowImplementation<FOnlineWindow_Fl_implement>::GetX( )
+{
+	return Window->x( );
+}
+
+template<>
+int FOWindowImplementation<FOnlineWindow_Fl_implement>::GetY( )
+{
+	return Window->y( );
+}
+
+template<>
+int FOWindowImplementation<FOnlineWindow_Fl_implement>::GetW( )
+{
+	return Window->w( );
+}
+
+template<>
+int FOWindowImplementation<FOnlineWindow_Fl_implement>::GetH( )
+{
+	return Window->h( );
+}
+
+template<>
+void FOWindowImplementation<FOnlineWindow_Fl_implement>::SetBorder( int border )
+{
+	Window->border( border );
+}
+
+template<>
+void FOWindowImplementation<FOnlineWindow_Fl_implement>::GetDesktopResolution( int& w, int& h )
+{
+	w = Fl::w( );
+	h = Fl::h( );
+}
+
+template<>
+void FOWindowImplementation<FOnlineWindow_Fl_implement>::GetDesktopXYWH( int& x, int& y, int& w, int& h )
+{
+	Fl::screen_xywh( x, y, w, h );
+}
+
+FOWindow * CreateMainWindow( )
+{
+	return new FOWindowImplementation<FOnlineWindow_Fl_implement>();
+}
+
+int FOnlineWindow_Fl_implement::handle( int event )
+{
+	if( !IsApplicationRun() || GameOpt.Quit )
+		return 0;
+
+	// Keyboard
+	if( event == FL_KEYDOWN || event == FL_KEYUP )
+	{
+		Lock( );
+		int event_key = Fl::event_key( );
+		Unlock( );
+		KeyboardEventsLocker.Lock( );
+		KeyboardEvents.push_back( event );
+		KeyboardEvents.push_back( event_key );
+		KeyboardEventsLocker.Unlock( );
+		return 1;
+	}
+	// Mouse
+	else
+	{
+		Lock( );
+		if( event == FL_PUSH || event == FL_RELEASE || ( event == FL_MOUSEWHEEL && Fl::event_dy( ) != 0 ) )
+		{
+			int event_button = Fl::event_button( );
+			int event_dy = Fl::event_dy( );
+			Unlock( );
+			MouseEventsLocker.Lock( );
+			MouseEvents.push_back( event );
+			MouseEvents.push_back( event_button );
+			MouseEvents.push_back( event_dy );
+			MouseEventsLocker.Unlock( );
+			return 1;
+		}
+		Unlock( );
+	}
+
+	// Focus
+	if( event == FL_FOCUS )
+		focused = true;
+	if( event == FL_UNFOCUS )
+		focused = false;
+
+	return 0;
+}
+
+bool FOnlineWindow_Fl_implement::ParseFocus( )
+{
+	if( !focused )
+	{
+		ClearMouseEvents( );
+		ClearKeyboardEvents( );
+
+	    #ifdef FONLINE_CLIENT
+		if( Script::PrepareContext( ClientFunctions.InputLost, _FUNC_, "Game" ) )
+		#else // FONLINE_CLIENT
+		if( Script::PrepareContext( MapperFunctions.InputLost, _FUNC_, "Game" ) )
+		#endif // !FONLINE_CLIENT
+		{
+			Script::SetArgObject( this );
+			Script::RunPrepared( );
+		}
+		return false;
+	}
+	return true;
+}
+
+IntVec FOnlineWindow_Fl_implement::GetKeyboardEvents( )
+{
+	KeyboardEventsLocker.Lock( );
+	if( KeyboardEvents.empty( ) )
+	{
+		KeyboardEventsLocker.Unlock( );
+		return IntVec( );
+	}
+	IntVec events = KeyboardEvents;
+	KeyboardEvents.clear( );
+	KeyboardEventsLocker.Unlock( );
+	return events;
+}
+
+IntVec FOnlineWindow_Fl_implement::SwapKeyboardEvents( IntVec& newEvents )
+{
+	KeyboardEventsLocker.Lock( );
+	IntVec events = KeyboardEvents;
+	KeyboardEvents = newEvents;
+	KeyboardEventsLocker.Unlock( );
+	return events;
+}
+
+void FOnlineWindow_Fl_implement::SetKeyboardEvents( IntVec& events )
+{
+	KeyboardEventsLocker.Lock( );
+	KeyboardEvents = events;
+	KeyboardEventsLocker.Unlock( );
+}
+
+IntVec FOnlineWindow_Fl_implement::GetMouseEvents( )
+{
+	MouseEventsLocker.Lock( );
+	if( MouseEvents.empty( ) )
+	{
+		MouseEventsLocker.Unlock( );
+		return IntVec( );
+	}
+	IntVec events = MouseEvents;
+	MouseEvents.clear( );
+	MouseEventsLocker.Unlock( );
+	return events;
+}
+
+IntVec FOnlineWindow_Fl_implement::SwapMouseEvents( IntVec& newEvents )
+{
+	MouseEventsLocker.Lock( );
+	IntVec events = MouseEvents;
+	MouseEvents = newEvents;
+	MouseEventsLocker.Unlock( );
+	return events;
+}
+
+void FOnlineWindow_Fl_implement::SetMouseEvents( IntVec& events )
+{
+	MouseEventsLocker.Lock( );
+	MouseEvents = events;
+	MouseEventsLocker.Unlock( );
+}
 
 uint GetColorDay( int* day_time, uchar* colors, int game_time, int* light )
 {

@@ -261,7 +261,7 @@ AnyFrames* ResourceManager::GetCrit2dAnim( uint crtype, uint anim1, uint anim2, 
 
 							if (anim)
 							{
-								uint countFrame = anim->CntFrm;
+								int countFrame = (int)anim->CntFrm;
 
 								if (frameend < 0)
 									frameend = countFrame + frameend;
@@ -283,14 +283,14 @@ AnyFrames* ResourceManager::GetCrit2dAnim( uint crtype, uint anim1, uint anim2, 
 								short* nextYs = new short[countFrame];
 
 								if(isReverse)
-									for (uint i = 0; i < countFrame; i++)
+									for (int i = 0; i < countFrame; i++)
 									{
 										indxs[i] = anim->Ind[frameend + i];
 										nextXs[i] = anim->NextX[frameend + i];
 										nextYs[i] = anim->NextY[frameend + i];
 									}
 								else
-									for (uint i = 0; i < countFrame; i++)
+									for (int i = 0; i < countFrame; i++)
 									{
 										indxs[i] = anim->Ind[framebegin + i];
 										nextXs[i] = anim->NextX[framebegin + i];
@@ -442,7 +442,7 @@ AnyFrames* ResourceManager::LoadFalloutAnim( uint crtype, uint anim1, uint anim2
 			{
 				AnyFrames* anim_ = new AnyFrames();
 				anim_->Ticks = anim->Ticks;
-				uint countFrame = anim->CntFrm;
+				int countFrame = (int) anim->CntFrm;
 
 				if (frameend < 0)
 					frameend = countFrame + frameend;
@@ -463,7 +463,7 @@ AnyFrames* ResourceManager::LoadFalloutAnim( uint crtype, uint anim1, uint anim2
 				anim_->NextX = new short[countFrame];
 				anim_->NextY = new short[countFrame];
 
-				for (uint i = 0; i < countFrame; i++)
+				for (int i = 0; i < countFrame; i++)
 				{
 					anim_->Ind[i] = 0;
 					anim_->NextX[i] = 0;
@@ -474,13 +474,13 @@ AnyFrames* ResourceManager::LoadFalloutAnim( uint crtype, uint anim1, uint anim2
 				{
 					anim_->NextX[0] = 0;
 					anim_->NextY[0] = 0;
-					for (uint i = 0; i < frameend; i++)
+					for (int i = 0; i < frameend; i++)
 					{
 						anim_->NextX[0] += anim->NextX[i];
 						anim_->NextY[0] += anim->NextY[i];
 					}
 
-					for (uint i = 0; i < countFrame; i++)
+					for (int i = 0; i < countFrame; i++)
 					{
 						anim_->Ind[i] = anim->Ind[frameend + i];
 						anim_->NextX[i] += anim->NextX[frameend + i];
@@ -491,13 +491,13 @@ AnyFrames* ResourceManager::LoadFalloutAnim( uint crtype, uint anim1, uint anim2
 				{
 					anim_->NextX[0] = 0;
 					anim_->NextY[0] = 0;
-					for (uint i = 0; i < framebegin; i++)
+					for (int i = 0; i < framebegin; i++)
 					{
 						anim_->NextX[0] += anim->NextX[i];
 						anim_->NextY[0] += anim->NextY[i];
 					}
 
-					for (uint i = 0; i < countFrame; i++)
+					for (int i = 0; i < countFrame; i++)
 					{
 						anim_->Ind[i] = anim->Ind[framebegin + i];
 						anim_->NextX[i] += anim->NextX[framebegin + i];

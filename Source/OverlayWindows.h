@@ -10,7 +10,11 @@ namespace FOnline
 		friend Overlay* FOnline::CreateOverlay( );
 
 		FonlineImgui* Imgui;
-		FOWindow* Window;
+		ImGuiWindowsData Window;
+
+		Thread OverlayThread;
+
+		static void WindowLoop(void*);
 
 	protected:
 		OverlayWindows( );
@@ -19,13 +23,22 @@ namespace FOnline
 		virtual Device_ GetDevice( ) = 0;
 		virtual void DestroyDevice( ) = 0;
 
+		virtual void Render( ) = 0;
+
 		void Finish( ) override;
 
-		inline FOWindow* GetWindow( ) { return Window; }
 		inline FonlineImgui* GetImgui( ) { return Imgui; }
 
 	public:
+		ImGuiWindowsData GetWindow( ) override { return Window; }
+
+		LRESULT CALLBACK Process( HWND hwnd, UINT Message, WPARAM wparam, LPARAM lparam );
+
+		void Loop( ) override;
 		void Init( ) override;
+		void InitWindow( ) override;
+
+		Mutex mutex;
 	};
 }
 #endif // !OVERLAY_WINDOWS_H

@@ -39,6 +39,9 @@ using namespace FOnline;
 
 Overlay * FOnline::GetOverlay( )
 {
+#ifdef OVERLAY_OFF
+	return nullptr;
+#else
 	if( Flag.IsFinish )
 	{
 		Assert( IndexMessage::Error_AlreadyFinishing );
@@ -56,6 +59,7 @@ Overlay * FOnline::GetOverlay( )
 
 	Overlayer = CreateOverlay( );
 	return Overlayer;
+#endif
 }
 
 void FOnline::FinishOverlay( )

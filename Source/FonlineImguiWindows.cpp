@@ -6,9 +6,9 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler( HWND hWnd, UINT ms
 
 using namespace FOnline;
 
-void FOnline::FonlineImguiWindows::InitOS( FOWindow * window )
+void FOnline::FonlineImguiWindows::InitOS( ImGuiWindowsData window )
 {
-	if( !ImGui_ImplWin32_Init( fl_xid( window ) ) )
+	if( !ImGui_ImplWin32_Init( window ) )
 	{
 		WriteLog( "Error imgui::win32 init\n" );
 		return;
@@ -63,14 +63,14 @@ void FOnline::FonlineImguiWindows::MouseEvent( int event, int button, int dy )
 		param.hi = dy * WHEEL_DELTA;
 	}
 
-	WorkContext( );
-	ImGui_ImplWin32_WndProcHandler( fl_xid( GetWindow() ), event, param.w, 0 );
-	DropContext( );
+	WorkContext( "MouseEvent" );
+	ImGui_ImplWin32_WndProcHandler( GetWindow(), event, param.w, 0 );
+	DropContext( "MouseEvent" );
 }
 
 void FOnline::FonlineImguiWindows::MouseMoveEvent( int x, int y )
 {
-	WorkContext( );
-	ImGui_ImplWin32_WndProcHandler( fl_xid( GetWindow( ) ), WM_MOUSEMOVE, 0, 0 );
-	DropContext( );
+	WorkContext( "MouseMoveEvent" );
+	ImGui_ImplWin32_WndProcHandler( GetWindow( ), WM_MOUSEMOVE, 0, 0 );
+	DropContext( "MouseMoveEvent" );
 }

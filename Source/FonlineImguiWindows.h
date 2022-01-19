@@ -9,7 +9,9 @@ namespace FOnline
 {
 	class FonlineImguiWindows : public FonlineImgui
 	{
-		void InitOS( FOWindow* window ) override;
+		FonlineImguiWindows( ): FonlineImgui( "error" ) {}
+
+		void InitOS( ImGuiWindowsData window ) override;
 		virtual void InitGraphics( Device_ device ) = 0;
 
 		void FinishOS( ) override;
@@ -21,6 +23,8 @@ namespace FOnline
 		virtual void RenderGraphics( ) = 0;
 	
 	public:
+		FonlineImguiWindows( std::string name ): FonlineImgui( name ) {}
+
 		void MouseEvent( int event, int button, int dy ) override;
 		void MouseMoveEvent( int x, int y ) override;
 	};

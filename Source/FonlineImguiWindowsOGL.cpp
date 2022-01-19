@@ -4,11 +4,11 @@
 
 using namespace FOnline;
 
-FonlineImguiWindowsOGL MainImgui;
+FonlineImguiWindowsOGL MainImgui( "MainImgui" );
 
-FonlineImgui* FOnline::CreateImgui( )
+FonlineImgui* FOnline::CreateImgui( std::string name )
 {
-	return new FonlineImguiWindowsOGL( );
+	return new FonlineImguiWindowsOGL( name );
 }
 
 void FOnline::DestroyImgui( FonlineImgui* imgui )

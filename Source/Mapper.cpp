@@ -733,12 +733,9 @@ void FOMapper::AnimFree( int res_type )
 void FOMapper::ParseKeyboard()
 {
     // Stop processing if window not active
-    if( !MainWindow->active() )
+    if( !MainWindow->IsActive() )
     {
-        KeyboardEventsLocker.Lock();
-        KeyboardEvents.clear();
-        KeyboardEventsLocker.Unlock();
-
+		MainWindow->ClearKeyboardEvents( );
         Keyb::Lost();
         IntHold = INT_NONE;
         if( MapperFunctions.InputLost && Script::PrepareContext( MapperFunctions.InputLost, _FUNC_, "Mapper" ) )
@@ -746,17 +743,11 @@ void FOMapper::ParseKeyboard()
         return;
     }
 
-    // Get buffered data
-    KeyboardEventsLocker.Lock();
-    if( KeyboardEvents.empty() )
-    {
-        KeyboardEventsLocker.Unlock();
+	// Get buffered data
+	IntVec events = MainWindow->GetKeyboardEvents( );
+	if( events.empty( ) )
         return;
-    }
-    IntVec events = KeyboardEvents;
-    KeyboardEvents.clear();
-    KeyboardEventsLocker.Unlock();
-
+    
     // Process events
     for( uint i = 0; i < events.size(); i += 2 )
     {
@@ -888,7 +879,7 @@ void FOMapper::ParseKeyboard()
                 break;
             case DIK_F12:
                 #ifdef FO_WINDOWS
-                ShowWindow( fl_xid( MainWindow ), SW_MINIMIZE );
+                ShowWindow( MainWindow->GetHandle(), SW_MINIMIZE );
                 #endif
                 break;
             case DIK_DELETE:
@@ -1024,28 +1015,28 @@ void FOMapper::ParseKeyboard()
             {
                 int sx, sy, sw, sh;
                 Fl::screen_xywh( sx, sy, sw, sh );
-                x = MainWindow->x();
-                y = MainWindow->y();
-                w = MainWindow->w();
-                h = MainWindow->h();
+                x = MainWindow->GetX();
+                y = MainWindow->GetY();
+                w = MainWindow->GetW();
+                h = MainWindow->GetH();
                 valid = 1;
-                MainWindow->border( 0 );
-                MainWindow->size( sw, sh );
-                MainWindow->position( 0, 0 );
+                MainWindow->SetBorder( 0 );
+                MainWindow->SetSize( sw, sh );
+                MainWindow->SetPosition( 0, 0 );
                 GameOpt.FullScreen = true;
             }
             else
             {
-                MainWindow->border( 1 );
+                MainWindow->SetBorder( 1 );
                 if( valid )
                 {
-                    MainWindow->size( w, h );
-                    MainWindow->position( x, y );
+                    MainWindow->SetSize( w, h );
+                    MainWindow->SetPosition( x, y );
                 }
                 else
                 {
-                    MainWindow->size( MODE_WIDTH, MODE_HEIGHT );
-                    MainWindow->position( ( Fl::w() - MODE_WIDTH ) / 2, ( Fl::h() - MODE_HEIGHT ) / 2 );
+                    MainWindow->SetSize( MODE_WIDTH, MODE_HEIGHT );
+                    MainWindow->SetPosition( ( Fl::w() - MODE_WIDTH ) / 2, ( Fl::h() - MODE_HEIGHT ) / 2 );
                 }
                 // MainWindow->size_range( 100, 100 );
                 GameOpt.FullScreen = false;
@@ -1124,23 +1115,21 @@ void FOMapper::ParseMouse()
 {
     // Mouse position
     int mx = 0, my = 0;
-    Fl::get_mouse( mx, my );
+	MainWindow->GetMouse( mx, my );
     #ifdef FO_D3D
-    GameOpt.MouseX = mx - ( !GameOpt.FullScreen ? MainWindow->x() : 0 );
-    GameOpt.MouseY = my - ( !GameOpt.FullScreen ? MainWindow->y() : 0 );
+    GameOpt.MouseX = mx - ( !GameOpt.FullScreen ? MainWindow->GetX() : 0 );
+    GameOpt.MouseY = my - ( !GameOpt.FullScreen ? MainWindow->GetY() : 0 );
     #else
-    GameOpt.MouseX = mx - MainWindow->x();
-    GameOpt.MouseY = my - MainWindow->y();
+    GameOpt.MouseX = mx - MainWindow->GetX();
+    GameOpt.MouseY = my - MainWindow->GetY();
     #endif
     GameOpt.MouseX = CLAMP( GameOpt.MouseX, 0, MODE_WIDTH - 1 );
     GameOpt.MouseY = CLAMP( GameOpt.MouseY, 0, MODE_HEIGHT - 1 );
 
     // Stop processing if window not active
-    if( !MainWindow->active() )
+    if( !MainWindow->IsActive() )
     {
-        MouseEventsLocker.Lock();
-        MouseEvents.clear();
-        MouseEventsLocker.Unlock();
+		MainWindow->ClearMouseEvents( );
 
         Keyb::Lost();
         IntHold = INT_NONE;
@@ -1193,16 +1182,8 @@ void FOMapper::ParseMouse()
     }
 
     // Get buffered data
-    MouseEventsLocker.Lock();
-    if( MouseEvents.empty() )
-    {
-        MouseEventsLocker.Unlock();
-        return;
-    }
-    IntVec events = MouseEvents;
-    MouseEvents.clear();
-    MouseEventsLocker.Unlock();
-
+	IntVec events = MainWindow->GetMouseEvents( );
+    
     // Process events
     for( uint i = 0; i < events.size(); i += 3 )
     {
@@ -6684,45 +6665,45 @@ void FOMapper::SScriptFunc::Global_SetDefaultFont( int font, uint color )
 
 void FOMapper::SScriptFunc::Global_MouseClick( int x, int y, int button, int cursor )
 {
-    Self->MouseEventsLocker.Lock();
-    IntVec prev_events = Self->MouseEvents;
-    Self->MouseEvents.clear();
-    int    prev_x = GameOpt.MouseX;
-    int    prev_y = GameOpt.MouseY;
-    int    prev_cursor = Self->CurMode;
-    GameOpt.MouseX = x;
-    GameOpt.MouseY = y;
-    Self->CurMode = cursor;
-    Self->MouseEvents.push_back( FL_PUSH );
-    Self->MouseEvents.push_back( button );
-    Self->MouseEvents.push_back( 0 );
-    Self->MouseEvents.push_back( FL_RELEASE );
-    Self->MouseEvents.push_back( button );
-    Self->MouseEvents.push_back( 0 );
-    Self->ParseMouse();
-    Self->MouseEvents = prev_events;
-    GameOpt.MouseX = prev_x;
-    GameOpt.MouseY = prev_y;
-    Self->CurMode = prev_cursor;
-    Self->MouseEventsLocker.Unlock();
+	IntVec events;
+	events.push_back( FL_PUSH );
+	events.push_back( button );
+	events.push_back( 0 );
+	events.push_back( FL_RELEASE );
+	events.push_back( button );
+	events.push_back( 0 );
+
+	int    prev_x = GameOpt.MouseX;
+	int    prev_y = GameOpt.MouseY;
+	int    prev_cursor = Self->CurMode;
+	GameOpt.MouseX = x;
+	GameOpt.MouseY = y;
+	Self->CurMode = cursor;
+	
+	IntVec prev_events = MainWindow->SwapMouseEvents( events );
+	Self->ParseMouse( );
+
+	GameOpt.MouseX = prev_x;
+	GameOpt.MouseY = prev_y;
+	Self->CurMode = prev_cursor;
+	MainWindow->SetMouseEvents( prev_events );
 }
 
 void FOMapper::SScriptFunc::Global_KeyboardPress( uchar key1, uchar key2 )
 {
-    Self->KeyboardEventsLocker.Lock();
-    IntVec prev_events = Self->KeyboardEvents;
-    Self->KeyboardEvents.clear();
-    Self->KeyboardEvents.push_back( FL_KEYDOWN );
-    Self->KeyboardEvents.push_back( key1 );
-    Self->KeyboardEvents.push_back( FL_KEYDOWN );
-    Self->KeyboardEvents.push_back( key2 );
-    Self->KeyboardEvents.push_back( FL_KEYUP );
-    Self->KeyboardEvents.push_back( key2 );
-    Self->KeyboardEvents.push_back( FL_KEYUP );
-    Self->KeyboardEvents.push_back( key1 );
-    Self->ParseKeyboard();
-    Self->KeyboardEvents = prev_events;
-    Self->KeyboardEventsLocker.Unlock();
+	IntVec events;
+	events.push_back( FL_KEYDOWN );
+	events.push_back( key1 );
+	events.push_back( FL_KEYDOWN );
+	events.push_back( key2 );
+	events.push_back( FL_KEYUP );
+	events.push_back( key2 );
+	events.push_back( FL_KEYUP );
+	events.push_back( key1 );
+
+	IntVec prev_events = MainWindow->SwapKeyboardEvents( events );
+	Self->ParseKeyboard();
+	MainWindow->SetKeyboardEvents( prev_events );
 }
 
 uint FOMapper::SScriptFunc::Global_LoadSprite( ScriptString& spr_name, int path_index )

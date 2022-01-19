@@ -13,14 +13,19 @@ namespace FOnline
 
 		void Finish( ) override;
 
+		void ResetDevice( );
+
 		LPDIRECT3D9              g_pD3D;
 		LPDIRECT3DDEVICE9        g_pd3dDevice;
 		D3DPRESENT_PARAMETERS    g_d3dpp;
+
+		D3DCOLOR BackGroundColor;
 
 	protected:
 		void CreateDevice( ) override;
 		Device_ GetDevice( ) override;
 		void DestroyDevice( ) override;
+		void Render( ) override;
 
 	public:
 		void Init( ) override;

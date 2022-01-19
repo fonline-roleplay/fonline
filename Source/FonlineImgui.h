@@ -5,9 +5,11 @@
 
 namespace FOnline
 {
+	typedef HWND ImGuiWindowsData;
+
 	class FonlineImgui;
 	extern FonlineImgui* GetMainImgui( );
-	extern FonlineImgui* CreateImgui( );
+	extern FonlineImgui* CreateImgui( std::string name );
 	extern void DestroyImgui( FonlineImgui* imgui );
 
 	struct FormatTextFlag
@@ -41,16 +43,17 @@ namespace FOnline
 
 	class FonlineImgui
 	{
+		FonlineImgui( ) {};
+
 		ImGuiContext* Context;
-		FOWindow* Window;
+		ImGuiWindowsData Window;
 
 		uint WorkCounter;
-
 		bool IsDemoWindow;
 
-		void ScriptFrame( );
+		void ScriptFrame( FOWindow* window );
 
-		virtual void InitOS( FOWindow* window ) = 0;
+		virtual void InitOS( ImGuiWindowsData window ) = 0;
 		virtual void InitGraphics( Device_ device ) = 0;
 
 		virtual void FinishOS( ) = 0;
@@ -65,17 +68,20 @@ namespace FOnline
 
 	protected:
 		inline ImDrawData *GetDrawData( ) { return ImGui::GetDrawData( ); }
-
-		void WorkContext( );
-		void DropContext( );
+		bool InitFlag;
 
 	public:
-		FonlineImgui( );
+		FonlineImgui( std::string name );
+
+		std::string Name;
+
+		void WorkContext( std::string info );
+		void DropContext( std::string info );
 
 		void ShowDemo( );
-		void Init( FOWindow* window, Device_ device );
+		void Init( ImGuiWindowsData window, Device_ device );
 		void Finish( );
-		void Frame( );
+		void Frame( FOWindow* window );
 		void RenderIface( );
 
 		void NewFrame( );
@@ -86,10 +92,12 @@ namespace FOnline
 		static void RenderAll( );
 
 		inline bool IsMain( ) { return this == GetMainImgui( ); }
-		inline FOWindow* GetWindow( ) { return Window; }
+		inline ImGuiWindowsData GetWindow( ) { return Window; }
 
 		virtual void MouseEvent( int event, int button, int dy ) = 0;
 		virtual void MouseMoveEvent( int x, int y ) = 0;
+
+		inline bool IsInit( ) { return InitFlag; }
 	};
 }
 #endif // FONLINE_IMGUI_H

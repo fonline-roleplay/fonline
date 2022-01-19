@@ -13,7 +13,9 @@ namespace FOnline
 	extern void DestroyOverlay( Overlay* overlay );
 	extern Overlay* GetOverlay( );
 	extern void FinishOverlay( );
-	
+	extern void LoopOverlay( );
+	extern void FocusOverlay( );
+
 	struct OverlayFlag
 	{
 		bool IsInit : 1;
@@ -30,10 +32,15 @@ namespace FOnline
 	protected:
 		Overlay( );
 
+		virtual void Render( ) = 0;
+
 		const OverlayFlag* GetFlag( );
 	
 	public:
+		virtual ImGuiWindowsData GetWindow( ) = 0;
+		virtual void Loop( ) = 0;
 		virtual void Init( ) = 0;
+		virtual void InitWindow( ) = 0;
 	};
 }
 

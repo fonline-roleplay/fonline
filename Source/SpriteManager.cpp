@@ -92,7 +92,7 @@ bool SpriteManager::Init( SpriteMngrParams& params )
     presentParams.SwapEffect = D3DSWAPEFFECT_DISCARD;
     presentParams.EnableAutoDepthStencil = TRUE;
     presentParams.AutoDepthStencilFormat = D3DFMT_D24S8;
-    presentParams.hDeviceWindow = fl_xid( MainWindow );
+    presentParams.hDeviceWindow = MainWindow->GetHandle( );
     presentParams.BackBufferWidth = modeWidth;
     presentParams.BackBufferHeight = modeHeight;
     presentParams.BackBufferFormat = D3DFMT_X8R8G8B8;
@@ -131,8 +131,9 @@ bool SpriteManager::Init( SpriteMngrParams& params )
     if( deviceCaps.DevCaps & D3DDEVCAPS_HWTRANSFORMANDLIGHT &&
         deviceCaps.VertexShaderVersion >= D3DPS_VERSION( 2, 0 ) && deviceCaps.MaxVertexBlendMatrices >= 2 )
         vproc = D3DCREATE_HARDWARE_VERTEXPROCESSING;
-
-    D3D_HR( direct3D->CreateDevice( D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, fl_xid( MainWindow ), vproc, &presentParams, &d3dDevice ) );
+	if( !MainWindow->GetHandle( ) )
+		WriteLogF( __FUNCTION__, "Invalid MainWindowHandle\n" );
+    D3D_HR( direct3D->CreateDevice( D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, MainWindow->GetHandle( ), vproc, &presentParams, &d3dDevice ) );
     #else
     // Create context
     Fl::lock();
@@ -140,7 +141,7 @@ bool SpriteManager::Init( SpriteMngrParams& params )
     Fl::unlock();
     GL( glDisable( GL_SCISSOR_TEST ) );
     GL( glDrawBuffer( GL_BACK ) );
-    GL( glViewport( 0, 0, MainWindow->w(), MainWindow->h() ) );
+    GL( glViewport( 0, 0, MainWindow->GetW(), MainWindow->GetH() ) );
     # ifdef FO_WINDOWS
     deviceContext = wglGetCurrentDC();
     glContext = wglGetCurrentContext();
@@ -327,7 +328,7 @@ bool SpriteManager::Init( SpriteMngrParams& params )
         }
     }
 
-	GetMainImgui( )->Init( MainWindow, GetDevice( ) );
+	GetMainImgui( )->Init( MainWindow->GetHandle( ), GetDevice( ) );
 
     WriteLog( "Sprite manager initialization complete.\n" );
     return true;
@@ -592,7 +593,7 @@ bool SpriteManager::BeginScene( uint clear_color )
         ClearCurrentRenderTarget( clear_color );
     #endif
 
-	GetMainImgui( )->Frame( );
+	GetMainImgui( )->Frame( MainWindow );
 
     Animation3d::BeginScene();
     sceneBeginned = true;
@@ -1134,7 +1135,7 @@ void SpriteManager::RefreshViewPort()
     }
     else
     {
-        GL( glViewport( 0, 0, MainWindow->w(), MainWindow->h() ) );
+        GL( glViewport( 0, 0, MainWindow->GetW(), MainWindow->GetH() ) );
     }
 }
 
@@ -1366,8 +1367,8 @@ void SpriteManager::SaveSufaces()
 void SpriteManager::SaveTexture( Texture* tex, const char* fname, bool flip )
 {
     // Size
-    uint w = ( tex ? tex->Width : MainWindow->w() );
-    uint h = ( tex ? tex->Height : MainWindow->h() );
+    uint w = ( tex ? tex->Width : MainWindow->GetW() );
+    uint h = ( tex ? tex->Height : MainWindow->GetH() );
 
     // Get data
     uchar* data;
@@ -1378,7 +1379,7 @@ void SpriteManager::SaveTexture( Texture* tex, const char* fname, bool flip )
     else
     {
         data = new uchar[ w * h * 4 ];
-        GL( glReadPixels( 0, 0, MainWindow->w(), MainWindow->h(), GL_BGRA, GL_UNSIGNED_BYTE, data ) );
+        GL( glReadPixels( 0, 0, MainWindow->GetW(), MainWindow->GetH(), GL_BGRA, GL_UNSIGNED_BYTE, data ) );
     }
 
     // Load to DevIL

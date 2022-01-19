@@ -42,17 +42,11 @@ int main( int argc, char** argv )
     Fl::lock();
 
     // Create window
-    MainWindow = new FOWindow();
-    MainWindow->label( GetWindowName() );
-    MainWindow->position( ( Fl::w() - MODE_WIDTH ) / 2, ( Fl::h() - MODE_HEIGHT ) / 2 );
-    MainWindow->size( MODE_WIDTH, MODE_HEIGHT );
-
-    // Icon
-    #ifdef FO_WINDOWS
-    MainWindow->icon( (char*) LoadIcon( fl_display, MAKEINTRESOURCE( 101 ) ) );
-    #else // FO_LINUX
-    // Todo: Linux
-    #endif
+    MainWindow = CreateMainWindow();
+    MainWindow->SetLabel( GetWindowName() );
+    MainWindow->SetPosition( ( Fl::w() - MODE_WIDTH ) / 2, ( Fl::h() - MODE_HEIGHT ) / 2 );
+    MainWindow->SetSize( MODE_WIDTH, MODE_HEIGHT );
+	MainWindow->SetIcon( ( char* )LoadIcon( fl_display, MAKEINTRESOURCE( 101 ) ) );
 
     // OpenGL parameters
     #ifndef FO_D3D
@@ -60,7 +54,7 @@ int main( int argc, char** argv )
     #endif
 
     // Show window
-    MainWindow->show();
+    MainWindow->Show();
 
     // Hide cursor
     #ifdef FO_WINDOWS
@@ -80,22 +74,24 @@ int main( int argc, char** argv )
     if( GameOpt.FullScreen )
     {
         int sx, sy, sw, sh;
+		Fl::lock( );
         Fl::screen_xywh( sx, sy, sw, sh );
-        MainWindow->border( 0 );
-        MainWindow->size( sw, sh );
-        MainWindow->position( 0, 0 );
+		Fl::unlock( );
+        MainWindow->SetBorder( 0 );
+        MainWindow->SetSize( sw, sh );
+        MainWindow->SetPosition( 0, 0 );
     }
     #endif
 
     // Hide menu
     #ifdef FO_WINDOWS
-    SetWindowLong( fl_xid( MainWindow ), GWL_STYLE, GetWindowLong( fl_xid( MainWindow ), GWL_STYLE ) & ( ~WS_SYSMENU ) );
+    SetWindowLong( MainWindow->GetHandle(), GWL_STYLE, GetWindowLong( MainWindow->GetHandle( ), GWL_STYLE ) & ( ~WS_SYSMENU ) );
     #endif
 
     // Place on top
     #ifdef FO_WINDOWS
     if( GameOpt.AlwaysOnTop )
-        SetWindowPos( fl_xid( MainWindow ), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE );
+        SetWindowPos( MainWindow->GetHandle( ), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE );
     #endif
 
     // Start
@@ -141,38 +137,7 @@ void GameThread( void* )
     delete Mapper;
 }
 
-int FOWindow::handle( int event )
+bool IsApplicationRun( )
 {
-    if( !Mapper || GameOpt.Quit )
-        return 0;
-
-    // Keyboard
-    if( event == FL_KEYDOWN || event == FL_KEYUP )
-    {
-        int event_key = Fl::event_key();
-        Mapper->KeyboardEventsLocker.Lock();
-        Mapper->KeyboardEvents.push_back( event );
-        Mapper->KeyboardEvents.push_back( event_key );
-        Mapper->KeyboardEventsLocker.Unlock();
-        return 1;
-    }
-    // Mouse
-    else if( event == FL_PUSH || event == FL_RELEASE || ( event == FL_MOUSEWHEEL && Fl::event_dy() != 0 ) )
-    {
-        int event_button = Fl::event_button();
-        int event_dy = Fl::event_dy();
-        Mapper->MouseEventsLocker.Lock();
-        Mapper->MouseEvents.push_back( event );
-        Mapper->MouseEvents.push_back( event_button );
-        Mapper->MouseEvents.push_back( event_dy );
-        Mapper->MouseEventsLocker.Unlock();
-        return 1;
-    }
-
-    if( event == FL_FOCUS )
-        MainWindow->focused = true;
-    if( event == FL_UNFOCUS )
-        MainWindow->focused = false;
-
-    return 0;
+	return Mapper != 0;
 }

@@ -20,6 +20,7 @@ namespace FOnline
 
 	public:
 		void Init( ) override;
+		void Render( ) override;
 	};
 }
 #endif // !OVERLAY_WINDOWS_OGL_H
