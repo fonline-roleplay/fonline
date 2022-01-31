@@ -19,7 +19,7 @@
 #endif
 
 // Events
-#define CRITTER_EVENT_IDLE                       ( 0 )
+#define CRITTER_EVENT_IDLE                       ( 0 ) 
 #define CRITTER_EVENT_FINISH                     ( 1 )
 #define CRITTER_EVENT_DEAD                       ( 2 )
 #define CRITTER_EVENT_RESPAWN                    ( 3 )

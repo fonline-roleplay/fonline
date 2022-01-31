@@ -662,8 +662,11 @@ ScriptString* StringJoin( CScriptArray* array, ScriptString* delim )
 {
     // Create the new string
     ScriptString* str = new ScriptString();
-    int           n;
-    for( n = 0; n < (int) array->GetSize() - 1; n++ )
+	const int arraySize = array->GetSize( );
+	if( arraySize == 0 )
+		return str;
+    int n = 0;
+    for( ; n < arraySize - 1; n++ )
     {
         ScriptString* part = *(ScriptString**) array->At( n );
         *str += *part;

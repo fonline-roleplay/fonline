@@ -12,7 +12,7 @@
 
 FOWindow* MainWindow = NULL;
 FOClient* FOEngine = NULL;
-Thread    Game;
+// Thread    Game;
 void GameThread( void* );
 
 int main( int argc, char** argv )
@@ -134,18 +134,14 @@ int main( int argc, char** argv )
 
     // Create window
     MainWindow = CreateMainWindow( );
-    MainWindow->SetLabel( GetWindowName() );
-	{
-		int w, h;
-		MainWindow->GetDesktopResolution( w, h );
-		MainWindow->SetPosition( ( w - MODE_WIDTH ) / 2, ( h - MODE_HEIGHT ) / 2 );
-	}
-    MainWindow->SetSize( MODE_WIDTH, MODE_HEIGHT );
+    MainWindow->label( GetWindowName() );
+	MainWindow->position( ( Fl::w( ) - MODE_WIDTH ) / 2, ( Fl::h() - MODE_HEIGHT ) / 2 );
+    MainWindow->size( MODE_WIDTH, MODE_HEIGHT );
     // MainWindow->size_range( 100, 100 );
 
     // Icon
     #ifdef FO_WINDOWS
-    MainWindow->SetIcon( (char*) LoadIcon( fl_display, MAKEINTRESOURCE( 101 ) ) );
+    MainWindow->icon( (char*) LoadIcon( fl_display, MAKEINTRESOURCE( 101 ) ) );
     #else // FO_LINUX
     // Todo: Linux
     #endif
@@ -156,11 +152,11 @@ int main( int argc, char** argv )
     #endif
 
     // Show window
-    MainWindow->Show();
+    MainWindow->show();
 
     // Hide cursor
     #ifdef FO_WINDOWS
-    MainWindow->SetCursor(FL_CURSOR_NONE, FL_BLACK);
+    MainWindow->cursor(FL_CURSOR_NONE, FL_BLACK);
     #else
     char   data[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
     XColor black;
@@ -196,13 +192,32 @@ int main( int argc, char** argv )
 
     // Start
     WriteLog( "Starting FOnline (version %04X-%02X)...\n", CLIENT_VERSION, FO_PROTOCOL_VERSION & 0xFF );
-    Game.Start( GameThread, "Main" );
+    // Game.Start( GameThread, "Main" );
+
+	FOEngine = new FOClient( );
+
+	if( !FOEngine || !FOEngine->Init( ) )
+	{
+		WriteLog( "FOnline engine initialization fail.\n" );
+		GameOpt.Quit = true;
+	}
 
     // Loop
-	int visible_window = 0;
+	// int visible_window = 0;
 	while( !GameOpt.Quit )
 	{
-		visible_window = Fl::wait( );
+		WriteLog( "Fl::wait( )\n" );
+		Fl::lock( );
+		if( !Fl::wait( ) )
+		{
+			Fl::unlock( );
+			break;
+		}
+		Fl::unlock( );
+
+		WriteLog( "Loop\n" );
+		FOEngine->MainLoop( );
+		/*visible_window = Fl::wait( );
 		if( visible_window == 0 )
 			break;
 
@@ -219,11 +234,13 @@ int main( int argc, char** argv )
 					break;
 				default: break;
 			}
-		}
+		}*/
 	}
 
 	GameOpt.Quit = true;
-    Game.Wait();
+	FOEngine->Finish( );
+	delete FOEngine;
+    // Game.Wait();
 
     // Finish
     #ifdef FO_WINDOWS
@@ -262,4 +279,56 @@ void GameThread( void* )
 bool IsApplicationRun( )
 {
 	return FOEngine != 0;
+}
+
+int FOWindow::handle( int event )
+{
+	if( !FOEngine || GameOpt.Quit )
+		return 0;
+
+	WriteLog( "win event %i\n", event );
+
+	// Keyboard
+	if( event == FL_KEYDOWN || event == FL_KEYUP )
+	{
+		//Lock( );
+		int event_key = Fl::event_key( );
+		//Unlock( );
+		KeyboardEventsLocker.Lock( );
+		KeyboardEvents.push_back( event );
+		KeyboardEvents.push_back( event_key );
+		KeyboardEventsLocker.Unlock( );
+		return 1;
+	}
+	// Mouse
+	else
+	{
+		//Lock( );
+		if( event == FL_PUSH || event == FL_RELEASE || ( event == FL_MOUSEWHEEL && Fl::event_dy( ) != 0 ) )
+		{
+			int event_button = Fl::event_button( );
+			int event_dy = Fl::event_dy( );
+			//Unlock( );
+			MouseEventsLocker.Lock( );
+			MouseEvents.push_back( event );
+			MouseEvents.push_back( event_button );
+			MouseEvents.push_back( event_dy );
+			MouseEventsLocker.Unlock( );
+			return 1;
+		}
+		//Unlock( );
+	}
+
+	// Focus
+	if( event == FL_FOCUS )
+	{
+		WriteLog( "focus\n" );
+		focused = true;
+	}
+	else if( event == FL_UNFOCUS )
+	{
+		WriteLog( "unfocus\n" );
+		focused = false;
+	}
+	return 0;
 }

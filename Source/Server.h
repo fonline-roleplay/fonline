@@ -455,6 +455,8 @@ public:
         uint  LoopMin;
         uint  LoopMax;
         uint  LagsCount;
+
+		double JobPerformance[ JOB_COUNT ];
     } static Statistics;
 
     static uint   PlayersInGame() { return CrMngr.PlayersInGame(); }

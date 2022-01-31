@@ -43,10 +43,10 @@ int main( int argc, char** argv )
 
     // Create window
     MainWindow = CreateMainWindow();
-    MainWindow->SetLabel( GetWindowName() );
-    MainWindow->SetPosition( ( Fl::w() - MODE_WIDTH ) / 2, ( Fl::h() - MODE_HEIGHT ) / 2 );
-    MainWindow->SetSize( MODE_WIDTH, MODE_HEIGHT );
-	MainWindow->SetIcon( ( char* )LoadIcon( fl_display, MAKEINTRESOURCE( 101 ) ) );
+    MainWindow->label( GetWindowName() );
+    MainWindow->position( ( Fl::w() - MODE_WIDTH ) / 2, ( Fl::h() - MODE_HEIGHT ) / 2 );
+    MainWindow->size( MODE_WIDTH, MODE_HEIGHT );
+	MainWindow->icon( ( char* )LoadIcon( fl_display, MAKEINTRESOURCE( 101 ) ) );
 
     // OpenGL parameters
     #ifndef FO_D3D
@@ -54,7 +54,7 @@ int main( int argc, char** argv )
     #endif
 
     // Show window
-    MainWindow->Show();
+    MainWindow->show();
 
     // Hide cursor
     #ifdef FO_WINDOWS
@@ -140,4 +140,40 @@ void GameThread( void* )
 bool IsApplicationRun( )
 {
 	return Mapper != 0;
+}
+
+int FOWindow::handle( int event )
+{
+	if( !Mapper || GameOpt.Quit )
+		return 0;
+
+	// Keyboard
+	if( event == FL_KEYDOWN || event == FL_KEYUP )
+	{
+		int event_key = Fl::event_key( );
+		KeyboardEventsLocker.Lock( );
+		KeyboardEvents.push_back( event );
+		KeyboardEvents.push_back( event_key );
+		KeyboardEventsLocker.Unlock( );
+		return 1;
+	}
+	// Mouse
+	else if( event == FL_PUSH || event == FL_RELEASE || ( event == FL_MOUSEWHEEL && Fl::event_dy( ) != 0 ) )
+	{
+		int event_button = Fl::event_button( );
+		int event_dy = Fl::event_dy( );
+		MouseEventsLocker.Lock( );
+		MouseEvents.push_back( event );
+		MouseEvents.push_back( event_button );
+		MouseEvents.push_back( event_dy );
+		MouseEventsLocker.Unlock( );
+		return 1;
+	}
+
+	if( event == FL_FOCUS )
+		MainWindow->focused = true;
+	if( event == FL_UNFOCUS )
+		MainWindow->focused = false;
+
+	return 0;
 }

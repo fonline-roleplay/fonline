@@ -34,7 +34,7 @@ void FOnline::DestroyOverlay( Overlay* overlay )
 }
 
 OverlayWindowsOGL::OverlayWindowsOGL( )
-{
+{ 
 
 }
 

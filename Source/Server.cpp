@@ -631,11 +631,18 @@ void FOServer::Logic_Work( void* data )
     // Cycle time
     uint cycle_tick = Timer::FastTick();
 
+	double JobPerformance[ JOB_COUNT ];
+	for( uint i = 0; i < JOB_COUNT; i++ )
+		JobPerformance[ i ] = 0.0f;
+
+	double job_tick = 0.0;
     // Word loop
     while( true )
     {
         sync_mngr->UnlockAll();
         Job job = Job::PopFront();
+
+		job_tick = Timer::AccurateTick( );
 
         if( job.Type == JOB_CLIENT )
         {
@@ -850,6 +857,11 @@ void FOServer::Logic_Work( void* data )
             Statistics.LoopMin = loop_min / count;
             Statistics.LoopMax = loop_max / count;
             Statistics.LagsCount = lags / count;
+			for( uint i = 0; i < JOB_COUNT; i++ )
+			{
+				Statistics.JobPerformance[ i ] = JobPerformance[ i ];
+				JobPerformance[ i ] = 0.0f;
+			}
             stats_locker.Unlock();
 
             // Set real cycle count for deferred releasing
@@ -873,6 +885,8 @@ void FOServer::Logic_Work( void* data )
             Sleep( 100 );
             continue;
         }
+		
+		JobPerformance[job.Type] += Timer::AccurateTick( ) - job_tick;
 
         // Add job to back
         uint job_count = Job::PushBack( job );

@@ -787,24 +787,25 @@ public:
 
 	int Lock( )
 	{
-		return Fl::lock( );
+		// return Fl::lock( );
+		return 0;
 	}
 
 	void Unlock( )
 	{
-		Fl::unlock( );
+		//Fl::unlock( );
 	}
 
 	void GetMouse( int& x, int& y )
 	{
-		//Lock( );
+		Lock( );
 		Fl::get_mouse( x, y );
-		//Unlock( );
+		Unlock( );
 	}
 };
 
 template<typename implement>
-class FOWindowImplementation: public FOWindow
+class FOWindowImplementation: public FOWindow_ToDo
 {
 public:
 	FOWindowImplementation( )
@@ -1001,7 +1002,8 @@ void FOWindowImplementation<FOnlineWindow_Fl_implement>::GetDesktopXYWH( int& x,
 
 FOWindow * CreateMainWindow( )
 {
-	return new FOWindowImplementation<FOnlineWindow_Fl_implement>();
+	//return new FOWindowImplementation<FOnlineWindow_Fl_implement>();
+	return new FOWindow( );
 }
 
 int FOnlineWindow_Fl_implement::handle( int event )
@@ -1009,12 +1011,14 @@ int FOnlineWindow_Fl_implement::handle( int event )
 	if( !IsApplicationRun() || GameOpt.Quit )
 		return 0;
 
+	WriteLog( "win event %i\n", event );
+
 	// Keyboard
 	if( event == FL_KEYDOWN || event == FL_KEYUP )
 	{
-		Lock( );
+		//Lock( );
 		int event_key = Fl::event_key( );
-		Unlock( );
+		//Unlock( );
 		KeyboardEventsLocker.Lock( );
 		KeyboardEvents.push_back( event );
 		KeyboardEvents.push_back( event_key );
@@ -1024,12 +1028,12 @@ int FOnlineWindow_Fl_implement::handle( int event )
 	// Mouse
 	else
 	{
-		Lock( );
+		//Lock( );
 		if( event == FL_PUSH || event == FL_RELEASE || ( event == FL_MOUSEWHEEL && Fl::event_dy( ) != 0 ) )
 		{
 			int event_button = Fl::event_button( );
 			int event_dy = Fl::event_dy( );
-			Unlock( );
+			//Unlock( );
 			MouseEventsLocker.Lock( );
 			MouseEvents.push_back( event );
 			MouseEvents.push_back( event_button );
@@ -1037,38 +1041,44 @@ int FOnlineWindow_Fl_implement::handle( int event )
 			MouseEventsLocker.Unlock( );
 			return 1;
 		}
-		Unlock( );
+		//Unlock( );
 	}
 
 	// Focus
 	if( event == FL_FOCUS )
+	{
+		WriteLog( "focus\n" );
 		focused = true;
+		return 1;
+	}
 	if( event == FL_UNFOCUS )
+	{
+		WriteLog( "unfocus\n" );
 		focused = false;
-
+		return 1;
+	}
 	return 0;
 }
 
 bool FOnlineWindow_Fl_implement::ParseFocus( )
 {
-	if( !focused )
-	{
-		ClearMouseEvents( );
-		ClearKeyboardEvents( );
+	if( focused )
+		return true;
 
-	    #ifdef FONLINE_CLIENT
-		if( Script::PrepareContext( ClientFunctions.InputLost, _FUNC_, "Game" ) )
-		#else // FONLINE_CLIENT
-		if( Script::PrepareContext( MapperFunctions.InputLost, _FUNC_, "Game" ) )
-		#endif // !FONLINE_CLIENT
-		{
-			Script::SetArgObject( this );
-			Script::RunPrepared( );
-		}
-		return false;
+	ClearMouseEvents( );
+	ClearKeyboardEvents( );
+		
+    #ifdef FONLINE_CLIENT
+	if( Script::PrepareContext( ClientFunctions.InputLost, _FUNC_, "Game" ) )
+	#else // FONLINE_CLIENT
+	if( Script::PrepareContext( MapperFunctions.InputLost, _FUNC_, "Game" ) )
+	#endif // !FONLINE_CLIENT
+	{
+		Script::SetArgObject( this );
+		Script::RunPrepared( );
 	}
-	return true;
-}
+	return false;
+} 
 
 IntVec FOnlineWindow_Fl_implement::GetKeyboardEvents( )
 {

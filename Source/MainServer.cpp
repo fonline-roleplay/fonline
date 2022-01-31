@@ -46,7 +46,7 @@ Fl_Box*    GuiLabelGameTime, * GuiLabelClients, * GuiLabelIngame, * GuiLabelNPC,
 * GuiLabelItemsCount, * GuiLabelVarsCount, * GuiLabelAnyDataCount, * GuiLabelTECount,
 * GuiLabelFPS, * GuiLabelDelta, * GuiLabelUptime, * GuiLabelSend, * GuiLabelRecv, * GuiLabelCompress;
 Fl_Button* GuiBtnRlClScript, * GuiBtnSaveWorld, * GuiBtnSaveLog, * GuiBtnSaveInfo,
-* GuiBtnCreateDump, * GuiBtnMemory, * GuiBtnPlayers, * GuiBtnLocsMaps, * GuiBtnTimeEvents,
+* GuiBtnCreateDump, * GuiBtnMemory, * GuiBtnPlayers, * GuiBtnLocsMaps, * GuiBtnTimeEvents, *GuiBtnJobPerformance,
 * GuiBtnAnyData, * GuiBtnItemsCount, * GuiBtnProfiler, * GuiBtnStartStop, * GuiBtnSplitUp, * GuiBtnSplitDown;
 Fl_Check_Button* GuiCBtnScriptDebug, * GuiCBtnLogging, * GuiCBtnLoggingTime,
 * GuiCBtnLoggingThread, * GuiCBtnAutoUpdate;
@@ -325,6 +325,8 @@ void GUIInit( IniParser& cfg )
     GUISetup.Setup( GuiBtnSplitUp   = new Fl_Button( GUI_SIZE4( 117, 357, 12, 9 ), "" ) );
     GUISetup.Setup( GuiBtnSplitDown = new Fl_Button( GUI_SIZE4( 117, 368, 12, 9 ), "" ) );
 
+	GUISetup.Setup( GuiBtnJobPerformance = new Fl_Button( GUI_SIZE4( 117, 380, 12, 9 ), "JP" ) );
+
     // Check buttons
     GUISetup.Setup( GuiCBtnAutoUpdate   = new Fl_Check_Button( GUI_SIZE4( 5, 339, 110, 10 ), "Update info every second" ) );
     GUISetup.Setup( GuiCBtnLogging      = new Fl_Check_Button( GUI_SIZE4( 5, 349, 110, 10 ), "Logging" ) );
@@ -342,6 +344,7 @@ void GUIInit( IniParser& cfg )
     GuiBtnPlayers->deactivate();
     GuiBtnLocsMaps->deactivate();
     GuiBtnTimeEvents->deactivate();
+	GuiBtnJobPerformance->deactivate( );
     GuiBtnAnyData->deactivate();
     GuiBtnItemsCount->deactivate();
     GuiBtnProfiler->deactivate();
@@ -431,6 +434,11 @@ void GUICallback( Fl_Widget* widget, void* data )
         FOServer::UpdateIndex = 6;
         FOServer::UpdateLastIndex = 6;
     }
+	else if( widget == GuiBtnJobPerformance )
+	{
+		FOServer::UpdateIndex = 7;
+		FOServer::UpdateLastIndex = 7;
+	}
     else if( widget == GuiBtnStartStop )
     {
         if( !FOQuit )       // End of work
@@ -445,6 +453,7 @@ void GUICallback( Fl_Widget* widget, void* data )
             GuiBtnPlayers->deactivate();
             GuiBtnLocsMaps->deactivate();
             GuiBtnTimeEvents->deactivate();
+			GuiBtnJobPerformance->deactivate( );
             GuiBtnAnyData->deactivate();
             GuiBtnItemsCount->deactivate();
         }
@@ -610,6 +619,44 @@ void UpdateInfo()
             std_str = Script::Profiler::GetStatistics();
             UpdateLogName = "Profiler";
             break;
+		case 7:
+		{
+		#define JOB_NOP                   ( 0 )
+		#define JOB_CLIENT                ( 1 )
+		#define JOB_CRITTER               ( 2 )
+		#define JOB_MAP                   ( 3 )
+		#define JOB_TIME_EVENTS           ( 4 )
+		#define JOB_GARBAGE_ITEMS         ( 5 )
+		#define JOB_GARBAGE_CRITTERS      ( 6 )
+		#define JOB_GARBAGE_LOCATIONS     ( 7 )
+		#define JOB_GARBAGE_SCRIPT        ( 8 )
+		#define JOB_GARBAGE_VARS          ( 9 )
+		#define JOB_DEFERRED_RELEASE      ( 10 )
+		#define JOB_GAME_TIME             ( 11 )
+		#define JOB_BANS                  ( 12 )
+		#define JOB_LOOP_SCRIPT           ( 13 )
+		#define JOB_THREAD_LOOP           ( 14 )
+		#define JOB_THREAD_SYNCHRONIZE    ( 15 )
+		#define JOB_THREAD_FINISH         ( 16 )
+
+			static char* jobNames[] = { "none", "clients", "critters", "maps", "time events", "garbage items", "garbage critters", "garbage locations", "garbage sript", "garbage vars", "deferred release", "game time", "bans", "loopp script", "thread loop", "thread synchronize", "finish" };
+			std_str = "";
+			char buf[ MAX_FOTEXT ] = { 0 };
+			for( uint i = 0; i < JOB_COUNT; i++ )
+			{
+				char name[] = "                    ";
+				for( uint chari = 0; chari < 20; chari++ )
+				{
+					if( jobNames[ i ][ chari ] == '\0' )
+						break;
+					name[ chari ] = jobNames[ i ][ chari ];
+				}
+				Str::Format( buf, "%s-\t%f\n", name, Server.Statistics.JobPerformance[ i ] );
+				std_str += buf;
+			}
+			UpdateLogName = "JobPerformance";
+		}
+			break;
         default:
             UpdateLogName = "";
             break;
@@ -692,6 +739,7 @@ void GameLoopThread( void* )
             GuiBtnPlayers->activate();
             GuiBtnLocsMaps->activate();
             GuiBtnTimeEvents->activate();
+			GuiBtnJobPerformance->activate( );
             GuiBtnAnyData->activate();
             GuiBtnItemsCount->activate();
             GuiBtnStartStop->activate();

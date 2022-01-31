@@ -206,12 +206,12 @@ struct FlMessage
 	};
 };
 
-class FOWindow
+class FOWindow_ToDo
 {
 	int  RefCounter;
 
 public:
-	FOWindow(): RefCounter( 1 ) {}
+	FOWindow_ToDo(): RefCounter( 1 ) {}
 
 	void AddRef( ) { RefCounter++; }
 	void Release( )
@@ -259,6 +259,75 @@ public:
 
 	virtual void GetDesktopResolution( int& w, int& h ) = 0;
 	virtual void GetDesktopXYWH( int& x, int& y, int& w, int& h ) = 0;
+};
+
+class FOWindow: public Fl_Window
+{
+	int  RefCounter;
+public:
+	void AddRef( ) { RefCounter++; }
+	void Release( )
+	{
+		RefCounter--;
+		if( !RefCounter ) delete this;
+	}
+
+	IntVec KeyboardEvents;
+	Mutex  KeyboardEventsLocker;
+
+	IntVec MouseEvents;
+	Mutex  MouseEventsLocker;
+
+	FOWindow( ): Fl_Window( 0, 0, "" ), focused( true ), RefCounter( 1 ) {}
+	virtual ~FOWindow( ) {}
+	virtual int handle( int event );
+	bool focused;
+
+	/*bool ParseFocus( );
+	IntVec GetKeyboardEvents( );
+	IntVec SwapKeyboardEvents( IntVec& newEvents );
+	void SetKeyboardEvents( IntVec& events );
+
+	IntVec GetMouseEvents( );
+	IntVec SwapMouseEvents( IntVec& newEvents );
+	void SetMouseEvents( IntVec& events );*/
+
+	WindowHandle GetHandle( )
+	{
+		return fl_xid( this );
+	}
+
+	void ClearKeyboardEvents( )
+	{
+		KeyboardEventsLocker.Lock( );
+		KeyboardEvents.clear( );
+		KeyboardEventsLocker.Unlock( );
+	}
+
+	void ClearMouseEvents( )
+	{
+		MouseEventsLocker.Lock( );
+		MouseEvents.clear( );
+		MouseEventsLocker.Unlock( );
+	}
+
+	int Lock( )
+	{
+		// return Fl::lock( );
+		return 0;
+	}
+
+	void Unlock( )
+	{
+		//Fl::unlock( );
+	}
+
+	void GetMouse( int& x, int& y )
+	{
+		Lock( );
+		Fl::get_mouse( x, y );
+		Unlock( );
+	}
 };
 
 extern FOWindow* CreateMainWindow( );
