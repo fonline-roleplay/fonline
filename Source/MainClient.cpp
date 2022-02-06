@@ -12,7 +12,7 @@
 
 FOWindow* MainWindow = NULL;
 FOClient* FOEngine = NULL;
-// Thread    Game;
+Thread    Game;
 void GameThread( void* );
 
 int main( int argc, char** argv )
@@ -172,10 +172,10 @@ int main( int argc, char** argv )
     if( GameOpt.FullScreen )
     {
         int sx, sy, sw, sh;
-        MainWindow->GetDesktopXYWH( sx, sy, sw, sh );
-        MainWindow->SetBorder( 0 );
-        MainWindow->SetSize( sw, sh );
-        MainWindow->SetPosition( 0, 0 );
+        Fl::screen_xywh( sx, sy, sw, sh );
+        MainWindow->border( 0 );
+        MainWindow->size( sw, sh );
+        MainWindow->position( 0, 0 );
     }
     #endif
 	
@@ -192,22 +192,22 @@ int main( int argc, char** argv )
 
     // Start
     WriteLog( "Starting FOnline (version %04X-%02X)...\n", CLIENT_VERSION, FO_PROTOCOL_VERSION & 0xFF );
-    // Game.Start( GameThread, "Main" );
+    Game.Start( GameThread, "Main" );
 
-	FOEngine = new FOClient( );
+	//FOEngine = new FOClient( );
 
-	if( !FOEngine || !FOEngine->Init( ) )
+	/*if( !FOEngine || !FOEngine->Init( ) )
 	{
 		WriteLog( "FOnline engine initialization fail.\n" );
 		GameOpt.Quit = true;
-	}
+	}*/
 
     // Loop
 	// int visible_window = 0;
-	while( !GameOpt.Quit )
+	while( !GameOpt.Quit && Fl::wait( ) )
 	{
-		WriteLog( "Fl::wait( )\n" );
-		Fl::lock( );
+		//WriteLog( "Fl::wait( )\n" );
+		/*Fl::lock( );
 		if( !Fl::wait( ) )
 		{
 			Fl::unlock( );
@@ -215,8 +215,8 @@ int main( int argc, char** argv )
 		}
 		Fl::unlock( );
 
-		WriteLog( "Loop\n" );
-		FOEngine->MainLoop( );
+		//WriteLog( "Loop\n" );
+		//FOEngine->MainLoop( );
 		/*visible_window = Fl::wait( );
 		if( visible_window == 0 )
 			break;
@@ -238,9 +238,9 @@ int main( int argc, char** argv )
 	}
 
 	GameOpt.Quit = true;
-	FOEngine->Finish( );
-	delete FOEngine;
-    // Game.Wait();
+	//FOEngine->Finish( );
+	//delete FOEngine;
+    Game.Wait();
 
     // Finish
     #ifdef FO_WINDOWS
@@ -286,7 +286,7 @@ int FOWindow::handle( int event )
 	if( !FOEngine || GameOpt.Quit )
 		return 0;
 
-	WriteLog( "win event %i\n", event );
+	//WriteLog( "win event %i\n", event );
 
 	// Keyboard
 	if( event == FL_KEYDOWN || event == FL_KEYUP )
@@ -322,12 +322,12 @@ int FOWindow::handle( int event )
 	// Focus
 	if( event == FL_FOCUS )
 	{
-		WriteLog( "focus\n" );
+		//WriteLog( "focus\n" );
 		focused = true;
 	}
 	else if( event == FL_UNFOCUS )
 	{
-		WriteLog( "unfocus\n" );
+		//WriteLog( "unfocus\n" );
 		focused = false;
 	}
 	return 0;

@@ -703,6 +703,10 @@ void FOClient::LookBordersDraw()
         SprMngr.DrawPoints( ShootBorders, PRIMITIVE_LINESTRIP, &GameOpt.SpritesZoom );
 }
 
+#define MainLoopCallStackLog( s ) {}
+//#define MainLoopCallStackLog( s ) WriteLog(s);
+
+
 int FOClient::MainLoop()
 {
     // Fixed FPS
@@ -790,27 +794,27 @@ int FOClient::MainLoop()
     // Input
     ConsoleProcess();
     IboxProcess();
-	WriteLog( "ParseKeyboard\n" );
+	MainLoopCallStackLog( "ParseKeyboard\n" );
     ParseKeyboard();
-	WriteLog( "ParseMouse\n" );
+	MainLoopCallStackLog( "ParseMouse\n" );
     ParseMouse();
 
     CHECK_MULTIPLY_WINDOWS1;
 
     // Process
-	WriteLog( "Sound\n" );
+	MainLoopCallStackLog( "Sound\n" );
     SoundProcess();
-	WriteLog( "Anim\n" );
+	MainLoopCallStackLog( "Anim\n" );
     AnimProcess();
 
     // Game time
-	WriteLog( "Game time\n" );
+	MainLoopCallStackLog( "Game time\n" );
     ushort full_second = GameOpt.FullSecond;
     Timer::ProcessGameTime();
     if( full_second != GameOpt.FullSecond )
         SetDayTime( false );
 
-	WriteLog( "IsMainScreen\n" );
+	MainLoopCallStackLog( "IsMainScreen\n" );
     if( IsMainScreen( SCREEN_GLOBAL_MAP ) )
     {
         CrittersProcess();
@@ -838,14 +842,14 @@ int FOClient::MainLoop()
         // CreditsDraw();
     }
 
-	WriteLog( "SCREEN__ELEVATOR\n" );
+	MainLoopCallStackLog( "SCREEN__ELEVATOR\n" );
     if( IsScreenPresent( SCREEN__ELEVATOR ) )
         ElevatorProcess();
 
     CHECK_MULTIPLY_WINDOWS2;
 
     // Script loop
-	WriteLog( "Script loop\n" );
+	MainLoopCallStackLog( "Script loop\n" );
     static uint next_call = 0;
     if( Timer::FastTick() >= next_call )
     {
@@ -854,10 +858,10 @@ int FOClient::MainLoop()
             wait_tick = Script::GetReturnedUInt();
         next_call = Timer::FastTick() + wait_tick;
     }
-	WriteLog( "CollectGarbage\n" );
+	MainLoopCallStackLog( "CollectGarbage\n" );
     Script::CollectGarbage( false );
 
-	WriteLog( "Video\n" );
+	MainLoopCallStackLog( "Video\n" );
     #ifndef FO_D3D
     // Video
     if( IsVideoPlayed() )
@@ -876,7 +880,7 @@ int FOClient::MainLoop()
     CHECK_MULTIPLY_WINDOWS3;
 
     // Render
-	WriteLog( "Render\n" );
+	MainLoopCallStackLog( "Render\n" );
     if( !SprMngr.BeginScene( COLOR_XRGB( 0, 0, 0 ) ) )
         return 0;
 
@@ -975,10 +979,10 @@ int FOClient::MainLoop()
 
     SprMngr.EndScene();
 
-	WriteLog( "LoopOverlay\n" );
+	MainLoopCallStackLog( "LoopOverlay\n" );
 	FOnline::LoopOverlay( );
 
-	WriteLog( "Fixed FPS\n" );
+	MainLoopCallStackLog( "Fixed FPS\n" );
     // Fixed FPS
     if( !GameOpt.VSync && GameOpt.FixedFPS )
     {
@@ -991,16 +995,16 @@ int FOClient::MainLoop()
             {
                 double sleep = need_elapsed - elapsed + balance;
                 balance = fmod ( sleep, 1.0 );
-                // Sleep( (uint) floor( sleep) );
+                Sleep( (uint) floor( sleep) );
             }
         }
         else
         {
-            // Sleep( -GameOpt.FixedFPS );
+            Sleep( -GameOpt.FixedFPS );
         }
     }
 
-	WriteLog( "return\n" );
+	MainLoopCallStackLog( "return\n" );
     return 1;
 }
 
@@ -1526,28 +1530,28 @@ void FOClient::ParseKeyboard()
                         Fl::lock();
                         Fl::screen_xywh( sx, sy, sw, sh );
                         Fl::unlock();
-                        x = MainWindow->GetX();
-                        y = MainWindow->GetY();
-                        w = MainWindow->GetW();
-                        h = MainWindow->GetH();
+                        x = MainWindow->x();
+                        y = MainWindow->y();
+                        w = MainWindow->w();
+                        h = MainWindow->h();
                         valid = 1;
-                        MainWindow->SetBorder( 0 );
-                        MainWindow->SetSize( sw, sh );
-                        MainWindow->SetPosition( 0, 0 );
+                        MainWindow->border( 0 );
+                        MainWindow->size( sw, sh );
+                        MainWindow->position( 0, 0 );
                         GameOpt.FullScreen = true;
                     }
                     else
                     {
-                        MainWindow->SetBorder( 1 );
+                        MainWindow->border( 1 );
                         if( valid )
                         {
-                            MainWindow->SetSize( w, h );
-                            MainWindow->SetPosition( x, y );
+                            MainWindow->size( w, h );
+                            MainWindow->position( x, y );
                         }
                         else
                         {
-                            MainWindow->SetSize( MODE_WIDTH, MODE_HEIGHT );
-                            MainWindow->SetPosition( ( Fl::w() - MODE_WIDTH ) / 2, ( Fl::h() - MODE_HEIGHT ) / 2 );
+                            MainWindow->size( MODE_WIDTH, MODE_HEIGHT );
+                            MainWindow->position( ( Fl::w() - MODE_WIDTH ) / 2, ( Fl::h() - MODE_HEIGHT ) / 2 );
                         }
                         // MainWindow->size_range( 100, 100 );
                         GameOpt.FullScreen = false;

@@ -4682,7 +4682,7 @@ void FOClient::LMenuStayOff()
 		{
 			if( cr && cr->SprDrawValid )
 			{
-				cr->SprDraw->ContourType == cr->ContourColor;
+				cr->SprDraw->ContourType = cr->ContourColor;
 				cr->SprDraw->SetColor( 0 );
 			}
 		}
@@ -5053,8 +5053,10 @@ void FOClient::LMenuTryCreate()
 			else
 			{
 				if( cr && cr->IsDead( ) && cr->SprDrawValid )
-					cr->SprDraw->ContourType == cr->ContourColor;
-				cr->SprDraw->SetColor( cr->ContourColor );
+				{
+					cr->SprDraw->ContourType = cr->ContourColor;
+					cr->SprDraw->SetColor( cr->ContourColor );
+				}
 			}
         }
     }
@@ -12106,10 +12108,10 @@ void FOClient::SaveLoadFillDraft()
     SAFEREL( rt );
     #else
     RenderTarget rt;
-    if( SprMngr.CreateRenderTarget( rt, false, false, MainWindow->GetW(), MainWindow->GetH(), true ) )
+    if( SprMngr.CreateRenderTarget( rt, false, false, MainWindow->w(), MainWindow->h(), true ) )
     {
         GL( glBindTexture( GL_TEXTURE_2D, rt.TargetTexture->Id ) );
-        GL( glCopyTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, 0, 0, MainWindow->GetW(), MainWindow->GetH() ) );
+        GL( glCopyTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, 0, 0, MainWindow->w(), MainWindow->h() ) );
         GL( glBindTexture( GL_TEXTURE_2D, 0 ) );
         SprMngr.PushRenderTarget( SaveLoadDraft );
         SprMngr.DrawRenderTarget( rt, false );

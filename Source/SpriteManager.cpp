@@ -141,7 +141,7 @@ bool SpriteManager::Init( SpriteMngrParams& params )
     Fl::unlock();
     GL( glDisable( GL_SCISSOR_TEST ) );
     GL( glDrawBuffer( GL_BACK ) );
-    GL( glViewport( 0, 0, MainWindow->GetW(), MainWindow->GetH() ) );
+    GL( glViewport( 0, 0, MainWindow->w(), MainWindow->h() ) );
     # ifdef FO_WINDOWS
     deviceContext = wglGetCurrentDC();
     glContext = wglGetCurrentContext();
@@ -1135,7 +1135,7 @@ void SpriteManager::RefreshViewPort()
     }
     else
     {
-        GL( glViewport( 0, 0, MainWindow->GetW(), MainWindow->GetH() ) );
+        GL( glViewport( 0, 0, MainWindow->w(), MainWindow->h() ) );
     }
 }
 
@@ -1367,8 +1367,8 @@ void SpriteManager::SaveSufaces()
 void SpriteManager::SaveTexture( Texture* tex, const char* fname, bool flip )
 {
     // Size
-    uint w = ( tex ? tex->Width : MainWindow->GetW() );
-    uint h = ( tex ? tex->Height : MainWindow->GetH() );
+    uint w = ( tex ? tex->Width : MainWindow->w() );
+    uint h = ( tex ? tex->Height : MainWindow->h() );
 
     // Get data
     uchar* data;
@@ -1379,7 +1379,7 @@ void SpriteManager::SaveTexture( Texture* tex, const char* fname, bool flip )
     else
     {
         data = new uchar[ w * h * 4 ];
-        GL( glReadPixels( 0, 0, MainWindow->GetW(), MainWindow->GetH(), GL_BGRA, GL_UNSIGNED_BYTE, data ) );
+        GL( glReadPixels( 0, 0, MainWindow->w(), MainWindow->h(), GL_BGRA, GL_UNSIGNED_BYTE, data ) );
     }
 
     // Load to DevIL

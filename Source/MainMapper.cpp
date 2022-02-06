@@ -77,9 +77,9 @@ int main( int argc, char** argv )
 		Fl::lock( );
         Fl::screen_xywh( sx, sy, sw, sh );
 		Fl::unlock( );
-        MainWindow->SetBorder( 0 );
-        MainWindow->SetSize( sw, sh );
-        MainWindow->SetPosition( 0, 0 );
+        MainWindow->border( 0 );
+        MainWindow->size( sw, sh );
+        MainWindow->position( 0, 0 );
     }
     #endif
 
