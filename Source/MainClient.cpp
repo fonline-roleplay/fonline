@@ -12,14 +12,11 @@
 
 FOWindow* MainWindow = NULL;
 FOClient* FOEngine = NULL;
-Thread    Game;
 void GameThread( void* );
 
 int main( int argc, char** argv )
 {
     setlocale( LC_ALL, "Russian" );
-	int is_multithreading = Fl::lock( );
-
     RestoreMainDirectory();
 
     // Threading
@@ -27,6 +24,8 @@ int main( int argc, char** argv )
     pthread_win32_process_attach_np();
     #endif
     Thread::SetCurrentName( "GUI" );
+
+	int is_multithreading = Fl::lock( );
 
     // Disable SIGPIPE signal
     #ifdef FO_LINUX
@@ -192,63 +191,34 @@ int main( int argc, char** argv )
 
     // Start
     WriteLog( "Starting FOnline (version %04X-%02X)...\n", CLIENT_VERSION, FO_PROTOCOL_VERSION & 0xFF );
+	
+	Thread    Game;
     Game.Start( GameThread, "Main" );
 
-	//FOEngine = new FOClient( );
-
-	/*if( !FOEngine || !FOEngine->Init( ) )
-	{
-		WriteLog( "FOnline engine initialization fail.\n" );
-		GameOpt.Quit = true;
-	}*/
-
     // Loop
-	// int visible_window = 0;
-	while( !GameOpt.Quit && Fl::wait( ) )
+	int visible_window = 0;
+	while( !GameOpt.Quit )
 	{
-		//WriteLog( "Fl::wait( )\n" );
-		/*Fl::lock( );
-		if( !Fl::wait( ) )
+		visible_window = Fl::wait( );
+		Fl::lock( );
+		if( !visible_window )
 		{
 			Fl::unlock( );
 			break;
 		}
 		Fl::unlock( );
-
-		//WriteLog( "Loop\n" );
-		//FOEngine->MainLoop( );
-		/*visible_window = Fl::wait( );
-		if( visible_window == 0 )
-			break;
-
-		while( true )
-		{
-			void* flmessage = Fl::thread_message( );
-			if( !flmessage )
-				break;
-			FlMessage* mess = ( FlMessage* )flmessage;
-			switch( mess->msg )
-			{
-				case FlMessageIndex::OverlayWindowInit:
-					((FOnline::Overlay*)mess->handle)->InitWindow();
-					break;
-				default: break;
-			}
-		}*/
 	}
-
+	Fl::unlock( );
 	GameOpt.Quit = true;
-	//FOEngine->Finish( );
-	//delete FOEngine;
-    Game.Wait();
+	Game.Wait( );
 
-    // Finish
-    #ifdef FO_WINDOWS
-    if( Singleplayer )
-        SingleplayerData.Finish();
-    #endif
-    WriteLog( "FOnline finished.\n" );
-    LogFinish( -1 );
+	// Finish
+#ifdef FO_WINDOWS
+	if( Singleplayer )
+		SingleplayerData.Finish( );
+#endif
+	WriteLog( "FOnline finished.\n" );
+	LogFinish( -1 );
 	pthread_win32_process_detach_np( );
     return 0;
 }

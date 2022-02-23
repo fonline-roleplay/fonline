@@ -706,6 +706,15 @@ void FOClient::LookBordersDraw()
 #define MainLoopCallStackLog( s ) {}
 //#define MainLoopCallStackLog( s ) WriteLog(s);
 
+class LoopSystem
+{
+	string Name;
+
+public:
+	inline string GetName( ) { return Name; }
+
+	virtual void Run( FOClient& client ) = 0;
+};
 
 int FOClient::MainLoop()
 {

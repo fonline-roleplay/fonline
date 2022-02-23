@@ -2003,6 +2003,7 @@ void* ThreadBeginExecution( void* args )
     delete[] name;
     free( args );
     func( func_arg );
+	pthread_exit( nullptr );
     return NULL;
 }
 
@@ -2028,8 +2029,10 @@ bool Thread::Start( void ( * func )( void* ), const char* name, void* arg /* = N
 
 void Thread::Wait()
 {
-    if( isStarted )
-        pthread_join( threadId, NULL );
+	if( isStarted )
+	{
+		pthread_join( threadId, NULL );
+	}
     isStarted = false;
 }
 
