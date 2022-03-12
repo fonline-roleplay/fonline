@@ -536,6 +536,8 @@ public:
         static void Item_EventMove( Item* item, Critter* cr, uchar from_slot );
         static void Item_EventWalk( Item* item, Critter* cr, bool entered, uchar dir );
 
+		static void Item_SetMode( Item* item, uchar mode );
+
         static void  Item_set_Flags( Item* item, uint value );
         static uint  Item_get_Flags( Item* item );
         static void  Item_set_TrapValue( Item* item, short value );

@@ -289,6 +289,7 @@ BIND_ASSERT( engine->RegisterObjectMethod( "Item", "void EventDrop(Critter& cr)"
 BIND_ASSERT( engine->RegisterObjectMethod( "Item", "void EventMove(Critter& cr, uint8 fromSlot)", asFUNCTION( BIND_CLASS Item_EventMove ), asCALL_CDECL_OBJFIRST ) );
 BIND_ASSERT( engine->RegisterObjectMethod( "Item", "void EventWalk(Critter& cr, bool entered, uint8 dir)", asFUNCTION( BIND_CLASS Item_EventWalk ), asCALL_CDECL_OBJFIRST ) );
 
+BIND_ASSERT( engine->RegisterObjectMethod( "Item", "void SetMode(uint8 mode)", asFUNCTION( BIND_CLASS Item_SetMode ), asCALL_CDECL_OBJFIRST ) );
 // Parameters
 BIND_ASSERT( engine->RegisterObjectProperty( "Item", "const uint Id", OFFSETOF( Item, Id ) ) );
 //BIND_ASSERT( engine->RegisterObjectProperty( "Item", "uint contourColor", OFFSETOF( Item, contourColor ) ) );

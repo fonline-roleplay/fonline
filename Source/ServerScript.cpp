@@ -1140,6 +1140,13 @@ void FOServer::SScriptFunc::Item_EventWalk( Item* item, Critter* cr, bool entere
     item->EventWalk( cr, entered, dir );
 }
 
+void FOServer::SScriptFunc::Item_SetMode( Item* item, uchar mode )
+{
+	if( item->IsNotValid )
+		SCRIPT_ERROR_R( "This nullptr." );
+	item->SetMode( mode );
+}
+
 void FOServer::SScriptFunc::Item_set_Flags( Item* item, uint value )
 {
     if( item->IsNotValid )

@@ -578,6 +578,8 @@ struct BindClass
     static void Item_EventMove()    {}
     static void Item_EventWalk()    {}
 
+	static void Item_SetMode()   {}
+
     static void Item_set_Flags()     {}
     static void Item_get_Flags()     {}
     static void Item_set_TrapValue() {}
