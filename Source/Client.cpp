@@ -8069,7 +8069,7 @@ label_EndMove:
 
             CHECK_NEED_AP( ap_cost );
 
-            if( is_main_item )
+            if( is_main_item && item->Data.Mode == USE_RELOAD )
             {
                 item->SetMode( USE_PRIMARY );
                 Net_SendRateItem();
