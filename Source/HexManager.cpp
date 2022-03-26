@@ -4079,6 +4079,54 @@ uchar* HexManager::GetMapDayColor()
 #ifdef FONLINE_MAPPER
 bool HexManager::SetProtoMap( ProtoMap& pmap )
 {
+
+	class 
+	{
+		bool ShowItem;
+		bool ShowScen;
+		bool ShowWall;
+		bool ShowCrit;
+		bool ShowTile;
+		bool ShowRoof;
+		bool ShowFast;
+
+	public:
+
+		void Set( )
+		{
+			ShowItem = GameOpt.ShowItem;
+			ShowScen = GameOpt.ShowScen;
+			ShowWall = GameOpt.ShowWall;
+			ShowCrit = GameOpt.ShowCrit;
+			ShowTile = GameOpt.ShowTile;
+			ShowRoof = GameOpt.ShowRoof;
+			ShowFast = GameOpt.ShowFast;
+
+			GameOpt.ShowScen = false;
+			GameOpt.ShowWall = false;
+			GameOpt.ShowItem = false;
+			GameOpt.ShowCrit = false;
+			GameOpt.ShowTile = false;
+			GameOpt.ShowRoof = false;
+			GameOpt.ShowFast = false;
+		}
+
+		void Restore( HexManager& mngr )
+		{
+			GameOpt.ShowScen = ShowScen;
+			GameOpt.ShowWall = ShowWall;
+			GameOpt.ShowItem = ShowItem;
+			GameOpt.ShowCrit = ShowCrit;
+			GameOpt.ShowTile = ShowTile;
+			GameOpt.ShowRoof = ShowRoof;
+			GameOpt.ShowFast = ShowFast;
+			mngr.RefreshMap( );
+		}
+
+	} ShowMemmory;
+
+	ShowMemmory.Set( );
+
     WriteLog( "Create map from prototype.\n" );
 
     UnloadMap();
@@ -4090,6 +4138,7 @@ bool HexManager::SetProtoMap( ProtoMap& pmap )
     if( !ResizeField( pmap.Header.MaxHexX, pmap.Header.MaxHexY ) )
     {
         WriteLog( "Buffer allocation fail.\n" );
+		ShowMemmory.Restore( *this );
         return false;
     }
 
@@ -4238,6 +4287,7 @@ bool HexManager::SetProtoMap( ProtoMap& pmap )
     curHashWalls = 0xFFFF;
     curHashScen = 0xFFFF;
     CurProtoMap = &pmap;
+	ShowMemmory.Restore( *this );
     WriteLog( "Create map from prototype complete.\n" );
     return true;
 }
