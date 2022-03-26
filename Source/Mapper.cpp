@@ -192,10 +192,18 @@ bool FOMapper::Init()
     IniParser cfg_server;
     cfg_server.LoadFile( server_cfg_name, PT_SERVER_ROOT );
     char      lang_name[ MAX_FOTEXT ];
-    cfg_server.GetStr( "Language_0", DEFAULT_LANGUAGE, lang_name );
-    if( strlen( lang_name ) != 4 )
-        Str::Copy( lang_name, DEFAULT_LANGUAGE );
-    Str::Lower( lang_name );
+	if( cfg_mapper.GetStr( "Language", DEFAULT_LANGUAGE, lang_name ) )
+	{
+		if( strlen( lang_name ) != 4 )
+			Str::Copy( lang_name, DEFAULT_LANGUAGE );
+		Str::Lower( lang_name );
+	}
+	else if( cfg_server.GetStr( "Language_0", DEFAULT_LANGUAGE, lang_name ) )
+	{
+		if( strlen( lang_name ) != 4 )
+			Str::Copy( lang_name, DEFAULT_LANGUAGE );
+		Str::Lower( lang_name );
+	}
 
     if( !CurLang.Init( lang_name, PT_SERVER_TEXTS ) )
         return false;
