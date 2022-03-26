@@ -5355,7 +5355,7 @@ void FOMapper::InitScriptSystem()
         { &MapperFunctions.InputLost, "input_lost", "void %s()" },
         { &MapperFunctions.CritterAnimation, "critter_animation", "string@ %s(int,uint,uint,uint,uint&,uint&,int&,int&)" },
         { &MapperFunctions.CritterAnimationSubstitute, "critter_animation_substitute", "bool %s(int,uint,uint,uint,uint&,uint&,uint&)" },
-        { &MapperFunctions.CritterAnimationFallout, "critter_animation_fallout", "bool %s(uint,uint&,uint&,uint&,uint&,uint&)" },
+        { &MapperFunctions.CritterAnimationFallout, "critter_animation_fallout", "bool %s(uint,uint&,uint&,uint&,uint&,int&,int&)" },
     };
     Script::BindReservedFunctions( (char*) scripts_cfg.GetBuf(), "mapper", BindGameFunc, sizeof( BindGameFunc ) / sizeof( BindGameFunc[ 0 ] ) );
 
