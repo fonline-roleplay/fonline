@@ -5874,6 +5874,53 @@ void FOClient::Net_OnLoadMap()
     GameOpt.SpritesZoom = 1.0f;
     GmapZoom = 1.0f;
 
+	class
+	{
+		bool ShowItem : 1;
+		bool ShowScen : 1;
+		bool ShowWall : 1;
+		bool ShowCrit : 1;
+		bool ShowTile : 1;
+		bool ShowRoof : 1;
+		bool ShowFast : 1;
+
+	public:
+
+		void Set( )
+		{
+			ShowItem = GameOpt.ShowItem;
+			ShowScen = GameOpt.ShowScen;
+			ShowWall = GameOpt.ShowWall;
+			ShowCrit = GameOpt.ShowCrit;
+			ShowTile = GameOpt.ShowTile;
+			ShowRoof = GameOpt.ShowRoof;
+			ShowFast = GameOpt.ShowFast;
+
+			GameOpt.ShowScen = false;
+			GameOpt.ShowWall = false;
+			GameOpt.ShowItem = false;
+			GameOpt.ShowCrit = false;
+			GameOpt.ShowTile = false;
+			GameOpt.ShowRoof = false;
+			GameOpt.ShowFast = false;
+		}
+
+		void Restore( HexManager& mngr )
+		{
+			GameOpt.ShowScen = ShowScen;
+			GameOpt.ShowWall = ShowWall;
+			GameOpt.ShowItem = ShowItem;
+			GameOpt.ShowCrit = ShowCrit;
+			GameOpt.ShowTile = ShowTile;
+			GameOpt.ShowRoof = ShowRoof;
+			GameOpt.ShowFast = ShowFast;
+			mngr.RefreshMap( );
+		}
+
+	} ShowMemmory;
+
+	ShowMemmory.Set( );
+
     GameMapTexts.clear();
     HexMngr.UnloadMap();
     SndMngr.ClearSounds();
@@ -5909,6 +5956,7 @@ void FOClient::Net_OnLoadMap()
         #else
         SndMngr.PlayMusic( MsgGM->GetStr( STR_MAP_MUSIC_( map_pid ) ) );
         #endif
+		ShowMemmory.Restore( HexMngr );
         WriteLog( "Global map loaded.\n" );
         return;
     }
@@ -5922,11 +5970,13 @@ void FOClient::Net_OnLoadMap()
     if( hash_tiles != hash_tiles_cl || hash_walls != hash_walls_cl || hash_scen != hash_scen_cl )
     {
         Net_SendGiveMap( false, map_pid, 0, hash_tiles_cl, hash_walls_cl, hash_scen_cl );
+		ShowMemmory.Restore( HexMngr );
         return;
     }
 
     if( !HexMngr.LoadMap( map_pid ) )
     {
+		ShowMemmory.Restore( HexMngr );
         WriteLog( "Map not loaded. Disconnect.\n" );
         IsConnected = false;
         return;
@@ -5945,6 +5995,7 @@ void FOClient::Net_OnLoadMap()
     #else
     SndMngr.PlayMusic( MsgGM->GetStr( STR_MAP_MUSIC_( map_pid ) ) );
     #endif
+	ShowMemmory.Restore( HexMngr );
     WriteLog( "Local map loaded.\n" );
 }
 

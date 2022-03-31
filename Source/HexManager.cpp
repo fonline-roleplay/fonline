@@ -4079,16 +4079,15 @@ uchar* HexManager::GetMapDayColor()
 #ifdef FONLINE_MAPPER
 bool HexManager::SetProtoMap( ProtoMap& pmap )
 {
-
 	class 
 	{
-		bool ShowItem;
-		bool ShowScen;
-		bool ShowWall;
-		bool ShowCrit;
-		bool ShowTile;
-		bool ShowRoof;
-		bool ShowFast;
+		bool ShowItem : 1;
+		bool ShowScen : 1;
+		bool ShowWall : 1;
+		bool ShowCrit : 1;
+		bool ShowTile : 1;
+		bool ShowRoof : 1;
+		bool ShowFast : 1;
 
 	public:
 
