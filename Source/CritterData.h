@@ -85,7 +85,22 @@ struct CritData
 
 struct CritDataExt
 {
-    uint   Reserved23[ 10 ];
+	union
+	{
+		uint   Reserved23[ 10 ];
+		struct FileCollectionData
+		{
+			uint CollectionKey;
+			uint FileId;
+			uint FileSize;
+			struct
+			{
+				bool IsPrepared : 1;
+				bool IsSend : 1;
+			} Flags;
+		} FileCollectionContext;
+	};
+
     uchar  GlobalMapFog[ GM_ZONES_FOG_SIZE ];
     ushort Reserved24;
     ushort LocationsCount;

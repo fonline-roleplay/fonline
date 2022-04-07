@@ -576,6 +576,7 @@ bool BufferManager::NeedProcess()
     case NETMSG_SEND_SET_USER_HOLO_STR:
     case NETMSG_USER_HOLO_STR:
     case NETMSG_AUTOMAPS_INFO:
+	case NETMSG_SEND_FILE_IN_COLLECTION:
         return ( msg_len + bufReadPos <= bufEndPos );
     default:
         // Unknown message
@@ -840,6 +841,7 @@ void BufferManager::SkipMsg( uint msg )
     case NETMSG_SEND_SET_USER_HOLO_STR:
     case NETMSG_USER_HOLO_STR:
     case NETMSG_AUTOMAPS_INFO:
+	case NETMSG_SEND_FILE_IN_COLLECTION:
     {
         // Changeable size
         EncryptKey( sizeof( msg ) );
@@ -981,6 +983,7 @@ bool BufferManager::IsValidMsg( uint msg )
     case NETMSG_SEND_SET_USER_HOLO_STR:
     case NETMSG_USER_HOLO_STR:
     case NETMSG_AUTOMAPS_INFO:
+	case NETMSG_SEND_FILE_IN_COLLECTION:
         return true;
     default:
         return false;

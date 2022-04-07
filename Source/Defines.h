@@ -72,7 +72,7 @@ const char ClientSaveSignature[ 4 ] = { 'F', 'O', 0, CLIENT_SAVE_LAST };
 #define GENDER_FEMALE                ( 1 )
 #define GENDER_IT                    ( 2 )
 #define AGE_MAX                      ( 60 )
-#define AGE_MIN                      ( 14 )
+#define AGE_MIN                      ( 18 )
 #define AGGRESSOR_TICK               ( 60000 )
 #define MAX_ENEMY_STACK              ( 30 )
 #define MAX_STORED_IP                ( 20 )

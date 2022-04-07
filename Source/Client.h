@@ -211,6 +211,9 @@ public:
     void Net_OnCheckUID4();
     void Net_OnViewMap();
 
+	void Net_SendFileInCollection( );
+	void Net_ReciveFileInCollection( );
+
     void OnText( const char* str, uint crid, int how_say, ushort intellect );
     void OnMapText( const char* str, ushort hx, ushort hy, uint color, ushort intellect );
 

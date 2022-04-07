@@ -5,6 +5,7 @@
 #include "ItemManager.h"
 
 #ifdef FONLINE_CLIENT
+# include "Client.h"
 # include "SoundManager.h"
 # include "Script.h"
 #endif
@@ -1627,6 +1628,40 @@ Rect CritterCl::GetTextRect()
     return Rect();
 }
 
+void CritterCl::GetNameTextInfo( bool& nameVisible, int& x, int& y, int& w, int& h, int& lines )
+{
+	nameVisible = false;
+
+	string str;
+	if( strTextOnHead.empty( ) )
+	{
+		if( IsPlayer( ) && !GameOpt.ShowPlayerNames )
+			return;
+		if( IsNpc( ) && !GameOpt.ShowNpcNames )
+			return;
+
+		nameVisible = true;
+
+		str = ( NameOnHead.length() == 0 ? Name.c_str() : NameOnHead.c_str( ) );
+		if( GameOpt.ShowCritId )
+			str = Str::FormatBuf( "%s %u", str.c_str(), GetId( ) );
+		if( FLAG( Flags, FCRIT_DISCONNECT ) )
+			str = Str::FormatBuf( "%s %s", str.c_str( ), GameOpt.PlayerOffAppendix.c_str() );
+	}
+	else
+	{
+		str = strTextOnHead;
+	}
+
+	Rect tr = GetTextRect( );
+	x = ( int )( ( float )( tr.L + tr.W( ) / 2 + GameOpt.ScrOx ) / GameOpt.SpritesZoom - 100.0f );
+	y = ( int )( ( float )( tr.T + GameOpt.ScrOy ) / GameOpt.SpritesZoom - 70.0f );
+
+	SprMngr.GetTextInfo( 200, 70, str.c_str( ), -1, FT_CENTERX | FT_BOTTOM | FT_BORDERED, w, h, lines );
+	x += 100 - ( w / 2 );
+	y += 70 - h;
+}
+
 /*
    short CritterCl::GetSprOffX()
    {
@@ -1694,65 +1729,110 @@ void CritterCl::SetText( const char* str, uint color, uint text_delay )
 #ifndef DRAW_TEXT_ON_HEAD_IMGUI
 void CritterCl::DrawTextOnHead()
 {
-    if( strTextOnHead.empty() )
-    {
-        if( IsPlayer() && !GameOpt.ShowPlayerNames )
-            return;
-        if( IsNpc() && !GameOpt.ShowNpcNames )
-            return;
-    }
+	if( SprDrawValid )
+	{
+		bool nameVis;
+		int x, y, w, h, lines;
+		GetNameTextInfo( nameVis, x, y, w, h, lines );
+		Rect   r( x, y, w + x, h + y );
 
-    if( SprDrawValid )
-    {
-        Rect tr = GetTextRect();
-        int  x = (int) ( (float) ( tr.L + tr.W() / 2 + GameOpt.ScrOx ) / GameOpt.SpritesZoom - 100.0f );
-        int  y = (int) ( (float) ( tr.T + GameOpt.ScrOy ) / GameOpt.SpritesZoom - 70.0f );
-        Rect r( x, y, x + 200, y + 70 );
+		string str = "";
+		uint   color;
 
-        char str[ MAX_FOTEXT ];
-        uint color;
-        if( strTextOnHead.empty() )
-        {
-            if( NameOnHead.length() )
-                Str::Copy( str, NameOnHead.c_str() );
-            else
-                Str::Copy( str, Name.c_str() );
-            if( GameOpt.ShowCritId )
-                Str::Append( str, Str::FormatBuf( " <%u>", GetId() ) );
-            if( FLAG( Flags, FCRIT_DISCONNECT ) )
-                Str::Append( str, GameOpt.PlayerOffAppendix.c_str() );
-            color = ( NameColor ? NameColor : COLOR_CRITTER_NAME );
-        }
-        else
-        {
-            Str::Copy( str, strTextOnHead.c_str() );
-            color = textOnHeadColor;
+		uint draw_count = 0;
 
-            if( tickTextDelay > 500 )
-            {
-                uint dt = Timer::GameTick() - tickStartText;
-                uint hide = tickTextDelay - 200;
-                if( dt >= hide )
-                {
-                    uint alpha = 0xFF * ( 100 - Procent( tickTextDelay - hide, dt - hide ) ) / 100;
-                    color = ( alpha << 24 ) | ( color & 0xFFFFFF );
-                }
-            }
-        }
+		uint alpha = 0;
+		if( !strTextOnHead.empty( ) )
+		{
+			color = textOnHeadColor;
 
-        if( fadingEnable )
-        {
-            uint alpha = GetFadeAlpha();
-            SprMngr.DrawStr( r, str, FT_CENTERX | FT_BOTTOM | FT_BORDERED, ( alpha << 24 ) | ( color & 0xFFFFFF ) );
-        }
-        else if( !IsFinishing() )
-        {
-            SprMngr.DrawStr( r, str, FT_CENTERX | FT_BOTTOM | FT_BORDERED, color );
-        }
-    }
+			if( tickTextDelay > 500 )
+			{
+				uint dt = Timer::GameTick( ) - tickStartText;
+				uint hide = tickTextDelay - 200;
+				if( dt >= hide )
+				{
+					uint alpha = 0xFF * ( 100 - Procent( tickTextDelay - hide, dt - hide ) ) / 100;
+					color = ( alpha << 24 ) | ( color & 0xFFFFFF );
+				}
+			}
+			if( fadingEnable )
+			{
+				draw_count++;
+				alpha = GetFadeAlpha( );
+				SprMngr.DrawStr( r, strTextOnHead.c_str(), FT_CENTERX | FT_BOTTOM | FT_BORDERED, ( alpha << 24 ) | ( color & 0xFFFFFF ) );
+			}
+			else if( !IsFinishing( ) )
+			{
+				draw_count++;
+				SprMngr.DrawStr( r, strTextOnHead.c_str( ), FT_CENTERX | FT_BOTTOM | FT_BORDERED, color );
+			}
 
-    if( Timer::GameTick() - tickStartText >= tickTextDelay && !strTextOnHead.empty() )
-        strTextOnHead = "";
+			r[ 1 ] -= h / lines;
+			r[ 3 ] = r[ 1 ] + h / lines;
+			r[ 2 ] += 50;
+			r[ 0 ] -= 50;
+		}
+
+		if( !draw_count )
+		{
+			bool isDraw = true;
+			if( IsPlayer( ) && !GameOpt.ShowPlayerNames )
+				isDraw = false;
+			if( IsNpc( ) && !GameOpt.ShowNpcNames )
+				isDraw = false;
+			if( isDraw )
+			{
+				str = ( NameOnHead.length() == 0 ) ? Name.c_str() : NameOnHead.c_str( );
+				if( GameOpt.ShowCritId )
+					str = Str::FormatBuf( "%s %u", str.c_str( ), GetId( ) );
+				if( FLAG( Flags, FCRIT_DISCONNECT ) )
+					str = Str::FormatBuf( "%s %s", str.c_str( ), GameOpt.PlayerOffAppendix.c_str( ) );
+				color = ( NameColor ? NameColor : COLOR_CRITTER_NAME );
+			}
+
+			if( !str.empty( ) )
+			{
+				if( fadingEnable )
+				{
+					draw_count++;
+					alpha = GetFadeAlpha( );
+					SprMngr.DrawStr( r, str.c_str(), FT_CENTERX | FT_BOTTOM | FT_BORDERED, ( alpha << 24 ) | ( color & 0xFFFFFF ) );
+				}
+				else if( !IsFinishing( ) )
+				{
+					draw_count++;
+					SprMngr.DrawStr( r, str.c_str( ), FT_CENTERX | FT_BOTTOM | FT_BORDERED, color );
+				}
+			}
+		}
+
+	#ifdef FONLINE_CLIENT
+		if( !draw_count )
+		{
+			Rect   tr = GetTextRect( );
+			int    x = ( int )( ( float )( tr.L + tr.W( ) / 2 + GameOpt.ScrOx ) / GameOpt.SpritesZoom - 100.0f );
+			int    y = ( int )( ( float )( tr.T + GameOpt.ScrOy ) / GameOpt.SpritesZoom - 70.0f );
+			r = Rect( x, y, x + 200, y + 70 );
+		}
+		bool old = FOClient::Self->SpritesCanDraw;
+		FOClient::Self->SpritesCanDraw = true;
+		if( Script::PrepareContext( ClientFunctions.CritterNameRender, _FUNC_, "CritterDrawTextOnHead" ) )
+		{
+			Script::SetArgObject( this );
+			Script::SetArgUInt( r[ 0 ] );
+			Script::SetArgUInt( r[ 1 ] );
+			Script::SetArgUInt( r[ 2 ] );
+			Script::SetArgUInt( r[ 3 ] );
+			Script::SetArgUInt( alpha );
+			Script::RunPrepared( );
+		}
+		FOClient::Self->SpritesCanDraw = old;
+	#endif
+	}
+
+	if( Timer::GameTick( ) - tickStartText >= tickTextDelay && !strTextOnHead.empty( ) )
+		strTextOnHead = "";
 }
 #else // DRAW_TEXT_ON_HEAD_IMGUI
 void CritterCl::DrawTextOnHead( )

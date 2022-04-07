@@ -472,6 +472,7 @@ struct ClientScriptFunctions
     int CritterCheckMoveItem;
     int FOWindowEvent;
 	int ImGuiRender;
+	int CritterNameRender;
 } extern ClientFunctions;
 
 struct MapperScriptFunctions

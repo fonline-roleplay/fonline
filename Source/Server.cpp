@@ -3423,7 +3423,7 @@ bool FOServer::InitReal()
     STATIC_ASSERT( sizeof( NpcBagItem ) == 16 );
     STATIC_ASSERT( sizeof( CritData ) == 7404 );
     STATIC_ASSERT( sizeof( CritDataExt ) == 6944 );
-    STATIC_ASSERT( sizeof( GameVar ) == 28 );
+	STATIC_ASSERT( sizeof( GameVar ) == 28 );
     STATIC_ASSERT( sizeof( Mutex ) == 24 );
     STATIC_ASSERT( sizeof( MutexSpinlock ) == 4 );
 	STATIC_ASSERT( sizeof( GameOptions ) == 1320 );//hotrinED

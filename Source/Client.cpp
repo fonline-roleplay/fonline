@@ -10105,7 +10105,8 @@ bool FOClient::ReloadScripts()
         { &ClientFunctions.FilenameScreenshot, "filename_screenshot", "void %s( string& )" },
         { &ClientFunctions.CritterCheckMoveItem, "critter_check_move_item", "bool %s(CritterCl&,ItemCl&,uint8,ItemCl@)" },
 		{ &ClientFunctions.FOWindowEvent, "window_event", "FOWindowEventResult %s(FOWindow@, FOWindowEvent, FOWindowEventData@)" },
-		{ &ClientFunctions.ImGuiRender, "imgui_render", "void %s( FOWindow@ )" }, 
+		{ &ClientFunctions.ImGuiRender, "imgui_render", "void %s( FOWindow@ )" },
+		{ &ClientFunctions.CritterNameRender, "critter_name_render", "void %s( CritterCl@, int, int, int, int, uint )" },
     };
     const char*            config = msg_script.GetStr( STR_INTERNAL_SCRIPT_CONFIG );
     if( !Script::BindReservedFunctions( config, "client", BindGameFunc, sizeof( BindGameFunc ) / sizeof( BindGameFunc[ 0 ] ) ) )
