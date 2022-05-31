@@ -12310,14 +12310,20 @@ bool FOClient::SScriptFunc::Global_GetHexPos( ushort hx, ushort hy, int& x, int&
 
 bool FOClient::SScriptFunc::Global_GetMonitorHex( int x, int y, ushort& hx, ushort& hy, bool ignore_interface )
 {
+    int old_x = GameOpt.MouseX;
+    int old_y = GameOpt.MouseY;
+    GameOpt.MouseX = x;
+    GameOpt.MouseY = y;
     ushort hx_, hy_;
-    if( Self->GetCurHex( hx_, hy_, ignore_interface ) )
+    bool result = Self->GetCurHex( hx_, hy_, ignore_interface );
+    GameOpt.MouseX = old_x;
+    GameOpt.MouseY = old_y;
+    if( result )
     {
         hx = hx_;
         hy = hy_;
-        return true;
     }
-    return false;
+    return result;
 }
 
 Item* FOClient::SScriptFunc::Global_GetMonitorItem( int x, int y, bool ignore_interface )

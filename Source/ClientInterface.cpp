@@ -1076,6 +1076,7 @@ int FOClient::InitIface()
     CurPScrLU = SprMngr.LoadAnimation( "scrnwest.frm", PT_ART_INTRFACE, ANIM_USE_DUMMY );
     CurPScrRD = SprMngr.LoadAnimation( "scrseast.frm", PT_ART_INTRFACE, ANIM_USE_DUMMY );
     CurPScrLD = SprMngr.LoadAnimation( "scrswest.frm", PT_ART_INTRFACE, ANIM_USE_DUMMY );
+	CurRTS = SprMngr.LoadAnimation( "rtscur.frm", PT_ART_INTRFACE, ANIM_USE_DUMMY );
     SprMngr.SurfType = RES_NONE;
     if( !CurPMove )
         return __LINE__;
@@ -1106,6 +1107,8 @@ int FOClient::InitIface()
     if( !CurPScrRD )
         return __LINE__;
     if( !CurPScrLD )
+        return __LINE__;
+	if( !CurRTS )
         return __LINE__;
 
     // LMenu
@@ -10208,6 +10211,21 @@ void FOClient::CurDraw()
             y = GameOpt.MouseY - si->Height + si->OffsY;
         }
         SprMngr.DrawSprite( CurPDef, x, y );
+        break;
+    case CUR_RTS:
+        if( !( si = SprMngr.GetSpriteInfo( CurRTS->GetCurSprId() ) ) )
+            return;
+        if( IsLMenu() )
+        {
+            x = LMenuRestoreCurX - ( si->Width / 2 ) + si->OffsX;
+            y = LMenuRestoreCurY - si->Height + si->OffsY;
+        }
+        else
+        {
+            x = GameOpt.MouseX - ( si->Width / 2 ) + si->OffsX;
+            y = GameOpt.MouseY - si->Height + si->OffsY;
+        }
+        SprMngr.DrawSprite( CurRTS, x, y );
         break;
     case CUR_HAND:
         if( !Chosen )
