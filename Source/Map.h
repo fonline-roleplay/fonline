@@ -99,13 +99,14 @@ public:
     bool GetStartCoordCar( ushort& hx, ushort& hy, ProtoItem* proto_item );
     bool FindStartHex( ushort& hx, ushort& hy, uint multihex, uint seek_radius, bool skip_unsafe );
 
-    void SetId( uint id, ushort pid )
+    inline void SetId( uint id, ushort pid )
     {
         Data.MapId = id;
         Data.MapPid = pid;
     }
-    uint   GetId()  { return Data.MapId; }
-    ushort GetPid() { return Data.MapPid; }
+
+    inline uint   GetId()  { return Data.MapId; }
+    inline ushort GetPid() { return Data.MapPid; }
 
     void AddCritter( Critter* cr );
     void AddCritterEvents( Critter* cr );

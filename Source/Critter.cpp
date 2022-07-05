@@ -290,6 +290,160 @@ void Critter::SyncLockCritters( bool self_critters, bool only_players )
     }
 }
 
+const ushort MAP_UTILITY_START = 92;
+const ushort QST_VISION = 702;
+const ushort QST_INVIS = 701;
+
+bool check_look(Map& map, Critter& cr, Critter& opponent)
+{
+    // Consider remove this
+    if (cr.IsPlayer())
+    {
+        if (((Client*)&cr)->Access >= ACCESS_MODER && cr.GetParam(QST_VISION) > 0)
+            return true;
+    }
+
+    if (map.GetPid() == MAP_UTILITY_START
+        && opponent.IsPlayer()
+        && cr.IsPlayer())
+    {
+        return false;
+    }
+
+    ushort crhexx = cr.GetHexX();
+    ushort crhexy = cr.GetHexY();
+    ushort opphexx = opponent.GetHexX();
+    ushort opphexy = opponent.GetHexY();
+
+    uint dist = DistGame( crhexx, crhexy, opphexx, opphexy); // = cr_hex.get_distance(opp_hex);
+
+    int cr_vision = cr.GetParam(QST_VISION);
+    int cr_perception = cr.GetParam(ST_PERCEPTION);
+
+    int opp_invis = opponent.GetParam(QST_INVIS);
+
+    if (cr_vision >= dist && opp_invis <= dist)
+        return true;
+    if (opp_invis != 0 && (opp_invis - 1) < dist)
+        // && ( !( cr.IsPlayer() ) || cr.IsPlayer() && !isGM( cr ) ) )
+        return false;
+
+    if (opp_invis > dist || cr_vision >= dist)
+        return true;
+
+    /*if (cr.IsNpc())
+    {
+        // упрощенный расчет для нпц, учитывает только дистанцию
+        if (cr.IsDead())
+            return false;
+
+        if (cr.Data.ProtoId >= 2200)
+            // ???
+            return (10 + cr_perception * 5) >= dist;
+    }*/
+
+    uint max_view = 10 + cr_perception * 5;
+    uint max_hear = 5 + cr_perception * 2;
+    if (cr.IsNpc())
+        max_hear += 20;
+
+    bool is_view = true;
+    bool is_hear = true;
+
+    uchar start_dir = GetFarDir(crhexx, crhexy, opphexx, opphexy); // = cr_hex.get_direction(opp_hex);
+    uchar look_dir = ( cr.GetDir() > start_dir ? cr.GetDir() - start_dir : start_dir - cr.GetDir()); // = i8::abs(start_dir as i8 - cr.Dir as i8); //Направление
+
+    if (look_dir > 3)
+        look_dir = 6 - look_dir;
+
+    double hear_mul, view_mul;
+    switch (look_dir)
+    {
+    case 0:
+        hear_mul = 1.0;
+        view_mul = 0.8;
+        break;
+    case 1:
+        hear_mul = 0.8;
+        view_mul = 1.0;
+        break;
+    case 2:
+        hear_mul = 0.5;
+        view_mul = 0.8;
+        break;
+    case 3:
+        hear_mul = 0.4;
+        view_mul = 0.8;
+        break;
+    default:
+        WriteLogF(_FUNC_, " - Invalid look_dir. Creating dump file.\n");
+        CreateDump("check_look", Str::FormatBuf("%s : - Invalid look_dir. Creating dump file, critter<%s>. Creating dump file.\n", _FUNC_, cr.GetInfo()));
+    }
+    /*let(view_mul, mut hear_mul) = match look_dir{
+        0 = > (1.0, 0.8),
+        1 = > (0.8, 1.0),
+        2 = > (0.5, 0.8),
+        3 = > (0.4, 0.8),
+        _ = > unreachable!(),
+    };*/
+
+    if (opponent.IsRuning)
+        hear_mul *= 3.0;
+
+    if (cr.IsRuning)
+        hear_mul *= 0.8;
+
+    max_view *= view_mul; //(max_view as f32 * view_mul) as u32;
+    uint tmp_max_hear = max_hear * hear_mul;
+
+    // new optimization: return early if distance larger than max_view and max_hear
+    if (dist > max_view && dist > tmp_max_hear)
+        return false;
+
+    TraceData trace;
+    trace.TraceMap = &map;
+    trace.BeginHx = cr.GetHexX();
+    trace.BeginHy = cr.GetHexY();
+    trace.EndHx = opponent.GetHexX();
+    trace.EndHy = opponent.GetHexY();
+    MapMngr.TraceBullet(trace);
+    if (!trace.IsFullTrace)
+    {
+        is_view = false;
+        if (cr_perception >= 1 && cr_perception < 5)
+        {
+            hear_mul *= 0.1;
+        }
+        else if (cr_perception >= 5 && cr_perception < 9)
+        {
+            hear_mul *= 0.3;
+        }
+        else if (cr_perception >= 9 && cr_perception < 11)
+        {
+            hear_mul *= 0.4;
+        } 
+    }
+    else if (dist > max_view)
+        is_view = false;
+    /*ushort end_hex = get_hex_in_path(map, cr_hex, opp_hex, 0.0, max_view);
+    if (dist > cr_hex.get_distance(end_hex) )
+    {
+        is_view = false;
+        /*hear_mul *= match cr_perception{
+            1.. = 4 = > 0.1,
+            5.. = 8 = > 0.3,
+            9.. = 10 = > 0.4,
+            _ = > 1.0,
+        };
+    }*/
+
+    //uint max_hear;// = (max_hear as f32 * hear_mul) as u32;
+    if (dist > ( max_hear * hear_mul ) )
+        is_hear = false;
+
+    return is_view || is_hear;
+}
+
 void Critter::ProcessVisibleCritters()
 {
     if( IsNotValid )
@@ -357,9 +511,10 @@ void Critter::ProcessVisibleCritters()
 
         int dist = DistGame( GetHexX(), GetHexY(), cr->GetHexX(), cr->GetHexY() );
 
-        if( FLAG( GameOpt.LookChecks, LOOK_CHECK_SCRIPT ) )
+        // if (FLAG(GameOpt.LookChecks, LOOK_CHECK_SCRIPT))
         {
-            bool allow_self = true;
+            bool allow_self = check_look(*map, *this, *cr);
+                /*true;
             if( Script::PrepareContext( ServerFunctions.CheckLook, _FUNC_, GetInfo() ) )
             {
                 Script::SetArgObject( map );
@@ -367,8 +522,9 @@ void Critter::ProcessVisibleCritters()
                 Script::SetArgObject( cr );
                 if( Script::RunPrepared() )
                     allow_self = Script::GetReturnedBool();
-            }
-            bool allow_opp = true;
+            }*/
+            bool allow_opp = check_look(*map, *cr, *this);
+            /*true;
             if( Script::PrepareContext( ServerFunctions.CheckLook, _FUNC_, GetInfo() ) )
             {
                 Script::SetArgObject( map );
@@ -376,7 +532,7 @@ void Critter::ProcessVisibleCritters()
                 Script::SetArgObject( this );
                 if( Script::RunPrepared() )
                     allow_opp = Script::GetReturnedBool();
-            }
+            }*/
 
             if( allow_self )
             {
@@ -496,7 +652,7 @@ void Critter::ProcessVisibleCritters()
             }
             continue;
         }
-
+        /*
         int look_self = look_base_self;
         int look_opp = cr->GetLook();
 
@@ -698,7 +854,7 @@ void Critter::ProcessVisibleCritters()
                 if( cr->DelCrFromVisSet3( GetId() ) )
                     cr->EventHideCritter3( this );
             }
-        }
+        }*/
     }
 }
 
