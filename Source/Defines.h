@@ -613,6 +613,7 @@ const char ClientSaveSignature[ 4 ] = { 'F', 'O', 0, CLIENT_SAVE_LAST };
 #define LOOK_CHECK_TRACE             ( 0x08 )
 #define LOOK_CHECK_SCRIPT            ( 0x10 )
 #define LOOK_CHECK_ITEM_SCRIPT       ( 0x20 )
+#define LOOK_CHECK_LOOK_DATA         ( 0x40 )
 
 // In SendMessage
 #define MESSAGE_TO_VISIBLE_ME        ( 0 )

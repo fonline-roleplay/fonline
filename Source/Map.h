@@ -29,6 +29,9 @@ extern const char* MapEventFuncName[ MAP_EVENT_MAX ];
 
 class Map;
 class Location;
+class LookData;
+
+#include "LookData.h"
 
 class Map
 {
@@ -57,7 +60,9 @@ public:
         uchar  MapDayColor[ 12 ];
         uint   ProccessSleep;
         uint   ProccessTick;
-        uint   Reserved[ 18 ];
+        LookData Look;
+        uchar  Reserved0[2];
+        uint   Reserved1[6];
         int    UserData[ MAP_MAX_DATA ];
     } Data;
 
@@ -146,13 +151,15 @@ public:
     bool IsHexRaked( ushort hx, ushort hy );
     bool IsHexesPassed( ushort hx, ushort hy, uint radius );
     bool IsMovePassed( ushort hx, ushort hy, uchar dir, uint multihex );
-    bool IsHexItem( ushort hx, ushort hy ) { return FLAG( hexFlags[ hy * GetMaxHexX() + hx ], FH_ITEM ); }
 
-    bool IsHexTrigger( ushort hx, ushort hy ) { return FLAG( Proto->HexFlags[ hy * GetMaxHexX() + hx ], FH_TRIGGER ); }
-    bool IsHexTrap( ushort hx, ushort hy )    { return FLAG( hexFlags[ hy * GetMaxHexX() + hx ], FH_WALK_ITEM ); }
+    inline bool IsHexWall(ushort hx, ushort hy) { return FLAG( Proto->HexFlags[hy * GetMaxHexX() + hx], FH_WALL); }
+    inline bool IsHexItem( ushort hx, ushort hy ) { return FLAG( hexFlags[ hy * GetMaxHexX() + hx ], FH_ITEM ); }
 
-    bool IsHexCritter( ushort hx, ushort hy ) { return FLAG( hexFlags[ hy * GetMaxHexX() + hx ], FH_CRITTER | FH_DEAD_CRITTER ); }
-    bool IsHexGag( ushort hx, ushort hy )     { return FLAG( hexFlags[ hy * GetMaxHexX() + hx ], FH_GAG_ITEM ); }
+    inline bool IsHexTrigger( ushort hx, ushort hy ) { return FLAG( Proto->HexFlags[ hy * GetMaxHexX() + hx ], FH_TRIGGER ); }
+    inline bool IsHexTrap( ushort hx, ushort hy )    { return FLAG( hexFlags[ hy * GetMaxHexX() + hx ], FH_WALK_ITEM ); }
+
+    inline bool IsHexCritter( ushort hx, ushort hy ) { return FLAG( hexFlags[ hy * GetMaxHexX() + hx ], FH_CRITTER | FH_DEAD_CRITTER ); }
+    inline bool IsHexGag( ushort hx, ushort hy )     { return FLAG( hexFlags[ hy * GetMaxHexX() + hx ], FH_GAG_ITEM ); }
 
     bool     IsFlagCritter( ushort hx, ushort hy, bool dead );
     void     SetFlagCritter( ushort hx, ushort hy, uint multihex, bool dead );

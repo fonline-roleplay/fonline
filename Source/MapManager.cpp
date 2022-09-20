@@ -1676,12 +1676,13 @@ void MapManager::TraceBullet( TraceData& trace )
     trace.IsCritterFounded = false;
     trace.IsHaveLastPassed = false;
     trace.IsTeammateFounded = false;
+    trace.NotRakedTrace = false;
     bool last_passed_ok = false;
     for( uint i = 0; ; i++ )
     {
         if( i >= dist )
         {
-            trace.IsFullTrace = true;
+            trace.IsFullTrace = !trace.NotRakedTrace;
             break;
         }
 
@@ -1697,9 +1698,11 @@ void MapManager::TraceBullet( TraceData& trace )
 
         if( trace.HexCallback )
         {
-            trace.HexCallback( map, trace.FindCr, old_cx, old_cy, cx, cy, dir );
+            bool result = trace.HexCallback( map, trace.FindCr, old_cx, old_cy, cx, cy, dir );
             old_cx = cx;
             old_cy = cy;
+            if (trace.CallbackBreakIsTrue && result)
+                break;
             continue;
         }
 
@@ -1715,9 +1718,19 @@ void MapManager::TraceBullet( TraceData& trace )
                 last_passed_ok = true;
         }
 
-        if( !map->IsHexRaked( cx, cy ) )
-            break;
-        if( trace.Critters != NULL && map->IsHexCritter( cx, cy ) )
+        if (!map->IsHexRaked(cx, cy))
+        {
+            trace.NotRakedTrace = true;
+            if( !trace.ForceFullTrace )
+                break;
+        }
+        if (trace.Walls && map->IsHexWall( cx, cy ))
+        {
+            map->Proto->GetWalls(cx, cy, *trace.Walls);
+        }
+        if (trace.Items && map->IsHexItem(cx, cy))
+            map->GetItemsHex( cx, cy, *trace.Items, false );
+        if( trace.Critters && map->IsHexCritter( cx, cy ) )
             map->GetCrittersHex( cx, cy, 0, trace.FindType, *trace.Critters, false );
         if( ( trace.FindCr || trace.IsCheckTeam ) && map->IsFlagCritter( cx, cy, false ) )
         {

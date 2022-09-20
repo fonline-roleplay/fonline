@@ -3,6 +3,7 @@
 #include "AngelScript/Preprocessor/preprocess.h"
 #include "Version.h"
 #include "ScriptPragmas.h"
+#include "LookData.h"
 
 // Global_LoadImage
 #include "PNG/png.h"

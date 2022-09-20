@@ -329,6 +329,9 @@
     <ClCompile Include="..\Source\AngelScript\scriptgrid.cpp">
       <Filter>AngelScript</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\LookData.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\Zlib\crc32.h">
@@ -675,6 +678,9 @@
     </ClInclude>
     <ClInclude Include="..\Source\AngelScript\scriptgrid.h">
       <Filter>AngelScript</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\LookData.h">
+      <Filter>Server</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

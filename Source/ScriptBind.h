@@ -1650,6 +1650,65 @@ BIND_ASSERT( engine->RegisterGlobalFunction( "void AddConstant(int constCollecti
 BIND_ASSERT( engine->RegisterGlobalFunction( "bool LoadConstants(int constCollection, string@+ fileName, int pathType)", asFUNCTION( BIND_CLASS Global_LoadConstants ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "void AllowSlot(uint8 index, string& slotName)", asFUNCTION( BIND_CLASS Global_AllowSlot ), asCALL_CDECL ) );
 
+#ifndef BIND_MAPPER
+BIND_ASSERT(engine->RegisterObjectType("LookData", 0, asOBJ_REF));
+
+BIND_ASSERT(engine->RegisterObjectBehaviour("LookData", asBEHAVE_ADDREF, "void f()", asMETHOD(LookData, AddRef), asCALL_THISCALL));
+BIND_ASSERT(engine->RegisterObjectBehaviour("LookData", asBEHAVE_RELEASE, "void f()", asMETHOD(LookData, Release), asCALL_THISCALL));
+
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 ViewDirMultiplier_0", OFFSETOF(LookData, ViewDirMultiplier[0])));
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 ViewDirMultiplier_1", OFFSETOF(LookData, ViewDirMultiplier[1])));
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 ViewDirMultiplier_2", OFFSETOF(LookData, ViewDirMultiplier[2])));
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 ViewDirMultiplier_3", OFFSETOF(LookData, ViewDirMultiplier[3])));
+
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 HearDirMultiplier_0", OFFSETOF(LookData, HearDirMultiplier[0])));
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 HearDirMultiplier_1", OFFSETOF(LookData, HearDirMultiplier[1])));
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 HearDirMultiplier_2", OFFSETOF(LookData, HearDirMultiplier[2])));
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 HearDirMultiplier_3", OFFSETOF(LookData, HearDirMultiplier[3])));
+
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint16 RunningNoiseMultiplier", OFFSETOF(LookData, RunningNoiseMultiplier)));
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 RunningHearMultiplier", OFFSETOF(LookData, RunningHearMultiplier)));
+
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "int8 MaxView", OFFSETOF(LookData, MaxView)));
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "int8 MaxHear", OFFSETOF(LookData, MaxHear)));
+
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 Vision", OFFSETOF(LookData, Vision)));
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 Invis", OFFSETOF(LookData, Invis)));
+
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 HideViewDirMultiplier_0", OFFSETOF(LookData, HideViewDirMultiplier[0])));
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 HideViewDirMultiplier_1", OFFSETOF(LookData, HideViewDirMultiplier[1])));
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 HideViewDirMultiplier_2", OFFSETOF(LookData, HideViewDirMultiplier[2])));
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 HideViewDirMultiplier_3", OFFSETOF(LookData, HideViewDirMultiplier[3])));
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 HideViewDirMultiplier_4", OFFSETOF(LookData, HideViewDirMultiplier[4])));
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 HideViewDirMultiplier_5", OFFSETOF(LookData, HideViewDirMultiplier[5])));
+
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 HideHearDirMultiplier_0", OFFSETOF(LookData, HideHearDirMultiplier[0])));
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 HideHearDirMultiplier_1", OFFSETOF(LookData, HideHearDirMultiplier[1])));
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 HideHearDirMultiplier_2", OFFSETOF(LookData, HideHearDirMultiplier[2])));
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 HideHearDirMultiplier_3", OFFSETOF(LookData, HideHearDirMultiplier[3])));
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 HideHearDirMultiplier_4", OFFSETOF(LookData, HideHearDirMultiplier[4])));
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 HideHearDirMultiplier_5", OFFSETOF(LookData, HideHearDirMultiplier[5])));
+
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 HideViewMultiplier", OFFSETOF(LookData, HideViewMultiplier)));
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 HideHearMultiplier", OFFSETOF(LookData, HideHearMultiplier)));
+
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 WorkDir", OFFSETOF(LookData, dir)));
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint16 WorkHexX", OFFSETOF(LookData, hexx)));
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint16 WorkHexY", OFFSETOF(LookData, hexy)));
+
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "bool WorkIsPlayer", OFFSETOF(LookData, isplayer)));
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "bool WorkIsRuning", OFFSETOF(LookData, isruning)));
+
+BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 WorkAccess", OFFSETOF(LookData, access)));
+
+BIND_ASSERT(engine->RegisterGlobalFunction("uint8 get_WallMaterialHearMultiplier( uint index )", asFUNCTION(LookData::GetWallMaterialHearMultiplier), asCALL_CDECL));
+BIND_ASSERT(engine->RegisterGlobalFunction("void set_WallMaterialHearMultiplier( uint index, uint8 value )", asFUNCTION(LookData::SetWallMaterialHearMultiplier), asCALL_CDECL));
+
+#ifdef BIND_SERVER
+BIND_ASSERT(engine->RegisterObjectProperty("Critter", "LookData Look", OFFSETOF(Critter, Data) + OFFSETOF(CritData, Look)));
+BIND_ASSERT(engine->RegisterObjectProperty("Map", "LookData Look", OFFSETOF(Map, Data.Look)));
+#endif
+#endif
 /************************************************************************/
 /*                                                                      */
 /************************************************************************/

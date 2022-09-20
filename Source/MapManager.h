@@ -52,6 +52,7 @@ struct TraceData
     uint        BaseCrTeamId;
     bool        LastPassedSkipCritters;
     bool        ( * HexCallback )( Map*, Critter*, ushort, ushort, ushort, ushort, uchar );
+    bool        CallbackBreakIsTrue;
     // Output
     CrVec*      Critters;
     UShortPair* PreBlock;
@@ -61,6 +62,13 @@ struct TraceData
     bool        IsCritterFounded;
     bool        IsHaveLastPassed;
     bool        IsTeammateFounded;
+
+    SceneryClRefVec* Walls;
+    SceneryClRefVec* Sceneries;
+
+    ItemPtrVec* Items;
+    bool        ForceFullTrace;
+    bool        NotRakedTrace;
 
     TraceData() { memzero( this, sizeof( TraceData ) ); }
 };

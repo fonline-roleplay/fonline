@@ -3733,6 +3733,9 @@ void FOServer::Process_Dir( Client* cl )
 
     cl->Data.Dir = dir;
     cl->SendA_Dir();
+
+    cl->ProcessVisibleCritters();
+    cl->ProcessVisibleItems();
 }
 
 void FOServer::Process_SetUserHoloStr( Client* cl )

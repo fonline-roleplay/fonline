@@ -6,6 +6,7 @@
 
 #include "imgui.h"
 #include "ImGuiOverlay.h"
+#include "LookData.h"
 
 // Check buffer for error
 #define CHECK_IN_BUFF_ERROR                          \

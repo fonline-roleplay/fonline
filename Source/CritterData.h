@@ -5,6 +5,7 @@
 #include "FileManager.h"
 #include "AI.h"
 #include "Defines.h"
+#include "LookData.h"
 
 #define MAX_CRIT_PROTOS         ( 10000 )
 #define MAX_STORED_LOCATIONS    ( 1000 )
@@ -44,7 +45,7 @@ struct CritData
     uint       Anim2KnockoutEnd;
     uint       Reserved3[ 3 ];
     char       Lexems[ LEXEMS_SIZE ];
-    uint       Reserved4[ 8 ];
+    uint       Reserved4[8];
     bool       ClientToDelete;
     uchar      Reserved5;
     ushort     Reserved6;
@@ -80,7 +81,9 @@ struct CritData
     uchar      Reserved21;
     uchar      BagSize;
     NpcBagItem Bag[ MAX_NPC_BAGS ];
-    uint       Reserved22[ 100 ];
+    LookData   Look;
+    uint       Reserved22[88];
+    uchar      Reserved23[2];
 };
 
 struct CritDataExt
