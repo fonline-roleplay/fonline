@@ -7,6 +7,7 @@
 #include "IniParser.h"
 
 NpcAIMngr AIMngr;
+uint ParseError = 0;
 
 /************************************************************************/
 /* Parsers                                                              */
@@ -22,6 +23,7 @@ string ParseBagComb( const char* str )
 NpcBagItems ParseBagItems( const char* str )
 {
     NpcBagItems items;
+    const char* begin_line = str;
 
 label_ParseNext:
     NpcBagItem i;
@@ -34,8 +36,12 @@ label_ParseNext:
         *pbuf = *str;
     *pbuf = 0;
     int pid = ConstantsManager::GetItemPid( buf );
-    if( pid < 0 )
+    if (pid < 0)
+    {
+        WriteLog("Error parse item bags pid: <%s> problem string <%s>.\n", buf, begin_line);
+        ParseError++;
         return items;
+    }
     i.ItemPid = pid;
     // Parse place
     if( *str == '^' )
@@ -197,7 +203,7 @@ bool NpcAIMngr::LoadNpcBags()
 
     delete[] bag_str;
     WriteLog( "Loaded<%d> bags.\n", bag_count );
-    return true;
+    return ParseError == 0;
 }
 
 /************************************************************************/
