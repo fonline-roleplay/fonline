@@ -53,6 +53,21 @@ label_ParseNext:
             i.ItemSlot = SLOT_HAND2;
         else if( *str == 'a' )
             i.ItemSlot = SLOT_ARMOR;
+        else
+        {
+            pbuf = buf;
+            for (; *str != '_'; str++, pbuf++)
+                *pbuf = *str;
+            *pbuf = 0;
+            if (Str::Compare(buf, "slot"))
+            {
+                str++;
+                buf[0] = *str;
+                buf[1] = 0;
+                i.ItemSlot = atoi(buf);
+            }
+            else WriteLog("Error parse item bags slot: <%s> problem string <%s>.\n", str, begin_line);
+        }
         if( *str )
             str++;
     }
