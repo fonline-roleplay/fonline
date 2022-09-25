@@ -585,26 +585,8 @@ void Critter::ProcessVisibleCritters()
 
             cr->Data.Look.InitCritter(*cr);
             bool allow_self = check_look(*map, this->Data.Look, cr->Data.Look);
-                /*true;
-            if( Script::PrepareContext( ServerFunctions.CheckLook, _FUNC_, GetInfo() ) )
-            {
-                Script::SetArgObject( map );
-                Script::SetArgObject( this );
-                Script::SetArgObject( cr );
-                if( Script::RunPrepared() )
-                    allow_self = Script::GetReturnedBool();
-            }*/
             bool allow_opp = check_look(*map, cr->Data.Look, this->Data.Look);
-            /*true;
-            if( Script::PrepareContext( ServerFunctions.CheckLook, _FUNC_, GetInfo() ) )
-            {
-                Script::SetArgObject( map );
-                Script::SetArgObject( cr );
-                Script::SetArgObject( this );
-                if( Script::RunPrepared() )
-                    allow_opp = Script::GetReturnedBool();
-            }*/
-
+            
             if (allow_self)
             {
                 if (cr->AddCrIntoVisVec(this))

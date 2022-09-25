@@ -6366,6 +6366,22 @@ void FOServer::SScriptFunc::Global_Resynchronize()
         SCRIPT_ERROR_R( "Invalid call." );
 }
 
+LookData* FOServer::SScriptFunc::Crit_GetLookData( Critter* critter )
+{
+    if (critter->IsNotValid)
+        SCRIPT_ERROR_R0("This nullptr.");
+    
+    return &critter->Data.Look;
+}
+
+LookData* FOServer::SScriptFunc::Map_GetLookData( Map* map )
+{
+    if (map->IsNotValid)
+        SCRIPT_ERROR_R0("This nullptr.");
+
+    return &map->Data.Look;
+}
+
 /************************************************************************/
 /*                                                                      */
 /************************************************************************/

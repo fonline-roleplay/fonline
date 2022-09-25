@@ -932,6 +932,9 @@ public:
         static uint          Global_GetImageColor( uint index, uint x, uint y );
         static void          Global_Synchronize();
         static void          Global_Resynchronize();
+
+        static LookData* Crit_GetLookData(Critter* critter);
+        static LookData* Map_GetLookData(Map* map);
     } ScriptFunc;
 };
 

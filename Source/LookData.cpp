@@ -82,8 +82,8 @@ void LookData::InitCritter(Critter& critter)
 
     isruning = critter.IsRuning;
 
-    InitLook(critter);
-    InitHide(critter);
+    //InitLook(critter);
+    //InitHide(critter);
 }
 
 void LookData::InitMap(Map& map)
@@ -128,16 +128,16 @@ LookData LookData::GetMixed(LookData& other)
 
 void LookData::AddRef() const
 {
-    asAtomicInc(refcounter);
+    //asAtomicInc(refcounter);
 }
 
 void LookData::Release() const
 {
-    if (asAtomicDec(refcounter) == 0)
+    /*if (asAtomicDec(refcounter) == 0)
     {
         this->~LookData();
         userFree(const_cast<LookData*>(this));
-    }
+    }*/
 }
 
 unsigned char LookData::GetWallMaterialHearMultiplier(unsigned index)

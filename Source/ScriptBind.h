@@ -1705,9 +1705,22 @@ BIND_ASSERT(engine->RegisterGlobalFunction("uint8 get_WallMaterialHearMultiplier
 BIND_ASSERT(engine->RegisterGlobalFunction("void set_WallMaterialHearMultiplier( uint index, uint8 value )", asFUNCTION(LookData::SetWallMaterialHearMultiplier), asCALL_CDECL));
 
 #ifdef BIND_SERVER
-BIND_ASSERT(engine->RegisterObjectProperty("Critter", "LookData Look", OFFSETOF(Critter, Data) + OFFSETOF(CritData, Look)));
-BIND_ASSERT(engine->RegisterObjectProperty("Map", "LookData Look", OFFSETOF(Map, Data.Look)));
+BIND_ASSERT(engine->RegisterObjectMethod("Critter", "LookData@ get_Look()", asFUNCTION(BIND_CLASS Crit_GetLookData), asCALL_CDECL_OBJFIRST));
+BIND_ASSERT(engine->RegisterObjectMethod("Map", "LookData@ get_Look()", asFUNCTION(BIND_CLASS Map_GetLookData), asCALL_CDECL_OBJFIRST));
 #endif
+/*
+BIND_ASSERT(engine->RegisterObjectMethod("LookData", "uint8 get_HideViewDirMultiplier( uint index )", asFUNCTION(BIND_CLASS LookData_GetHideViewDirMultiplier), asCALL_CDECL_OBJFIRST));
+BIND_ASSERT(engine->RegisterObjectMethod("LookData", "void set_HideViewDirMultiplier( uint index, uint8 value )", asFUNCTION(BIND_CLASS LookData_SetHideViewDirMultiplier), asCALL_CDECL_OBJFIRST));
+
+BIND_ASSERT(engine->RegisterObjectMethod("LookData", "uint8 get_HideHearDirMultiplier( uint index )", asFUNCTION(BIND_CLASS LookData_GetHideHearDirMultiplier), asCALL_CDECL_OBJFIRST));
+BIND_ASSERT(engine->RegisterObjectMethod("LookData", "void set_HideHearDirMultiplier( uint index, uint8 value )", asFUNCTION(BIND_CLASS LookData_SetHideHearDirMultiplier), asCALL_CDECL_OBJFIRST));
+
+BIND_ASSERT(engine->RegisterObjectMethod("LookData", "uint8 get_ViewDirMultiplier( uint index )", asFUNCTION(BIND_CLASS LookData_GetViewDirMultiplier), asCALL_CDECL_OBJFIRST));
+BIND_ASSERT(engine->RegisterObjectMethod("LookData", "void set_ViewDirMultiplier( uint index, uint8 value )", asFUNCTION(BIND_CLASS LookData_SetViewDirMultiplier), asCALL_CDECL_OBJFIRST));
+
+BIND_ASSERT(engine->RegisterObjectMethod("LookData", "uint8 get_HearDirMultiplier( uint index )", asFUNCTION(BIND_CLASS LookData_GetHearDirMultiplier), asCALL_CDECL_OBJFIRST));
+BIND_ASSERT(engine->RegisterObjectMethod("LookData", "void set_HearDirMultiplier( uint index, uint8 value )", asFUNCTION(BIND_CLASS LookData_SetHearDirMultiplier), asCALL_CDECL_OBJFIRST));
+*/
 #endif
 /************************************************************************/
 /*                                                                      */
