@@ -328,7 +328,7 @@ bool check_look(Map& map, LookData& lookbase, LookData& hide)
     if (look_dir > 3)
         look_dir = 6 - look_dir;
 
-    double hear_mul = look.HearDirMultiplier[look_dir], 
+    unsigned int hear_mul = look.HearDirMultiplier[look_dir], 
         view_mul = look.ViewDirMultiplier[look_dir];
 
     if (hide.isruning)
@@ -338,7 +338,7 @@ bool check_look(Map& map, LookData& lookbase, LookData& hide)
         hear_mul *= look.RunningHearMultiplier;
 
     max_view = (uint) ( max_view * ( view_mul * 0.01 ) );
-    uint tmp_max_hear = (uint)( max_hear * hear_mul );
+    uint tmp_max_hear =  max_hear * hear_mul;
 
     // new optimization: return early if distance larger than max_view and max_hear
     if (dist > max_view && dist > tmp_max_hear)
@@ -347,6 +347,8 @@ bool check_look(Map& map, LookData& lookbase, LookData& hide)
     static TraceData trace;
     if (!trace.Walls)
         trace.Walls = new SceneryClRefVec();
+    if (!trace.Items)
+        trace.Items = new ItemPtrVec();
 
     trace.ForceFullTrace = true;
     trace.TraceMap = &map;
@@ -356,8 +358,26 @@ bool check_look(Map& map, LookData& lookbase, LookData& hide)
     trace.EndHy = hide.hexy;
     MapMngr.TraceBullet(trace);
 
+    ProtoItem*  protoItem = nullptr;
     for (auto it = trace.Walls->begin(), end = trace.Walls->end(); it != end; ++it)
-        hear_mul *= LookData::WallMaterialHearMultiplier[ItemMngr.GetProtoItem((*it)->ProtoId)->Material];
+    {
+        protoItem = ItemMngr.GetProtoItem((*it)->ProtoId);
+        if(protoItem && protoItem->IsBlocks() )
+            hear_mul *= LookData::WallMaterialHearMultiplier[protoItem->Material];
+    }
+
+    for (auto it = trace.Items->begin(), end = trace.Items->end(); it != end; ++it)
+    {
+        if ((*it)->IsViewBlocks())
+        {
+
+        }
+
+        if ((*it)->IsHearBlocks())
+        {
+
+        }
+    }
 
     if (!trace.IsFullTrace)
         is_view = false; 

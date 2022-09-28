@@ -450,7 +450,7 @@
 #define NETMSG_ADD_ITEM                       MAKE_NETMSG_HEADER( 65 )
 #define NETMSG_ADD_ITEM_SIZE            \
     ( sizeof( uint ) + sizeof( uint ) + \
-      sizeof( ushort ) + sizeof( uchar ) + 120 /*ItemData*/ )
+      sizeof( ushort ) + sizeof( uchar ) + sizeof( int ) + 120 /*ItemData*/ )
 // ////////////////////////////////////////////////////////////////////////
 //
 // Params:
@@ -484,7 +484,7 @@
 #define NETMSG_ADD_ITEM_ON_MAP                MAKE_NETMSG_HEADER( 71 )
 #define NETMSG_ADD_ITEM_ON_MAP_SIZE     \
     ( sizeof( uint ) + sizeof( uint ) + \
-      sizeof( ushort ) * 3 + sizeof( uchar ) + 120 /*ItemData*/ )
+      sizeof( ushort ) * 3 + sizeof( uchar ) + sizeof( int ) + 120 /*ItemData*/ )
 // ////////////////////////////////////////////////////////////////////////
 //
 // Params:

@@ -311,6 +311,10 @@ public:
     bool IsEffect()    { return Type == ITEM_TYPE_EFFECT; }
 
     bool IsBlocks() { return BlockLines[ 0 ] != 0; }
+
+    bool IsViewBlocks() { return false; }
+    bool IsHearBlocks() { return false; }
+
     bool LockerIsChangeble()
     {
         if( IsDoor() ) return true;
@@ -508,6 +512,9 @@ public:
     bool IsNoLoot()           { return FLAG( Data.Flags, ITEM_NO_LOOT ); }
     bool IsNoSteal()          { return FLAG( Data.Flags, ITEM_NO_STEAL ); }
     bool IsGag()              { return FLAG( Data.Flags, ITEM_GAG ); }
+
+    bool IsViewBlocks() { return Proto->IsViewBlocks(); }
+    bool IsHearBlocks() { return Proto->IsHearBlocks(); }
 
     uint GetVolume()    { return GetCount() * Proto->Volume; }
     uint GetVolume1st() { return Proto->Volume; }
