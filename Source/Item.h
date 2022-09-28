@@ -239,7 +239,7 @@ public:
         char UserData[PROTO_ITEM_USER_DATA_SIZE];
 		struct 
 		{
-			char Unknow0[ 338 ];
+			char Unknow0[ 339 ];
 
             unsigned char Look_BlockDir[6]; // 6
             unsigned char Look_Block; // 1
@@ -247,7 +247,7 @@ public:
             unsigned char Hear_BlockDir[6]; // 6
             unsigned char Hear_Block; // 1
 
-            char Unknow1[141];
+            char Unknow1[140];
 
             unsigned char Item_Hitpoints; // 1
             unsigned char Fire_Strength; // 1
