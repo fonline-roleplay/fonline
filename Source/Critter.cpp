@@ -328,8 +328,8 @@ bool check_look(Map& map, LookData& lookbase, LookData& hide)
     if (look_dir > 3)
         look_dir = 6 - look_dir;
 
-    unsigned int hear_mul = look.HearDirMultiplier[look_dir], 
-        view_mul = look.ViewDirMultiplier[look_dir];
+    unsigned int hear_mul = look.HearDirMultiplier[look_dir] * hide.HideHearMultiplier * hide.HideHearDirMultiplier[start_dir],
+        view_mul = look.ViewDirMultiplier[look_dir] * hide.HideViewMultiplier * hide.HideViewDirMultiplier[start_dir];
 
     if (hide.isruning)
         hear_mul *= hide.RunningNoiseMultiplier;
@@ -366,16 +366,27 @@ bool check_look(Map& map, LookData& lookbase, LookData& hide)
             hear_mul *= LookData::WallMaterialHearMultiplier[protoItem->Material];
     }
 
+    Item* traceItem = nullptr;
+    bool isHex = false;
     for (auto it = trace.Items->begin(), end = trace.Items->end(); it != end; ++it)
     {
-        if ((*it)->IsViewBlocks())
-        {
+        traceItem = *it;
+        isHex = (look.hexx == traceItem->AccHex.HexX && look.hexy == traceItem->AccHex.HexY);
 
+        if (traceItem->IsViewBlocks())
+        {
+            if (isHex)
+                view_mul *= traceItem->Proto->FORPData.Look_Block;
+            else
+                view_mul *= traceItem->Proto->FORPData.Look_BlockDir[GetFarDir(look.hexx, look.hexy, traceItem->AccHex.HexX, traceItem->AccHex.HexY)];
         }
 
-        if ((*it)->IsHearBlocks())
+        if (traceItem->IsHearBlocks())
         {
-
+            if (isHex)
+                hear_mul *= traceItem->Proto->FORPData.Hear_Block;
+            else
+                hear_mul *= traceItem->Proto->FORPData.Hear_BlockDir[GetFarDir(look.hexx, look.hexy, traceItem->AccHex.HexX, traceItem->AccHex.HexY)];
         }
     }
 
