@@ -290,16 +290,11 @@ void Critter::SyncLockCritters( bool self_critters, bool only_players )
     }
 }
 
-int MAP_UTILITY_START = 92;
-
 bool check_look(Map& map, LookData& look, LookData& hide)
 {
     // Consider remove this
     if (look.access >= ACCESS_MODER && look.Vision > 0)
             return true;
-
-    if (map.GetPid() == MAP_UTILITY_START && hide.isplayer && look.isplayer)
-        return false;
 
     uint dist = DistGame(look.hexx, look.hexy, hide.hexx, hide.hexy); // = cr_hex.get_distance(opp_hex);
 
