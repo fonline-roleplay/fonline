@@ -30,8 +30,8 @@ LookData::LookData() : refcounter(1)
     RunningNoiseMultiplier = 100;
     RunningHearMultiplier = 100;
 
-    MaxView = 10;
-    MaxHear = 5;
+    MaxView = 0;
+    MaxHear = 0;
 
     Vision = 0;
     Invis = 0;
@@ -107,18 +107,18 @@ LookData LookData::GetMixed(LookData& other)
 {
     LookData result = *this;
 
-    result.ViewDirMultiplier[0] *= other.ViewDirMultiplier[0];
-    result.ViewDirMultiplier[1] *= other.ViewDirMultiplier[1];
-    result.ViewDirMultiplier[2] *= other.ViewDirMultiplier[2];
-    result.ViewDirMultiplier[3] *= other.ViewDirMultiplier[3];
+    result.ViewDirMultiplier[0] *= (uint) (0.01 * other.ViewDirMultiplier[0]);
+    result.ViewDirMultiplier[1] *= (uint)(0.01 * other.ViewDirMultiplier[1]);
+    result.ViewDirMultiplier[2] *= (uint)(0.01 * other.ViewDirMultiplier[2]);
+    result.ViewDirMultiplier[3] *= (uint)(0.01 * other.ViewDirMultiplier[3]);
 
-    result.HearDirMultiplier[0] *= other.HearDirMultiplier[0];
-    result.HearDirMultiplier[1] *= other.HearDirMultiplier[1];
-    result.HearDirMultiplier[2] *= other.HearDirMultiplier[2];
-    result.HearDirMultiplier[3] *= other.HearDirMultiplier[3];
+    result.HearDirMultiplier[0] *= (uint)(0.01 * other.HearDirMultiplier[0]);
+    result.HearDirMultiplier[1] *= (uint)(0.01 * other.HearDirMultiplier[1]);
+    result.HearDirMultiplier[2] *= (uint)(0.01 * other.HearDirMultiplier[2]);
+    result.HearDirMultiplier[3] *= (uint)(0.01 * other.HearDirMultiplier[3]);
 
-    result.RunningNoiseMultiplier *= other.RunningNoiseMultiplier;
-    result.RunningHearMultiplier *= other.RunningHearMultiplier;
+    result.RunningNoiseMultiplier *= (uint)(0.01 * other.RunningNoiseMultiplier);
+    result.RunningHearMultiplier *= (uint)(0.01 * other.RunningHearMultiplier);
 
     result.MaxView += other.MaxView;
     result.MaxHear += other.MaxHear;

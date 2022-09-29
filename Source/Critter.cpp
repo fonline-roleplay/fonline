@@ -292,12 +292,8 @@ void Critter::SyncLockCritters( bool self_critters, bool only_players )
 
 int MAP_UTILITY_START = 92;
 
-bool check_look(Map& map, LookData& lookbase, LookData& hide)
+bool check_look(Map& map, LookData& look, LookData& hide)
 {
-    //map.Data.Look.InitMap(map);
-
-    LookData look;// = lookbase.GetMixed(map.Data.Look);
-
     // Consider remove this
     if (look.access >= ACCESS_MODER && look.Vision > 0)
             return true;
@@ -328,17 +324,17 @@ bool check_look(Map& map, LookData& lookbase, LookData& hide)
     if (look_dir > 3)
         look_dir = 6 - look_dir;
 
-    unsigned int hear_mul = look.HearDirMultiplier[look_dir] * hide.HideHearMultiplier * hide.HideHearDirMultiplier[start_dir],
-        view_mul = look.ViewDirMultiplier[look_dir] * hide.HideViewMultiplier * hide.HideViewDirMultiplier[start_dir];
+    double hear_mul = (0.01 * look.HearDirMultiplier[look_dir] ) * (0.01 * hide.HideHearMultiplier ) * (0.01 * hide.HideHearDirMultiplier[start_dir]),
+        view_mul = (0.01 * look.ViewDirMultiplier[look_dir] ) * (0.01 * hide.HideViewMultiplier) * (0.01 * hide.HideViewDirMultiplier[start_dir]);
 
     if (hide.isruning)
-        hear_mul *= hide.RunningNoiseMultiplier;
+        hear_mul *= 0.01 * hide.RunningNoiseMultiplier;
 
     if ( look.isruning)
-        hear_mul *= look.RunningHearMultiplier;
+        hear_mul *= 0.01 * look.RunningHearMultiplier;
 
-    max_view = (uint) ( max_view * ( view_mul * 0.01 ) );
-    uint tmp_max_hear =  max_hear * hear_mul;
+    max_view = (uint) ( max_view * view_mul );
+    uint tmp_max_hear = (uint)( max_hear * hear_mul );
 
     // new optimization: return early if distance larger than max_view and max_hear
     if (dist > max_view && dist > tmp_max_hear)
@@ -363,7 +359,7 @@ bool check_look(Map& map, LookData& lookbase, LookData& hide)
     {
         protoItem = ItemMngr.GetProtoItem((*it)->ProtoId);
         if(protoItem && protoItem->IsBlocks() )
-            hear_mul *= LookData::WallMaterialHearMultiplier[protoItem->Material];
+            hear_mul *= 0.01 * LookData::WallMaterialHearMultiplier[protoItem->Material];
     }
 
     Item* traceItem = nullptr;
@@ -376,17 +372,17 @@ bool check_look(Map& map, LookData& lookbase, LookData& hide)
         if (traceItem->IsViewBlocks())
         {
             if (isHex)
-                view_mul *= traceItem->Proto->FORPData.Look_Block;
+                view_mul *= 0.01 * traceItem->Proto->FORPData.Look_Block;
             else
-                view_mul *= traceItem->Proto->FORPData.Look_BlockDir[GetFarDir(look.hexx, look.hexy, traceItem->AccHex.HexX, traceItem->AccHex.HexY)];
+                view_mul *= 0.01 * traceItem->Proto->FORPData.Look_BlockDir[GetFarDir(look.hexx, look.hexy, traceItem->AccHex.HexX, traceItem->AccHex.HexY)];
         }
 
         if (traceItem->IsHearBlocks())
         {
             if (isHex)
-                hear_mul *= traceItem->Proto->FORPData.Hear_Block;
+                hear_mul *= 0.01 * traceItem->Proto->FORPData.Hear_Block;
             else
-                hear_mul *= traceItem->Proto->FORPData.Hear_BlockDir[GetFarDir(look.hexx, look.hexy, traceItem->AccHex.HexX, traceItem->AccHex.HexY)];
+                hear_mul *= 0.01 * traceItem->Proto->FORPData.Hear_BlockDir[GetFarDir(look.hexx, look.hexy, traceItem->AccHex.HexX, traceItem->AccHex.HexY)];
         }
     }
 
@@ -395,7 +391,7 @@ bool check_look(Map& map, LookData& lookbase, LookData& hide)
     else if (dist > max_view)
         is_view = false;
 
-    if (dist > ( max_hear * ( hear_mul * 0.01 ) ) )
+    if (dist > (uint)( max_hear * hear_mul ) )
         is_hear = false;
 
     trace.Walls->clear();
@@ -457,9 +453,7 @@ void Critter::ProcessVisibleCritters()
     if( !map )
         return;
 
-    if (FLAG(GameOpt.LookChecks, LOOK_CHECK_LOOK_DATA))
-        this->Data.Look.InitCritter(*this);
-   
+    LookData look = Data.Look.GetMixed(map->Data.Look);
     CrVec critters;
     map->GetCritters( critters, true );
     for( auto it = critters.begin(), end = critters.end(); it != end; ++it )
@@ -613,10 +607,9 @@ void Critter::ProcessVisibleCritters()
 
         if (FLAG(GameOpt.LookChecks, LOOK_CHECK_LOOK_DATA))
         {
-
-            cr->Data.Look.InitCritter(*cr);
-            bool allow_self = check_look(*map, this->Data.Look, cr->Data.Look);
-            bool allow_opp = check_look(*map, cr->Data.Look, this->Data.Look);
+            LookData crlook = cr->Data.Look.GetMixed(map->Data.Look);
+            bool allow_self = check_look(*map, look, crlook);
+            bool allow_opp = check_look(*map, crlook, look);
             
             if (allow_self)
             {
