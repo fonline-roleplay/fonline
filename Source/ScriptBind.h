@@ -1707,6 +1707,8 @@ BIND_ASSERT(engine->RegisterGlobalFunction("void set_WallMaterialHearMultiplier(
 #ifdef BIND_SERVER
 BIND_ASSERT(engine->RegisterObjectMethod("Critter", "LookData@ get_Look()", asFUNCTION(BIND_CLASS Crit_GetLookData), asCALL_CDECL_OBJFIRST));
 BIND_ASSERT(engine->RegisterObjectMethod("Map", "LookData@ get_Look()", asFUNCTION(BIND_CLASS Map_GetLookData), asCALL_CDECL_OBJFIRST));
+
+BIND_ASSERT(engine->RegisterObjectMethod("Critter", "void LookData_Update()", asFUNCTION(BIND_CLASS Crit_UpdateLookData), asCALL_CDECL_OBJFIRST));
 #endif
 /*
 BIND_ASSERT(engine->RegisterObjectMethod("LookData", "uint8 get_HideViewDirMultiplier( uint index )", asFUNCTION(BIND_CLASS LookData_GetHideViewDirMultiplier), asCALL_CDECL_OBJFIRST));

@@ -22,6 +22,7 @@
 #include "Zlib/zlib.h"
 #include "IniParser.h"
 #include "MsgFiles.h"
+#include "LookData.h"
 
 #ifndef FO_D3D
 // Video
@@ -33,6 +34,9 @@ class FOClient
 {
 public:
     static FOClient* Self;
+    static LookData* ChosenLookData;
+    static LookData* MapLookData;
+
     FOClient();
     bool Init();
     void Finish();

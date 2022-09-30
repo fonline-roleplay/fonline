@@ -22,12 +22,15 @@ void  zlib_free_( void* opaque, void* address )                          { free(
 using namespace FOnline;
 
 FOClient*    FOClient::Self = NULL;
+LookData*    FOClient::ChosenLookData = NULL;
+LookData*    FOClient::MapLookData = NULL;
 bool         FOClient::SpritesCanDraw = false;
 static uint* UID4 = NULL;
 FOClient::FOClient(): Active( false )
 {
     Self = this;
-
+    ChosenLookData = new LookData();
+    MapLookData = new LookData();
     ComLen = 4096;
     ComBuf = new char[ ComLen ];
     ZStreamOk = false;
@@ -612,6 +615,11 @@ void FOClient::LookBordersPrepare()
     if( HexMngr.IsMapLoaded() && Chosen )
     {
         uint   dist = Chosen->GetLook();
+
+        LookData look = ChosenLookData->GetMixed(*MapLookData);
+        if (FLAG(GameOpt.LookChecks, LOOK_CHECK_LOOK_DATA))
+            dist = look.MaxView;
+
         ushort base_hx = Chosen->GetHexX();
         ushort base_hy = Chosen->GetHexY();
         int    hx = base_hx;
@@ -643,25 +651,41 @@ void FOClient::LookBordersPrepare()
 
                 ushort hx_ = CLAMP( hx, 0, maxhx - 1 );
                 ushort hy_ = CLAMP( hy, 0, maxhy - 1 );
-                if( FLAG( GameOpt.LookChecks, LOOK_CHECK_DIR ) )
+
+                if (FLAG(GameOpt.LookChecks, LOOK_CHECK_LOOK_DATA))
                 {
-                    int dir_ = GetFarDir( base_hx, base_hy, hx_, hy_ );
-                    int ii = ( dir > dir_ ? dir - dir_ : dir_ - dir );
-                    if( ii > DIRS_COUNT / 2 )
+                    int dir_ = GetFarDir(base_hx, base_hy, hx_, hy_);
+                    int ii = (dir > dir_ ? dir - dir_ : dir_ - dir);
+                    if (ii > DIRS_COUNT / 2)
                         ii = DIRS_COUNT - ii;
-                    uint       dist_ = dist - dist * GameOpt.LookDir[ ii ] / 100;
+                    uint       dist_ = dist * look.HearDirMultiplier[ii] / 100;
                     UShortPair block;
-                    HexMngr.TraceBullet( base_hx, base_hy, hx_, hy_, dist_, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, false );
+                    HexMngr.TraceBullet(base_hx, base_hy, hx_, hy_, dist_, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, false);
                     hx_ = block.first;
                     hy_ = block.second;
                 }
-
-                if( FLAG( GameOpt.LookChecks, LOOK_CHECK_TRACE ) )
+                else
                 {
-                    UShortPair block;
-                    HexMngr.TraceBullet( base_hx, base_hy, hx_, hy_, 0, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, true );
-                    hx_ = block.first;
-                    hy_ = block.second;
+                    if (FLAG(GameOpt.LookChecks, LOOK_CHECK_DIR))
+                    {
+                        int dir_ = GetFarDir(base_hx, base_hy, hx_, hy_);
+                        int ii = (dir > dir_ ? dir - dir_ : dir_ - dir);
+                        if (ii > DIRS_COUNT / 2)
+                            ii = DIRS_COUNT - ii;
+                        uint       dist_ = dist - dist * GameOpt.LookDir[ii] / 100;
+                        UShortPair block;
+                        HexMngr.TraceBullet(base_hx, base_hy, hx_, hy_, dist_, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, false);
+                        hx_ = block.first;
+                        hy_ = block.second;
+                    }
+
+                    if (FLAG(GameOpt.LookChecks, LOOK_CHECK_TRACE))
+                    {
+                        UShortPair block;
+                        HexMngr.TraceBullet(base_hx, base_hy, hx_, hy_, 0, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, true);
+                        hx_ = block.first;
+                        hy_ = block.second;
+                    }
                 }
 
                 ushort     hx__ = hx_;

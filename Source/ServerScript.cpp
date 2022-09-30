@@ -6382,6 +6382,14 @@ LookData* FOServer::SScriptFunc::Map_GetLookData( Map* map )
     return &map->Data.Look;
 }
 
+void FOServer::SScriptFunc::Crit_UpdateLookData(Critter* critter)
+{
+    if (critter->IsNotValid)
+        SCRIPT_ERROR_R("This nullptr.");
+    if (critter->IsNpc())
+        return;
+
+}
 /************************************************************************/
 /*                                                                      */
 /************************************************************************/

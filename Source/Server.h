@@ -935,6 +935,7 @@ public:
 
         static LookData* Crit_GetLookData(Critter* critter);
         static LookData* Map_GetLookData(Map* map);
+        static void Crit_UpdateLookData(Critter* critter);
     } ScriptFunc;
 };
 
