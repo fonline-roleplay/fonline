@@ -340,7 +340,7 @@ bool check_look(Map& map, LookData& look, LookData& hide)
         trace.Walls = new SceneryClRefVec();
     if (!trace.Items)
         trace.Items = new ItemPtrVec();
-
+        
     trace.ForceFullTrace = true;
     trace.TraceMap = &map;
     trace.BeginHx = look.hexx;
@@ -390,6 +390,7 @@ bool check_look(Map& map, LookData& look, LookData& hide)
         is_hear = false;
 
     trace.Walls->clear();
+    trace.Items->clear();
     return is_view || is_hear;
 }
 
