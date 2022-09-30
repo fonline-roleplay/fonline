@@ -54,6 +54,45 @@ LookData::LookData() : refcounter(1)
     HideHearMultiplier = 100;
 }
 
+LookData::LookData(LookData& other) : refcounter(1)
+{
+    ViewDirMultiplier[0] = other.ViewDirMultiplier[0];
+    ViewDirMultiplier[1] = other.ViewDirMultiplier[1];
+    ViewDirMultiplier[2] = other.ViewDirMultiplier[2];
+    ViewDirMultiplier[3] = other.ViewDirMultiplier[3];
+
+    HearDirMultiplier[0] = other.HearDirMultiplier[0];
+    HearDirMultiplier[1] = other.HearDirMultiplier[1];
+    HearDirMultiplier[2] = other.HearDirMultiplier[2];
+    HearDirMultiplier[3] = other.HearDirMultiplier[3];
+
+    RunningNoiseMultiplier = other.RunningNoiseMultiplier;
+    RunningHearMultiplier = other.RunningHearMultiplier;
+
+    MaxView = other.MaxView;
+    MaxHear = other.MaxHear;
+
+    Vision = other.Vision;
+    Invis = other.Invis;
+
+    HideViewDirMultiplier[0] = other.HideViewDirMultiplier[0];
+    HideViewDirMultiplier[1] = other.HideViewDirMultiplier[1];
+    HideViewDirMultiplier[2] = other.HideViewDirMultiplier[2];
+    HideViewDirMultiplier[3] = other.HideViewDirMultiplier[3];
+    HideViewDirMultiplier[4] = other.HideViewDirMultiplier[4];
+    HideViewDirMultiplier[5] = other.HideViewDirMultiplier[5];
+
+    HideHearDirMultiplier[0] = other.HideHearDirMultiplier[0];
+    HideHearDirMultiplier[1] = other.HideHearDirMultiplier[1];
+    HideHearDirMultiplier[2] = other.HideHearDirMultiplier[2];
+    HideHearDirMultiplier[3] = other.HideHearDirMultiplier[3];
+    HideHearDirMultiplier[4] = other.HideHearDirMultiplier[4];
+    HideHearDirMultiplier[5] = other.HideHearDirMultiplier[5];
+
+    HideViewMultiplier = other.HideViewMultiplier;
+    HideHearMultiplier = other.HideHearMultiplier;
+}
+
 #ifdef FONLINE_SERVER
 void LookData::InitLook(Critter& critter)
 {
@@ -105,9 +144,9 @@ void LookData::InitMap(Map& map)
 
 LookData LookData::GetMixed(LookData& other)
 {
-    LookData result = *this;
+    LookData result(*this);
 
-    result.ViewDirMultiplier[0] *= (uint) (0.01 * other.ViewDirMultiplier[0]);
+    result.ViewDirMultiplier[0] *= (uint)(0.01 * other.ViewDirMultiplier[0]);
     result.ViewDirMultiplier[1] *= (uint)(0.01 * other.ViewDirMultiplier[1]);
     result.ViewDirMultiplier[2] *= (uint)(0.01 * other.ViewDirMultiplier[2]);
     result.ViewDirMultiplier[3] *= (uint)(0.01 * other.ViewDirMultiplier[3]);

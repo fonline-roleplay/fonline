@@ -527,6 +527,8 @@ bool BufferManager::NeedProcess()
         return ( NETMSG_SEND_GET_SCORES_SIZE + bufReadPos <= bufEndPos );
     case NETMSG_SCORES:
         return ( NETMSG_SCORES_SIZE + bufReadPos <= bufEndPos );
+    case NETMSG_SEND_LOOK_DATA:
+        return (NETMSG_SEND_LOOK_DATA_SIZE + bufReadPos <= bufEndPos);
     default:
         break;
     }
@@ -804,6 +806,9 @@ void BufferManager::SkipMsg( uint msg )
     case NETMSG_SCORES:
         size = NETMSG_SCORES_SIZE;
         break;
+    case NETMSG_SEND_LOOK_DATA:
+        size = NETMSG_SEND_LOOK_DATA_SIZE;
+        break;
 
     case NETMSG_CHECK_UID0:
     case NETMSG_CHECK_UID1:
@@ -984,6 +989,7 @@ bool BufferManager::IsValidMsg( uint msg )
     case NETMSG_USER_HOLO_STR:
     case NETMSG_AUTOMAPS_INFO:
 	case NETMSG_SEND_FILE_IN_COLLECTION:
+    case NETMSG_SEND_LOOK_DATA:
         return true;
     default:
         return false;

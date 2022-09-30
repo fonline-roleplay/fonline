@@ -16,23 +16,23 @@ class Map;
 class LookData
 {
 public:
-    unsigned char ViewDirMultiplier[4]; // * 0.1
-    unsigned char HearDirMultiplier[4]; // * 0.1
+    unsigned char ViewDirMultiplier[4]; // 4
+    unsigned char HearDirMultiplier[4]; // +4 = 8
 
-    unsigned short RunningNoiseMultiplier; // * 0.1
-    unsigned char RunningHearMultiplier;    // * 0.1
+    unsigned short RunningNoiseMultiplier; // +2 = 10
+    unsigned char RunningHearMultiplier;    // +1 = 11
 
-    char MaxView;
-    char MaxHear;
+    char MaxView; // +1 = 12
+    char MaxHear; // +1 = 13
 
-    unsigned char Vision;
-    unsigned char Invis;
+    unsigned char Vision; // +1=14
+    unsigned char Invis; // +1=15
 
-    unsigned char HideViewDirMultiplier[6]; // * 0.1
-    unsigned char HideHearDirMultiplier[6]; // * 0.1
+    unsigned char HideViewDirMultiplier[6]; // +6=21
+    unsigned char HideHearDirMultiplier[6]; // +6=27
 
-    unsigned char HideViewMultiplier;
-    unsigned char HideHearMultiplier;
+    unsigned char HideViewMultiplier; // +1=28
+    unsigned char HideHearMultiplier; // +1=29
 
     static unsigned char WallMaterialHearMultiplier[MATERIALS_COUNT]; // * 0.1
 
@@ -46,7 +46,10 @@ public:
 
     unsigned char access;
 
+    //script
+    mutable int refcounter;
     LookData();
+    LookData(LookData& other);
 
 #ifdef FONLINE_SERVER
     void InitLook(Critter& critter);
@@ -57,8 +60,6 @@ public:
 
     LookData GetMixed(LookData& other);
 
-    //script
-    mutable int refcounter;
 
     void AddRef() const;
     void Release() const;

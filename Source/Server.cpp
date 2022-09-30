@@ -3430,6 +3430,7 @@ bool FOServer::InitReal()
     STATIC_ASSERT( sizeof( CScriptArray ) == 28 );
     STATIC_ASSERT( sizeof( ProtoMap::Tile ) == 12 );
     STATIC_ASSERT( PROTO_ITEM_USER_DATA_SIZE == 500 );
+    STATIC_ASSERT(OFFSETOF(LookData, dir) == 29 );
 	STATIC_ASSERT( OFFSETOF( Item, IsNotValid ) == 150 );//hotrinED
     STATIC_ASSERT( OFFSETOF( Critter::CrTimeEvent, Identifier ) == 12 );
     STATIC_ASSERT( OFFSETOF( Critter, RefCounter ) == 9340 );

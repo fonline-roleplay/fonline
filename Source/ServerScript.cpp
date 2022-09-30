@@ -6386,9 +6386,8 @@ void FOServer::SScriptFunc::Crit_UpdateLookData(Critter* critter)
 {
     if (critter->IsNotValid)
         SCRIPT_ERROR_R("This nullptr.");
-    if (critter->IsNpc())
-        return;
 
+    critter->Send_LookData();
 }
 /************************************************************************/
 /*                                                                      */

@@ -382,6 +382,7 @@ public:
     void Send_PlaySound( uint crid_synchronize, const char* sound_name );
     void Send_PlaySoundType( uint crid_synchronize, uchar sound_type, uchar sound_type_ext, uchar sound_id, uchar sound_id_ext );
     void Send_CritterLexems( Critter* cr );
+    void Send_LookData();
 
     // Send all
     void SendA_Move( uint move_params );
@@ -749,6 +750,7 @@ public:
     void Send_ItemLexemsNull( Item* item ); // Without checks!
     void Send_CheckUIDS();
     void Send_SomeItem( Item* item );       // Without checks!
+    void Send_LookData();
 
     // Locations
     bool CheckKnownLocById( uint loc_id );

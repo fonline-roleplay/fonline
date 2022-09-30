@@ -2412,6 +2412,7 @@ void FOServer::Process_LogIn( ClientPtr& cl )
     cl->Bin.SetEncryptKey( bin_seed );
     cl->Bout.SetEncryptKey( bout_seed );
     cl->Send_LoadMap( NULL );
+    cl->Send_LookData();
 }
 
 void FOServer::Process_SingleplayerSaveLoad( Client* cl )

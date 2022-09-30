@@ -218,6 +218,8 @@ public:
 	void Net_SendFileInCollection( );
 	void Net_ReciveFileInCollection( );
 
+    void Net_OnLookData();
+
     void OnText( const char* str, uint crid, int how_say, ushort intellect );
     void OnMapText( const char* str, ushort hx, ushort hy, uint color, ushort intellect );
 
@@ -1714,8 +1716,8 @@ public:
     bool IsTurnBasedMyTurn() { return IsTurnBased && Timer::GameTick() < TurnBasedTime && Chosen && Chosen->GetId() == TurnBasedCurCritterId && Chosen->GetAllAp() > 0; }
 
     bool     RebuildLookBorders;
-    bool     DrawLookBorders, DrawShootBorders;
-    PointVec LookBorders, ShootBorders;
+    bool     DrawViewBorders, DrawShootBorders, DrawHearBorders;
+    PointVec ViewBorders, ShootBorders, HearBorders;
 
     void LookBordersPrepare();
     void LookBordersDraw();
