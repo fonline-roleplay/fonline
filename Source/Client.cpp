@@ -472,13 +472,11 @@ bool FOClient::Init()
     ScreenMirrorStart = false;
     RebuildLookBorders = false;
     DrawViewBorders = false;
-    DrawShootBorders = false;
     DrawHearBorders = false;
 
     UID_PREPARE_UID4_5;
 
     ViewBorders.clear();
-    ShootBorders.clear();
     HearBorders.clear();
 
     UID_PREPARE_UID4_6;
@@ -609,32 +607,48 @@ void FOClient::EraseCritter( uint remid )
 
 void FOClient::LookBordersPrepare()
 {
-    if( !DrawViewBorders && !DrawShootBorders && !DrawHearBorders)
+    if( !DrawViewBorders && !DrawHearBorders)
         return;
 
     HearBorders.clear();
     ViewBorders.clear();
-    ShootBorders.clear();
+
     if( HexMngr.IsMapLoaded() && Chosen )
     {
         uint   dist = Chosen->GetLook();
         uint   dist_hear = dist;
 
         LookData look = ChosenLookData->GetMixed(*MapLookData);
-        if (FLAG(GameOpt.LookChecks, LOOK_CHECK_LOOK_DATA))
-        {
-            dist = look.MaxView;
-            dist_hear = look.MaxHear;
-        }
         ushort base_hx = Chosen->GetHexX();
         ushort base_hy = Chosen->GetHexY();
         int    hx = base_hx;
         int    hy = base_hy;
         int    chosendir = Chosen->GetDir();
-        uint   dist_shoot = Chosen->GetAttackDist();
+
         ushort maxhx = HexMngr.GetMaxHexX();
         ushort maxhy = HexMngr.GetMaxHexY();
         bool   seek_start = true;
+
+        std::vector<Field*> fields;
+
+        if (FLAG(GameOpt.LookChecks, LOOK_CHECK_LOOK_DATA))
+        {
+            dist = look.MaxView;
+            dist_hear = look.MaxHear;
+
+            if (Chosen->IsRunning)
+                dist_hear = (uint)(dist_hear * look.RunningHearMultiplier * 0.01);
+
+            Field& chosenfield = HexMngr.GetField(base_hx, base_hy);
+            for (auto it = chosenfield.Items.begin(), it_end = chosenfield.Items.end(); it != it_end; it++)
+            {
+                auto item = *it;
+                if (item->IsViewBlocks())
+                    dist = (uint)(dist * item->Proto->FORPData.Look_Block * 0.01);
+                if (item->IsHearBlocks())
+                    dist_hear = (uint)(dist_hear * item->Proto->FORPData.Hear_Block * 0.01);
+            }
+        }
 
         for( int i = 0; i < ( GameOpt.MapHexagonal ? 6 : 4 ); i++ )
         {
@@ -658,8 +672,6 @@ void FOClient::LookBordersPrepare()
 
                 ushort hx_ = CLAMP( hx, 0, maxhx - 1 );
                 ushort hy_ = CLAMP( hy, 0, maxhy - 1 );
-                ushort hx___ = hx_;
-                ushort hy___ = hy_;
 
                 if (FLAG(GameOpt.LookChecks, LOOK_CHECK_LOOK_DATA))
                 {
@@ -668,31 +680,38 @@ void FOClient::LookBordersPrepare()
                     if (ii > 3)
                         ii = 6 - ii;
 
-                    uint multiplier = look.ViewDirMultiplier[ii];
+                    uint dist_ = (uint)(dist * look.ViewDirMultiplier[ii] * 0.01);
 
-                    /*if (ii != 0)
-                    {
-                        uint multiplier_ex = look.ViewDirMultiplier[ii - 1];
-                        if (multiplier_ex != multiplier)
-                        {
-                            if (multiplier_ex > multiplier)
-                                multiplier_ex -= multiplier;
-                            else
-                            {
-                                multiplier_ex = multiplier - multiplier_ex;
-                                multiplier = look.ViewDirMultiplier[ii - 1];
-                            }
-                            multiplier += multiplier_ex * ((double)(j + 1) / jj);
-                            WriteLog("multiplier %i %i %i %i %f\n", multiplier, multiplier_ex, j + 1, jj, ((double)(j + 1) / jj));
-                        }
-                    }*/
-
-                    uint dist_ = (uint)( dist * multiplier * 0.01 );
-                    // dist_ *= multiplier * 0.01;
                     UShortPair block;
-                    HexMngr.TraceBullet(base_hx, base_hy, hx_, hy_, dist_, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, true);
+                    fields.clear();
+                    HexMngr.TraceBullet(base_hx, base_hy, hx_, hy_, dist_, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, true, &fields);
+
+                    uint newdist = dist_;
+                    if (!fields.empty())
+                    {
+                        for (auto it_filed = fields.begin(), itf_end = fields.end(); it_filed != itf_end; it_filed++)
+                        {
+                            Field* f = *it_filed;
+                            for (auto it = f->Items.begin(), it_end = f->Items.end(); it != it_end; it++)
+                            {
+                                auto item = *it;
+                                if (!item->IsViewBlocks())
+                                    continue;
+
+                                uint disttoitem = DistGame(base_hx, base_hy, item->HexX, item->HexY);
+                                uint distchange = newdist - disttoitem;
+                                if (disttoitem >= newdist)
+                                    break;
+
+                                newdist = disttoitem + (uint)(distchange * item->Proto->FORPData.Look_BlockDir[GetFarDir(base_hx, base_hy, item->HexX, item->HexY)] * 0.01);
+                            }
+                        }
+                    }
+
+                    HexMngr.TraceBullet(base_hx, base_hy, hx_, hy_, newdist, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, true, nullptr);
                     hx_ = block.first;
                     hy_ = block.second;
+
                 }
                 else
                 {
@@ -704,7 +723,7 @@ void FOClient::LookBordersPrepare()
                             ii = DIRS_COUNT - ii;
                         uint       dist_ = dist - dist * GameOpt.LookDir[ii] / 100;
                         UShortPair block;
-                        HexMngr.TraceBullet(base_hx, base_hy, hx_, hy_, dist_, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, false);
+                        HexMngr.TraceBullet(base_hx, base_hy, hx_, hy_, dist_, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, false, nullptr);
                         hx_ = block.first;
                         hy_ = block.second;
                     }
@@ -712,23 +731,15 @@ void FOClient::LookBordersPrepare()
                     if (FLAG(GameOpt.LookChecks, LOOK_CHECK_TRACE))
                     {
                         UShortPair block;
-                        HexMngr.TraceBullet(base_hx, base_hy, hx_, hy_, 0, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, true);
+                        HexMngr.TraceBullet(base_hx, base_hy, hx_, hy_, 0, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, true, nullptr);
                         hx_ = block.first;
                         hy_ = block.second;
                     }
                 }
 
-                ushort     hx__ = hx_;
-                ushort     hy__ = hy_;
-                uint       dist_look = DistGame( base_hx, base_hy, hx_, hy_ );
-                UShortPair block;
-                HexMngr.TraceBullet( base_hx, base_hy, hx_, hy_, min( dist_look, dist_shoot ), 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, true );
-
-                int x, y, x_, y_;
+                int x, y;
                 HexMngr.GetHexCurrentPosition( hx_, hy_, x, y );
-                HexMngr.GetHexCurrentPosition( hx__, hy__, x_, y_ );
                 ViewBorders.push_back( PrepPoint( x + HEX_OX, y + HEX_OY, COLOR_ARGB( 80, 0, 255, 0 ), (short*) &GameOpt.ScrOx, (short*) &GameOpt.ScrOy ) );
-                ShootBorders.push_back( PrepPoint( x_ + HEX_OX, y_ + HEX_OY, COLOR_ARGB( 80, 255, 0, 0 ), (short*) &GameOpt.ScrOx, (short*) &GameOpt.ScrOy ) );
             }
         }
 
@@ -767,36 +778,52 @@ void FOClient::LookBordersPrepare()
                 if (ii > 3)
                     ii = 6 - ii;
 
-                uint multiplier = look.HearDirMultiplier[ii];
-
-                /*if (ii != 0)
-                {
-                    uint multiplier_ex = look.ViewDirMultiplier[ii - 1];
-                    if (multiplier_ex != multiplier)
-                    {
-                        if (multiplier_ex > multiplier)
-                            multiplier_ex -= multiplier;
-                        else
-                        {
-                            multiplier_ex = multiplier - multiplier_ex;
-                            multiplier = look.ViewDirMultiplier[ii - 1];
-                        }
-                        multiplier += multiplier_ex * ((double)(j + 1) / jj);
-                        WriteLog("multiplier %i %i %i %i %f\n", multiplier, multiplier_ex, j + 1, jj, ((double)(j + 1) / jj));
-                    }
-                }*/
-
-                uint dist_ = dist_hear;
-                dist_ *= multiplier * 0.01;
+                uint dist_ = (uint)(dist_hear * look.HearDirMultiplier[ii] * 0.01);
                 UShortPair block;
-                HexMngr.TraceBullet(base_hx, base_hy, hx_, hy_, dist_, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, false);
+
+                fields.clear();
+                HexMngr.TraceBullet(base_hx, base_hy, hx_, hy_, dist_, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, true, &fields);
+
+                uint newdist = dist_;
+                if (!fields.empty())
+                {
+                    for (auto it_filed = fields.begin(), itf_end = fields.end(); it_filed != itf_end; it_filed++)
+                    {
+                        Field* f = *it_filed;
+                        for (auto it = f->Items.begin(), it_end = f->Items.end(); it != it_end; it++)
+                        {
+                            auto item = *it;
+                            if (item->IsHearBlocks())
+                            {
+                                uint disttoitem = DistGame(base_hx, base_hy, item->HexX, item->HexY);
+                                uint distchange = newdist - disttoitem;
+                                if (disttoitem >= newdist)
+                                    break;
+
+                                newdist = disttoitem + (uint)(distchange * item->Proto->FORPData.Hear_BlockDir[GetFarDir(base_hx, base_hy, item->HexX, item->HexY)] * 0.01);
+                            }
+
+                            if (item->IsWall() && item->Proto->IsBlocks() )
+                            {
+                                uint disttoitem = DistGame(base_hx, base_hy, item->HexX, item->HexY);
+                                uint distchange = newdist - disttoitem;
+                                if (disttoitem >= newdist)
+                                    break;
+                                
+                                newdist = disttoitem + (uint)(distchange * LookData::WallMaterialHearMultiplier[item->Proto->Material] * 0.01);
+                            }
+                        }
+                    }
+                }
+
+                HexMngr.TraceBullet(base_hx, base_hy, hx_, hy_, newdist, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, true, nullptr);
                 hx_ = block.first;
                 hy_ = block.second;
 
                 ushort hx__ = CLAMP(hx, 0, maxhx - 1);
                 ushort hy__ = CLAMP(hy, 0, maxhy - 1);
 
-                HexMngr.TraceBullet(base_hx, base_hy, hx__, hy__, dist_hear, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, false);
+                HexMngr.TraceBullet(base_hx, base_hy, hx__, hy__, dist_hear, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, false, nullptr);
 
                 int x, y;
                 HexMngr.GetHexCurrentPosition(hx_, hy_, x, y);
@@ -808,10 +835,7 @@ void FOClient::LookBordersPrepare()
             ViewBorders.clear();
         else
             ViewBorders.push_back( *ViewBorders.begin() );
-        if( ShootBorders.size() < 2 )
-            ShootBorders.clear();
-        else
-            ShootBorders.push_back( *ShootBorders.begin() );
+        
         if(HearBorders.size() < 2 )
             HearBorders.clear();
         else
@@ -830,8 +854,6 @@ void FOClient::LookBordersDraw()
         SprMngr.DrawPoints( ViewBorders, PRIMITIVE_LINESTRIP, &GameOpt.SpritesZoom );
     if(DrawHearBorders)
         SprMngr.DrawPoints( HearBorders, PRIMITIVE_LINESTRIP, &GameOpt.SpritesZoom );
-    if( DrawShootBorders )
-        SprMngr.DrawPoints( ShootBorders, PRIMITIVE_LINESTRIP, &GameOpt.SpritesZoom );
 }
 
 #define MainLoopCallStackLog( s ) {}
@@ -1603,13 +1625,6 @@ void FOClient::ParseKeyboard()
                             else DrawHearBorders = true;
                         }
                         else DrawViewBorders = true;
-                        RebuildLookBorders = true;
-                    }
-                    break;
-                case DIK_W:
-                    if( IsMainScreen( SCREEN_GAME ) && GetActiveScreen() == SCREEN_NONE )
-                    {
-                        DrawShootBorders = !DrawShootBorders;
                         RebuildLookBorders = true;
                     }
                     break;
@@ -5582,7 +5597,7 @@ void FOClient::Net_OnAddItemOnMap()
     }
 
     // Refresh borders
-    if( item && !item->IsRaked() )
+    if( item )
         RebuildLookBorders = true;
 }
 
@@ -5591,26 +5606,26 @@ void FOClient::Net_OnChangeItemOnMap()
     uint           item_id;
     Item::ItemData data;
     Bin >> item_id;
-    Bin.Pop( (char*) &data, sizeof( data ) );
+    Bin.Pop((char*)&data, sizeof(data));
 
-    Item* item = HexMngr.GetItemById( item_id );
-    bool  is_raked = ( item && item->IsRaked() );
+    Item* item = HexMngr.GetItemById(item_id);
+    bool  is_raked = (item && item->IsRaked());
 
-    HexMngr.ChangeItem( item_id, data );
+    HexMngr.ChangeItem(item_id, data);
 
-    if( item && Script::PrepareContext( ClientFunctions.ItemMapChanged, _FUNC_, "Game" ) )
+    if (item && Script::PrepareContext(ClientFunctions.ItemMapChanged, _FUNC_, "Game"))
     {
-        Item* prev_state = new Item( *item );
+        Item* prev_state = new Item(*item);
         prev_state->RefCounter = 1;
         prev_state->Data = data;
-        Script::SetArgObject( item );
-        Script::SetArgObject( prev_state );
+        Script::SetArgObject(item);
+        Script::SetArgObject(prev_state);
         Script::RunPrepared();
         prev_state->Release();
     }
 
     // Refresh borders
-    if( item && is_raked != item->IsRaked() )
+    if (item)
         RebuildLookBorders = true;
 }
 
@@ -5631,7 +5646,7 @@ void FOClient::Net_OnEraseItemFromMap()
     }
 
     // Refresh borders
-    if( item && !item->IsRaked() )
+    if( item )
         RebuildLookBorders = true;
 }
 
@@ -6142,7 +6157,6 @@ void FOClient::Net_OnLoadMap()
     SetDayTime( true );
     Net_SendLoadMapOk();
     ViewBorders.clear();
-    ShootBorders.clear();
     #ifndef FO_D3D
     if( IsVideoPlayed() )
         MusicAfterVideo = MsgGM->GetStr( STR_MAP_MUSIC_( map_pid ) );
@@ -8339,7 +8353,7 @@ label_EndMove:
             // Target find
             bool need_move = false;
             if( is_attack )
-                need_move = !HexMngr.TraceBullet( Chosen->GetHexX(), Chosen->GetHexY(), hx, hy, max_dist, 0.0f, target_cr, false, NULL, 0, NULL, NULL, NULL, true );
+                need_move = !HexMngr.TraceBullet( Chosen->GetHexX(), Chosen->GetHexY(), hx, hy, max_dist, 0.0f, target_cr, false, NULL, 0, NULL, NULL, NULL, true, nullptr);
             else
                 need_move = !CheckDist( Chosen->GetHexX(), Chosen->GetHexY(), hx, hy, max_dist );
             if( need_move )
@@ -8813,7 +8827,7 @@ label_EndMove:
             return;
         }
 
-        if( !HexMngr.TraceBullet( Chosen->GetHexX(), Chosen->GetHexY(), cr->GetHexX(), cr->GetHexY(), talk_distance + Chosen->GetMultihex(), 0.0f, cr, false, NULL, 0, NULL, NULL, NULL, true ) )
+        if( !HexMngr.TraceBullet( Chosen->GetHexX(), Chosen->GetHexY(), cr->GetHexX(), cr->GetHexY(), talk_distance + Chosen->GetMultihex(), 0.0f, cr, false, NULL, 0, NULL, NULL, NULL, true, nullptr ) )
         {
             AddMess( FOMB_GAME, MsgGame->GetStr( STR_FINDPATH_AIMBLOCK ) );
             break;
@@ -10873,7 +10887,7 @@ uint FOClient::SScriptFunc::Global_GetCrittersByPids( ushort pid, int find_type,
 uint FOClient::SScriptFunc::Global_GetCrittersInPath( ushort from_hx, ushort from_hy, ushort to_hx, ushort to_hy, float angle, uint dist, int find_type, CScriptArray* critters )
 {
     CritVec cr_vec;
-    Self->HexMngr.TraceBullet( from_hx, from_hy, to_hx, to_hy, dist, angle, NULL, false, &cr_vec, FIND_LIFE | FIND_KO, NULL, NULL, NULL, true );
+    Self->HexMngr.TraceBullet( from_hx, from_hy, to_hx, to_hy, dist, angle, NULL, false, &cr_vec, FIND_LIFE | FIND_KO, NULL, NULL, NULL, true, nullptr);
     if( critters )
         Script::AppendVectorToArrayRef< CritterCl* >( cr_vec, critters );
     return (uint) cr_vec.size();
@@ -10883,7 +10897,7 @@ uint FOClient::SScriptFunc::Global_GetCrittersInPathBlock( ushort from_hx, ushor
 {
     CritVec    cr_vec;
     UShortPair block, pre_block;
-    Self->HexMngr.TraceBullet( from_hx, from_hy, to_hx, to_hy, dist, angle, NULL, false, &cr_vec, FIND_LIFE | FIND_KO, &block, &pre_block, NULL, true );
+    Self->HexMngr.TraceBullet( from_hx, from_hy, to_hx, to_hy, dist, angle, NULL, false, &cr_vec, FIND_LIFE | FIND_KO, &block, &pre_block, NULL, true, nullptr);
     if( critters )
         Script::AppendVectorToArrayRef< CritterCl* >( cr_vec, critters );
     pre_block_hx = pre_block.first;
@@ -10896,7 +10910,7 @@ uint FOClient::SScriptFunc::Global_GetCrittersInPathBlock( ushort from_hx, ushor
 void FOClient::SScriptFunc::Global_GetHexInPath( ushort from_hx, ushort from_hy, ushort& to_hx, ushort& to_hy, float angle, uint dist )
 {
     UShortPair pre_block, block;
-    Self->HexMngr.TraceBullet( from_hx, from_hy, to_hx, to_hy, dist, angle, NULL, false, NULL, 0, &block, &pre_block, NULL, true );
+    Self->HexMngr.TraceBullet( from_hx, from_hy, to_hx, to_hy, dist, angle, NULL, false, NULL, 0, &block, &pre_block, NULL, true, nullptr);
     to_hx = pre_block.first;
     to_hy = pre_block.second;
 }

@@ -630,7 +630,7 @@ bool HexManager::RunEffect( ushort eff_pid, ushort from_hx, ushort from_hy, usho
     if( from_hx != to_hx || from_hy != to_hy )
     {
         item->EffSteps.push_back( PAIR( from_hx, from_hy ) );
-        TraceBullet( from_hx, from_hy, to_hx, to_hy, 0, 0.0f, NULL, false, NULL, 0, NULL, NULL, &item->EffSteps, false );
+        TraceBullet( from_hx, from_hy, to_hx, to_hy, 0, 0.0f, NULL, false, NULL, 0, NULL, NULL, &item->EffSteps, false, nullptr);
         int x, y;
         GetHexInterval( from_hx, from_hy, to_hx, to_hy, x, y );
         y += Random( 5, 25 );    // Center of body
@@ -3380,7 +3380,7 @@ bool HexManager::CutPath( CritterCl* cr, ushort start_x, ushort start_y, ushort&
 }
 
 bool HexManager::TraceBullet( ushort hx, ushort hy, ushort tx, ushort ty, uint dist, float angle, CritterCl* find_cr, bool find_cr_safe,
-                              CritVec* critters, int find_type, UShortPair* pre_block, UShortPair* block, UShortPairVec* steps, bool check_passed )
+                              CritVec* critters, int find_type, UShortPair* pre_block, UShortPair* block, UShortPairVec* steps, bool check_passed, std::vector<Field*>* fields)
 {
     if( IsShowTrack() )
         ClearHexTrack();
@@ -3431,6 +3431,11 @@ bool HexManager::TraceBullet( ushort hx, ushort hy, ushort tx, ushort ty, uint d
                 return false;
         }
 
+        if (fields)
+        {
+            if( !f.Items.empty() )
+                fields->push_back(&f);
+        }
         old_cx = cx;
         old_cy = cy;
     }

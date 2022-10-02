@@ -296,12 +296,11 @@ bool check_look(Map& map, LookData& look, LookData& hide)
     if (look.access >= ACCESS_MODER && look.Vision > 0)
             return true;
 
-    uint dist = DistGame(look.hexx, look.hexy, hide.hexx, hide.hexy); // = cr_hex.get_distance(opp_hex);
+    uint dist = DistGame(look.hexx, look.hexy, hide.hexx, hide.hexy);
 
     if ( look.Vision >= dist && hide.Invis <= dist)
         return true;
     if (hide.Invis > 0 && hide.Invis <= dist)
-        // && ( !( cr.IsPlayer() ) || cr.IsPlayer() && !isGM( cr ) ) )
         return false;
 
     if (hide.Invis > dist || look.Vision >= dist)
@@ -313,8 +312,8 @@ bool check_look(Map& map, LookData& look, LookData& hide)
     bool is_view = true;
     bool is_hear = true;
 
-    uchar start_dir = GetFarDir(look.hexx, look.hexy, hide.hexx, hide.hexy); // = cr_hex.get_direction(opp_hex);
-    uchar look_dir = (look.dir > start_dir ? look.dir - start_dir : start_dir - look.dir); // = i8::abs(start_dir as i8 - cr.Dir as i8); //Направление
+    uchar start_dir = GetFarDir(look.hexx, look.hexy, hide.hexx, hide.hexy);
+    uchar look_dir = (look.dir > start_dir ? look.dir - start_dir : start_dir - look.dir);
 
     if (look_dir > 3)
         look_dir = 6 - look_dir;
@@ -353,8 +352,15 @@ bool check_look(Map& map, LookData& look, LookData& hide)
     for (auto it = trace.Walls->begin(), end = trace.Walls->end(); it != end; ++it)
     {
         protoItem = ItemMngr.GetProtoItem((*it)->ProtoId);
-        if(protoItem && protoItem->IsBlocks() )
-            hear_mul *= 0.01 * LookData::WallMaterialHearMultiplier[protoItem->Material];
+        if (protoItem && protoItem->IsBlocks())
+        {
+            uint disttoitem = DistGame(look.hexx, look.hexy, (*it)->MapX, (*it)->MapY);
+            if (disttoitem >= max_hear)
+                break;
+
+            uint distchange = max_hear - disttoitem;
+            max_hear = disttoitem + (uint)(distchange * LookData::WallMaterialHearMultiplier[protoItem->Material] * 0.01);
+        }
     }
 
     Item* traceItem = nullptr;
@@ -369,7 +375,14 @@ bool check_look(Map& map, LookData& look, LookData& hide)
             if (isHex)
                 view_mul *= 0.01 * traceItem->Proto->FORPData.Look_Block;
             else
-                view_mul *= 0.01 * traceItem->Proto->FORPData.Look_BlockDir[GetFarDir(look.hexx, look.hexy, traceItem->AccHex.HexX, traceItem->AccHex.HexY)];
+            {
+                uint disttoitem = DistGame(look.hexx, look.hexy, traceItem->AccHex.HexX, traceItem->AccHex.HexY);
+                if (disttoitem >= max_view)
+                    break;
+
+                uint distchange = max_view - disttoitem;
+                max_view = disttoitem + (uint)(distchange * traceItem->Proto->FORPData.Look_BlockDir[GetFarDir(look.hexx, look.hexy, traceItem->AccHex.HexX, traceItem->AccHex.HexY)] * 0.01);
+            }
         }
 
         if (traceItem->IsHearBlocks())
@@ -377,7 +390,14 @@ bool check_look(Map& map, LookData& look, LookData& hide)
             if (isHex)
                 hear_mul *= 0.01 * traceItem->Proto->FORPData.Hear_Block;
             else
-                hear_mul *= 0.01 * traceItem->Proto->FORPData.Hear_BlockDir[GetFarDir(look.hexx, look.hexy, traceItem->AccHex.HexX, traceItem->AccHex.HexY)];
+            {
+                uint disttoitem = DistGame(look.hexx, look.hexy, traceItem->AccHex.HexX, traceItem->AccHex.HexY);
+                if (disttoitem >= max_hear)
+                    break;
+
+                uint distchange = max_hear - disttoitem;
+                max_hear = disttoitem + (uint)(distchange * traceItem->Proto->FORPData.Hear_BlockDir[GetFarDir(look.hexx, look.hexy, traceItem->AccHex.HexX, traceItem->AccHex.HexY)] * 0.01);
+            }
         }
     }
 

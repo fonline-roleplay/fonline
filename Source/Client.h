@@ -1716,8 +1716,8 @@ public:
     bool IsTurnBasedMyTurn() { return IsTurnBased && Timer::GameTick() < TurnBasedTime && Chosen && Chosen->GetId() == TurnBasedCurCritterId && Chosen->GetAllAp() > 0; }
 
     bool     RebuildLookBorders;
-    bool     DrawViewBorders, DrawShootBorders, DrawHearBorders;
-    PointVec ViewBorders, ShootBorders, HearBorders;
+    bool     DrawViewBorders, DrawHearBorders;
+    PointVec ViewBorders, HearBorders;
 
     void LookBordersPrepare();
     void LookBordersDraw();
