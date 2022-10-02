@@ -668,7 +668,27 @@ void FOClient::LookBordersPrepare()
                     if (ii > 3)
                         ii = 6 - ii;
 
-                    uint       dist_ = (uint)(dist * look.ViewDirMultiplier[ii]*0.01);
+                    uint multiplier = look.ViewDirMultiplier[ii];
+
+                    /*if (ii != 0)
+                    {
+                        uint multiplier_ex = look.ViewDirMultiplier[ii - 1];
+                        if (multiplier_ex != multiplier)
+                        {
+                            if (multiplier_ex > multiplier)
+                                multiplier_ex -= multiplier;
+                            else
+                            {
+                                multiplier_ex = multiplier - multiplier_ex;
+                                multiplier = look.ViewDirMultiplier[ii - 1];
+                            }
+                            multiplier += multiplier_ex * ((double)(j + 1) / jj);
+                            WriteLog("multiplier %i %i %i %i %f\n", multiplier, multiplier_ex, j + 1, jj, ((double)(j + 1) / jj));
+                        }
+                    }*/
+
+                    uint dist_ = (uint)( dist * multiplier * 0.01 );
+                    // dist_ *= multiplier * 0.01;
                     UShortPair block;
                     HexMngr.TraceBullet(base_hx, base_hy, hx_, hy_, dist_, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, true);
                     hx_ = block.first;
@@ -703,18 +723,84 @@ void FOClient::LookBordersPrepare()
                 uint       dist_look = DistGame( base_hx, base_hy, hx_, hy_ );
                 UShortPair block;
                 HexMngr.TraceBullet( base_hx, base_hy, hx_, hy_, min( dist_look, dist_shoot ), 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, true );
-                hx__ = block.first;
-                hy__ = block.second;
 
-                HexMngr.TraceBullet(base_hx, base_hy, hx___, hy___, dist_hear, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, false);
-
-                int x, y, x_, y_, x__, y__;
+                int x, y, x_, y_;
                 HexMngr.GetHexCurrentPosition( hx_, hy_, x, y );
                 HexMngr.GetHexCurrentPosition( hx__, hy__, x_, y_ );
-                HexMngr.GetHexCurrentPosition( hx___, hy___, x__, y__ );
                 ViewBorders.push_back( PrepPoint( x + HEX_OX, y + HEX_OY, COLOR_ARGB( 80, 0, 255, 0 ), (short*) &GameOpt.ScrOx, (short*) &GameOpt.ScrOy ) );
                 ShootBorders.push_back( PrepPoint( x_ + HEX_OX, y_ + HEX_OY, COLOR_ARGB( 80, 255, 0, 0 ), (short*) &GameOpt.ScrOx, (short*) &GameOpt.ScrOy ) );
-                HearBorders.push_back(PrepPoint( x__ + HEX_OX, y__ + HEX_OY, COLOR_ARGB(80, 0, 0, 255), (short*)&GameOpt.ScrOx, (short*)&GameOpt.ScrOy));
+            }
+        }
+
+        hx = base_hx;
+        hy = base_hy;
+
+        seek_start = true;
+
+        if (FLAG(GameOpt.LookChecks, LOOK_CHECK_LOOK_DATA))
+        for (int i = 0; i < (GameOpt.MapHexagonal ? 6 : 4); i++)
+        {
+            int dir = (GameOpt.MapHexagonal ? (i + 2) % 6 : ((i + 1) * 2) % 8);
+
+            for (uint j = 0, jj = (GameOpt.MapHexagonal ? dist_hear : dist_hear * 2); j < jj; j++)
+            {
+                if (seek_start)
+                {
+                    // Move to start position
+                    for (uint l = 0; l < dist_hear; l++)
+                        MoveHexByDirUnsafe(hx, hy, GameOpt.MapHexagonal ? 0 : 7);
+                    seek_start = false;
+                    j = -1;
+                }
+                else
+                {
+                    // Move to next hex
+                    MoveHexByDirUnsafe(hx, hy, dir);
+                }
+
+
+                ushort hx_ = CLAMP(hx, 0, maxhx - 1);
+                ushort hy_ = CLAMP(hy, 0, maxhy - 1);
+
+                int dir_ = GetFarDir(base_hx, base_hy, hx_, hy_);
+                uchar ii = (chosendir > dir_ ? chosendir - dir_ : dir_ - chosendir); // = i8::abs(start_dir as i8 - cr.Dir as i8); //Направление
+                if (ii > 3)
+                    ii = 6 - ii;
+
+                uint multiplier = look.HearDirMultiplier[ii];
+
+                /*if (ii != 0)
+                {
+                    uint multiplier_ex = look.ViewDirMultiplier[ii - 1];
+                    if (multiplier_ex != multiplier)
+                    {
+                        if (multiplier_ex > multiplier)
+                            multiplier_ex -= multiplier;
+                        else
+                        {
+                            multiplier_ex = multiplier - multiplier_ex;
+                            multiplier = look.ViewDirMultiplier[ii - 1];
+                        }
+                        multiplier += multiplier_ex * ((double)(j + 1) / jj);
+                        WriteLog("multiplier %i %i %i %i %f\n", multiplier, multiplier_ex, j + 1, jj, ((double)(j + 1) / jj));
+                    }
+                }*/
+
+                uint dist_ = dist_hear;
+                dist_ *= multiplier * 0.01;
+                UShortPair block;
+                HexMngr.TraceBullet(base_hx, base_hy, hx_, hy_, dist_, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, false);
+                hx_ = block.first;
+                hy_ = block.second;
+
+                ushort hx__ = CLAMP(hx, 0, maxhx - 1);
+                ushort hy__ = CLAMP(hy, 0, maxhy - 1);
+
+                HexMngr.TraceBullet(base_hx, base_hy, hx__, hy__, dist_hear, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, false);
+
+                int x, y;
+                HexMngr.GetHexCurrentPosition(hx_, hy_, x, y);
+                HearBorders.push_back(PrepPoint(x + HEX_OX, y + HEX_OY, COLOR_TEXT_GREEN_RED /*COLOR_ARGB(80, 0, 0, 255)*/, (short*)&GameOpt.ScrOx, (short*)&GameOpt.ScrOy));
             }
         }
 
