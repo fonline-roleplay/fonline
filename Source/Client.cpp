@@ -816,14 +816,9 @@ void FOClient::LookBordersPrepare()
                     }
                 }
 
-                HexMngr.TraceBullet(base_hx, base_hy, hx_, hy_, newdist, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, true, nullptr);
+                HexMngr.TraceBullet(base_hx, base_hy, hx_, hy_, newdist, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, false, nullptr);
                 hx_ = block.first;
                 hy_ = block.second;
-
-                ushort hx__ = CLAMP(hx, 0, maxhx - 1);
-                ushort hy__ = CLAMP(hy, 0, maxhy - 1);
-
-                HexMngr.TraceBullet(base_hx, base_hy, hx__, hy__, dist_hear, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, false, nullptr);
 
                 int x, y;
                 HexMngr.GetHexCurrentPosition(hx_, hy_, x, y);
