@@ -49,7 +49,6 @@ public:
     //script
     mutable int refcounter;
     LookData();
-    LookData(LookData& other);
 
 #ifdef FONLINE_SERVER
     void InitLook(Critter& critter);
