@@ -605,48 +605,48 @@ void FOClient::EraseCritter( uint remid )
     HexMngr.EraseCrit( remid );
 }
 
-void FOClient::LookBordersPrepare()
+void FOClient::LookBordersPrepare( )
 {
-    if( !DrawViewBorders && !DrawHearBorders)
+    if( !DrawViewBorders && !DrawHearBorders )
         return;
 
-    HearBorders.clear();
-    ViewBorders.clear();
+    HearBorders.clear( );
+    ViewBorders.clear( );
 
-    if( HexMngr.IsMapLoaded() && Chosen )
+    if( HexMngr.IsMapLoaded( ) && Chosen )
     {
-        uint   dist = Chosen->GetLook();
+        uint   dist = Chosen->GetLook( );
         uint   dist_hear = dist;
 
-        LookData look = ChosenLookData->GetMixed(*MapLookData);
-        ushort base_hx = Chosen->GetHexX();
-        ushort base_hy = Chosen->GetHexY();
+        LookData look = ChosenLookData->GetMixed( *MapLookData );
+        ushort base_hx = Chosen->GetHexX( );
+        ushort base_hy = Chosen->GetHexY( );
         int    hx = base_hx;
         int    hy = base_hy;
-        int    chosendir = Chosen->GetDir();
+        int    chosendir = Chosen->GetDir( );
 
-        ushort maxhx = HexMngr.GetMaxHexX();
-        ushort maxhy = HexMngr.GetMaxHexY();
+        ushort maxhx = HexMngr.GetMaxHexX( );
+        ushort maxhy = HexMngr.GetMaxHexY( );
         bool   seek_start = true;
 
         std::vector<Field*> fields;
 
-        if (FLAG(GameOpt.LookChecks, LOOK_CHECK_LOOK_DATA))
+        if( FLAG( GameOpt.LookChecks, LOOK_CHECK_LOOK_DATA ) )
         {
             dist = look.MaxView;
             dist_hear = look.MaxHear;
 
-            if (Chosen->IsRunning)
-                dist_hear = (uint)(dist_hear * look.RunningHearMultiplier * 0.01);
+            if( Chosen->IsRunning && !ChosenAction.empty( ) && ChosenAction[ 0 ].Type == CHOSEN_MOVE )
+                dist_hear = ( uint )( dist_hear * look.RunningHearMultiplier * 0.01 );
 
-            Field& chosenfield = HexMngr.GetField(base_hx, base_hy);
-            for (auto it = chosenfield.Items.begin(), it_end = chosenfield.Items.end(); it != it_end; it++)
+            Field& chosenfield = HexMngr.GetField( base_hx, base_hy );
+            for( auto it = chosenfield.Items.begin( ), it_end = chosenfield.Items.end( ); it != it_end; it++ )
             {
                 auto item = *it;
-                if (item->IsViewBlocks())
-                    dist = (uint)(dist * item->Proto->FORPData.Look_Block * 0.01);
-                if (item->IsHearBlocks())
-                    dist_hear = (uint)(dist_hear * item->Proto->FORPData.Hear_Block * 0.01);
+                if( item->IsViewBlocks( ) )
+                    dist = ( uint )( dist * item->Proto->FORPData.Look_Block * 0.01 );
+                if( item->IsHearBlocks( ) )
+                    dist_hear = ( uint )( dist_hear * item->Proto->FORPData.Hear_Block * 0.01 );
             }
         }
 
@@ -673,65 +673,69 @@ void FOClient::LookBordersPrepare()
                 ushort hx_ = CLAMP( hx, 0, maxhx - 1 );
                 ushort hy_ = CLAMP( hy, 0, maxhy - 1 );
 
-                if (FLAG(GameOpt.LookChecks, LOOK_CHECK_LOOK_DATA))
+                if( FLAG( GameOpt.LookChecks, LOOK_CHECK_LOOK_DATA ) )
                 {
-                    int dir_ = GetFarDir(base_hx, base_hy, hx_, hy_);
-                    uchar ii = (chosendir > dir_ ? chosendir - dir_ : dir_ - chosendir); // = i8::abs(start_dir as i8 - cr.Dir as i8); //Направление
-                    if (ii > 3)
+                    int dir_ = GetFarDir( base_hx, base_hy, hx_, hy_ );
+                    uchar ii = ( chosendir > dir_ ? chosendir - dir_ : dir_ - chosendir ); // = i8::abs(start_dir as i8 - cr.Dir as i8); //Направление
+                    if( ii > 3 )
                         ii = 6 - ii;
 
-                    uint dist_ = (uint)(dist * look.ViewDirMultiplier[ii] * 0.01);
+                    uint dist_ = ( uint )( dist * look.ViewDirMultiplier[ ii ] * 0.01 );
 
                     UShortPair block;
-                    fields.clear();
-                    HexMngr.TraceBullet(base_hx, base_hy, hx_, hy_, dist_, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, true, &fields);
+                    fields.clear( );
+                    if( dist_ == 0 )
+                        dist_ = 1;
+                    HexMngr.TraceBullet( base_hx, base_hy, hx_, hy_, dist_, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, true, &fields );
 
                     uint newdist = dist_;
-                    if (!fields.empty())
+                    if( !fields.empty( ) )
                     {
-                        for (auto it_filed = fields.begin(), itf_end = fields.end(); it_filed != itf_end; it_filed++)
+                        for( auto it_filed = fields.begin( ), itf_end = fields.end( ); it_filed != itf_end; it_filed++ )
                         {
                             Field* f = *it_filed;
-                            for (auto it = f->Items.begin(), it_end = f->Items.end(); it != it_end; it++)
+                            for( auto it = f->Items.begin( ), it_end = f->Items.end( ); it != it_end; it++ )
                             {
                                 auto item = *it;
-                                if (!item->IsViewBlocks())
+                                if( !item->IsViewBlocks( ) )
                                     continue;
 
-                                uint disttoitem = DistGame(base_hx, base_hy, item->HexX, item->HexY);
+                                uint disttoitem = DistGame( base_hx, base_hy, item->HexX, item->HexY );
                                 uint distchange = newdist - disttoitem;
-                                if (disttoitem >= newdist)
+                                if( disttoitem >= newdist )
                                     break;
 
-                                newdist = disttoitem + (uint)(distchange * item->Proto->FORPData.Look_BlockDir[GetFarDir(base_hx, base_hy, item->HexX, item->HexY)] * 0.01);
+                                newdist = disttoitem + ( uint )( distchange * item->Proto->FORPData.Look_BlockDir[ GetFarDir( base_hx, base_hy, item->HexX, item->HexY ) ] * 0.01 );
                             }
                         }
                     }
 
-                    HexMngr.TraceBullet(base_hx, base_hy, hx_, hy_, newdist, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, true, nullptr);
+                    if( newdist == 0 )
+                        newdist = 1;
+                    HexMngr.TraceBullet( base_hx, base_hy, hx_, hy_, newdist, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, true, nullptr );
                     hx_ = block.first;
                     hy_ = block.second;
 
                 }
                 else
                 {
-                    if (FLAG(GameOpt.LookChecks, LOOK_CHECK_DIR))
+                    if( FLAG( GameOpt.LookChecks, LOOK_CHECK_DIR ) )
                     {
-                        int dir_ = GetFarDir(base_hx, base_hy, hx_, hy_);
-                        int ii = (dir > dir_ ? dir - dir_ : dir_ - dir);
-                        if (ii > DIRS_COUNT / 2)
+                        int dir_ = GetFarDir( base_hx, base_hy, hx_, hy_ );
+                        int ii = ( dir > dir_ ? dir - dir_ : dir_ - dir );
+                        if( ii > DIRS_COUNT / 2 )
                             ii = DIRS_COUNT - ii;
-                        uint       dist_ = dist - dist * GameOpt.LookDir[ii] / 100;
+                        uint       dist_ = dist - dist * GameOpt.LookDir[ ii ] / 100;
                         UShortPair block;
-                        HexMngr.TraceBullet(base_hx, base_hy, hx_, hy_, dist_, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, false, nullptr);
+                        HexMngr.TraceBullet( base_hx, base_hy, hx_, hy_, dist_, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, false, nullptr );
                         hx_ = block.first;
                         hy_ = block.second;
                     }
 
-                    if (FLAG(GameOpt.LookChecks, LOOK_CHECK_TRACE))
+                    if( FLAG( GameOpt.LookChecks, LOOK_CHECK_TRACE ) )
                     {
                         UShortPair block;
-                        HexMngr.TraceBullet(base_hx, base_hy, hx_, hy_, 0, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, true, nullptr);
+                        HexMngr.TraceBullet( base_hx, base_hy, hx_, hy_, 0, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, true, nullptr );
                         hx_ = block.first;
                         hy_ = block.second;
                     }
@@ -739,7 +743,7 @@ void FOClient::LookBordersPrepare()
 
                 int x, y;
                 HexMngr.GetHexCurrentPosition( hx_, hy_, x, y );
-                ViewBorders.push_back( PrepPoint( x + HEX_OX, y + HEX_OY, COLOR_ARGB( 80, 0, 255, 0 ), (short*) &GameOpt.ScrOx, (short*) &GameOpt.ScrOy ) );
+                ViewBorders.push_back( PrepPoint( x + HEX_OX, y + HEX_OY, COLOR_ARGB( 80, 0, 255, 0 ), ( short* )&GameOpt.ScrOx, ( short* )&GameOpt.ScrOy ) );
             }
         }
 
@@ -748,106 +752,111 @@ void FOClient::LookBordersPrepare()
 
         seek_start = true;
 
-        if (FLAG(GameOpt.LookChecks, LOOK_CHECK_LOOK_DATA))
-        for (int i = 0; i < (GameOpt.MapHexagonal ? 6 : 4); i++)
+        if( FLAG( GameOpt.LookChecks, LOOK_CHECK_LOOK_DATA ) )
         {
-            int dir = (GameOpt.MapHexagonal ? (i + 2) % 6 : ((i + 1) * 2) % 8);
-
-            for (uint j = 0, jj = (GameOpt.MapHexagonal ? dist_hear : dist_hear * 2); j < jj; j++)
+            for( int i = 0; i < ( GameOpt.MapHexagonal ? 6 : 4 ); i++ )
             {
-                if (seek_start)
+                int dir = ( GameOpt.MapHexagonal ? ( i + 2 ) % 6 : ( ( i + 1 ) * 2 ) % 8 );
+
+                for( uint j = 0, jj = ( GameOpt.MapHexagonal ? dist_hear : dist_hear * 2 ); j < jj; j++ )
                 {
-                    // Move to start position
-                    for (uint l = 0; l < dist_hear; l++)
-                        MoveHexByDirUnsafe(hx, hy, GameOpt.MapHexagonal ? 0 : 7);
-                    seek_start = false;
-                    j = -1;
-                }
-                else
-                {
-                    // Move to next hex
-                    MoveHexByDirUnsafe(hx, hy, dir);
-                }
-
-
-                ushort hx_ = CLAMP(hx, 0, maxhx - 1);
-                ushort hy_ = CLAMP(hy, 0, maxhy - 1);
-
-                int dir_ = GetFarDir(base_hx, base_hy, hx_, hy_);
-                uchar ii = (chosendir > dir_ ? chosendir - dir_ : dir_ - chosendir); // = i8::abs(start_dir as i8 - cr.Dir as i8); //Направление
-                if (ii > 3)
-                    ii = 6 - ii;
-
-                uint dist_ = (uint)(dist_hear * look.HearDirMultiplier[ii] * 0.01);
-                UShortPair block;
-
-                fields.clear();
-                HexMngr.TraceBullet(base_hx, base_hy, hx_, hy_, dist_, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, true, &fields);
-
-                uint newdist = dist_;
-                if (!fields.empty())
-                {
-                    for (auto it_filed = fields.begin(), itf_end = fields.end(); it_filed != itf_end; it_filed++)
+                    if( seek_start )
                     {
-                        Field* f = *it_filed;
-                        for (auto it = f->Items.begin(), it_end = f->Items.end(); it != it_end; it++)
+                        // Move to start position
+                        for( uint l = 0; l < dist_hear; l++ )
+                            MoveHexByDirUnsafe( hx, hy, GameOpt.MapHexagonal ? 0 : 7 );
+                        seek_start = false;
+                        j = -1;
+                    }
+                    else
+                    {
+                        // Move to next hex
+                        MoveHexByDirUnsafe( hx, hy, dir );
+                    }
+
+
+                    ushort hx_ = CLAMP( hx, 0, maxhx - 1 );
+                    ushort hy_ = CLAMP( hy, 0, maxhy - 1 );
+
+                    int dir_ = GetFarDir( base_hx, base_hy, hx_, hy_ );
+                    uchar ii = ( chosendir > dir_ ? chosendir - dir_ : dir_ - chosendir ); // = i8::abs(start_dir as i8 - cr.Dir as i8); //Направление
+                    if( ii > 3 )
+                        ii = 6 - ii;
+
+                    uint dist_ = ( uint )( dist_hear * look.HearDirMultiplier[ ii ] * 0.01 );
+                    UShortPair block;
+
+                    fields.clear( );
+                    if( dist_ == 0 )
+                        dist_ = 1;
+                    HexMngr.TraceBullet( base_hx, base_hy, hx_, hy_, dist_, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, true, &fields );
+
+                    uint newdist = dist_;
+                    if( !fields.empty( ) )
+                    {
+                        for( auto it_filed = fields.begin( ), itf_end = fields.end( ); it_filed != itf_end; it_filed++ )
                         {
-                            auto item = *it;
-                            if (item->IsHearBlocks())
+                            Field* f = *it_filed;
+                            for( auto it = f->Items.begin( ), it_end = f->Items.end( ); it != it_end; it++ )
                             {
-                                uint disttoitem = DistGame(base_hx, base_hy, item->HexX, item->HexY);
-                                uint distchange = newdist - disttoitem;
-                                if (disttoitem >= newdist)
-                                    break;
+                                auto item = *it;
+                                if( item->IsHearBlocks( ) )
+                                {
+                                    uint disttoitem = DistGame( base_hx, base_hy, item->HexX, item->HexY );
+                                    uint distchange = newdist - disttoitem;
+                                    if( disttoitem >= newdist )
+                                        break;
 
-                                newdist = disttoitem + (uint)(distchange * item->Proto->FORPData.Hear_BlockDir[GetFarDir(base_hx, base_hy, item->HexX, item->HexY)] * 0.01);
-                            }
+                                    newdist = disttoitem + ( uint )( distchange * item->Proto->FORPData.Hear_BlockDir[ GetFarDir( base_hx, base_hy, item->HexX, item->HexY ) ] * 0.01 );
+                                }
 
-                            if (item->IsWall() && item->Proto->IsBlocks() )
-                            {
-                                uint disttoitem = DistGame(base_hx, base_hy, item->HexX, item->HexY);
-                                uint distchange = newdist - disttoitem;
-                                if (disttoitem >= newdist)
-                                    break;
-                                
-                                newdist = disttoitem + (uint)(distchange * LookData::WallMaterialHearMultiplier[item->Proto->Material] * 0.01);
+                                if( item->IsWall( ) && item->Proto->IsBlocks( ) )
+                                {
+                                    uint disttoitem = DistGame( base_hx, base_hy, item->HexX, item->HexY );
+                                    uint distchange = newdist - disttoitem;
+                                    if( disttoitem >= newdist )
+                                        break;
+
+                                    newdist = disttoitem + ( uint )( distchange * LookData::WallMaterialHearMultiplier[ item->Proto->Material ] * 0.01 );
+                                }
                             }
                         }
                     }
+                    if( newdist == 0 )
+                        newdist = 1;
+                    HexMngr.TraceBullet( base_hx, base_hy, hx_, hy_, newdist, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, false, nullptr );
+                    hx_ = block.first;
+                    hy_ = block.second;
+
+                    int x, y;
+                    HexMngr.GetHexCurrentPosition( hx_, hy_, x, y );
+                    HearBorders.push_back( PrepPoint( x + HEX_OX, y + HEX_OY, COLOR_TEXT_GREEN_RED /*COLOR_ARGB(80, 0, 0, 255)*/, ( short* )&GameOpt.ScrOx, ( short* )&GameOpt.ScrOy ) );
                 }
-
-                HexMngr.TraceBullet(base_hx, base_hy, hx_, hy_, newdist, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, false, nullptr);
-                hx_ = block.first;
-                hy_ = block.second;
-
-                int x, y;
-                HexMngr.GetHexCurrentPosition(hx_, hy_, x, y);
-                HearBorders.push_back(PrepPoint(x + HEX_OX, y + HEX_OY, COLOR_TEXT_GREEN_RED /*COLOR_ARGB(80, 0, 0, 255)*/, (short*)&GameOpt.ScrOx, (short*)&GameOpt.ScrOy));
             }
         }
 
-        if( ViewBorders.size() < 2 )
-            ViewBorders.clear();
+        if( ViewBorders.size( ) < 2 )
+            ViewBorders.clear( );
         else
-            ViewBorders.push_back( *ViewBorders.begin() );
-        
-        if(HearBorders.size() < 2 )
-            HearBorders.clear();
+            ViewBorders.push_back( *ViewBorders.begin( ) );
+
+        if( HearBorders.size( ) < 2 )
+            HearBorders.clear( );
         else
-            HearBorders.push_back( *HearBorders.begin() );
+            HearBorders.push_back( *HearBorders.begin( ) );
     }
 }
 
-void FOClient::LookBordersDraw()
+void FOClient::LookBordersDraw( )
 {
     if( RebuildLookBorders )
     {
-        LookBordersPrepare();
-        RebuildLookBorders = false;
+        LookBordersPrepare( );
+        RebuildLookBorders=false;
     }
-    if(DrawViewBorders)
+    if( DrawViewBorders )
         SprMngr.DrawPoints( ViewBorders, PRIMITIVE_LINESTRIP, &GameOpt.SpritesZoom );
-    if(DrawHearBorders)
+    if( DrawHearBorders )
         SprMngr.DrawPoints( HearBorders, PRIMITIVE_LINESTRIP, &GameOpt.SpritesZoom );
 }
 

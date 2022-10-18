@@ -345,12 +345,13 @@ bool FOServer::Act_Move( Critter* cr, ushort hx, ushort hy, uint move_params )
         int ap_cost = cr->GetApCostCritterMove( is_run );
         if( ap_cost != 0 )
         {
-            if( cr->GetRealAp() < ap_cost * 2 ) {
-                cr->RegenerateAp(1);
+            if( cr->GetRealAp( ) < ap_cost * 2 )
+            {
+                cr->RegenerateAp( 1 );
             }
-            int real_ap = cr->GetRealAp();
+            int real_ap = cr->GetRealAp( );
 
-            if ( !Singleplayer && real_ap < ap_cost )
+            if( !Singleplayer && real_ap < ap_cost )
             {
                 cr->Send_Param( ST_CURRENT_AP );
                 cr->Send_XY( cr );
