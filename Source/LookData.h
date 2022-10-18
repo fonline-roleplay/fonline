@@ -51,11 +51,26 @@ public:
     mutable int refcounter;
     LookData();
 
+    struct Result
+    {
+        union
+        {
+            bool IsLook;
+            struct
+            {
+                bool IsView : 1;
+                bool IsHear : 1;
+            };
+        };
+    };
+
+    static LookData ScriptLookData0, ScriptLookData1;
+
 #ifdef FONLINE_SERVER
     void InitCritter(Critter& critter);
     void InitMap( Map& map);
     void InitItem( Item& item );
-    static bool CheckLook( Map& map, LookData& look, LookData& hide );
+    static Result CheckLook( Map& map, LookData& look, LookData& hide );
 #endif
 
     LookData GetMixed(LookData& other);
@@ -71,6 +86,7 @@ public:
 
     static unsigned char GetWallMaterialHearMultiplier(unsigned index);
     static void SetWallMaterialHearMultiplier(unsigned index, unsigned char value);
+
 };
 #endif // !FONLINE_LOOK_DATA
 

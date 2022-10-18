@@ -6389,6 +6389,22 @@ void FOServer::SScriptFunc::Crit_UpdateLookData(Critter* critter)
 
     critter->Send_LookData();
 }
+
+// LookData::Result LookData::CheckLook( Map& map, LookData& look, LookData& hide )
+bool FOServer::SScriptFunc::CheckLook( Map& map, LookData& look, LookData& hide, bool& isView, bool& isHear )
+{
+    if( map.IsNotValid )
+        SCRIPT_ERROR_R0( "This nullptr." );
+
+    LookData mixLook = look.GetMixed( map.Data.Look );
+    LookData mixHide = hide.GetMixed( map.Data.Look );
+
+    auto result = LookData::CheckLook( map, mixLook, mixHide );
+    isView = result.IsView;
+    isHear = result.IsHear;
+    return result.IsLook;
+}
+
 /************************************************************************/
 /*                                                                      */
 /************************************************************************/

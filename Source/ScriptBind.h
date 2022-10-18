@@ -1704,11 +1704,17 @@ BIND_ASSERT(engine->RegisterObjectProperty("LookData", "uint8 WorkAccess", OFFSE
 BIND_ASSERT(engine->RegisterGlobalFunction("uint8 get_WallMaterialHearMultiplier( uint index )", asFUNCTION(LookData::GetWallMaterialHearMultiplier), asCALL_CDECL));
 BIND_ASSERT(engine->RegisterGlobalFunction("void set_WallMaterialHearMultiplier( uint index, uint8 value )", asFUNCTION(LookData::SetWallMaterialHearMultiplier), asCALL_CDECL));
 
+BIND_ASSERT( engine->RegisterGlobalProperty( "LookData HotLookData_0", &LookData::ScriptLookData0 ) );
+BIND_ASSERT( engine->RegisterGlobalProperty( "LookData HotLookData_1", &LookData::ScriptLookData1 ) );
+
 #ifdef BIND_SERVER
 BIND_ASSERT(engine->RegisterObjectMethod("Critter", "LookData@ get_Look()", asFUNCTION(BIND_CLASS Crit_GetLookData), asCALL_CDECL_OBJFIRST));
 BIND_ASSERT(engine->RegisterObjectMethod("Map", "LookData@ get_Look()", asFUNCTION(BIND_CLASS Map_GetLookData), asCALL_CDECL_OBJFIRST));
 
 BIND_ASSERT(engine->RegisterObjectMethod("Critter", "void LookData_Update()", asFUNCTION(BIND_CLASS Crit_UpdateLookData), asCALL_CDECL_OBJFIRST));
+
+BIND_ASSERT( engine->RegisterGlobalFunction( "bool CheckLook( Map& map, LookData& look, LookData& hide, bool&out isView = void, bool&out isHear = void )", asFUNCTION( BIND_CLASS CheckLook ), asCALL_CDECL ) );
+
 #endif
 /*
 BIND_ASSERT(engine->RegisterObjectMethod("LookData", "uint8 get_HideViewDirMultiplier( uint index )", asFUNCTION(BIND_CLASS LookData_GetHideViewDirMultiplier), asCALL_CDECL_OBJFIRST));

@@ -13,10 +13,9 @@
 static asALLOCFUNC_t userAlloc = asAllocMem;
 static asFREEFUNC_t  userFree = asFreeMem;
 
-int QST_VISION = 702;
-int QST_INVIS = 701;
-
 unsigned char LookData::WallMaterialHearMultiplier[MATERIALS_COUNT];
+
+LookData LookData::ScriptLookData0, LookData::ScriptLookData1;
 
 LookData::LookData() : refcounter(1)
 {
@@ -185,27 +184,32 @@ void LookData::ScriptRegistration( asIScriptEngine* engine )
 }
 
 #ifdef FONLINE_SERVER
-bool LookData::CheckLook( Map& map, LookData& look, LookData& hide )
+LookData::Result LookData::CheckLook( Map& map, LookData& look, LookData& hide )
 {
-    // Consider remove this
+    LookData::Result result;
+    result.IsView = true;
+    result.IsHear = true;
+
     if( look.access >= ACCESS_MODER && look.Vision > 0 )
-        return true;
+        return result;
 
     uint dist = DistGame( look.hexx, look.hexy, hide.hexx, hide.hexy );
 
     if( look.Vision >= dist && hide.Invis <= dist )
-        return true;
+        return result;
+
     if( hide.Invis > 0 && hide.Invis <= dist )
-        return false;
+    {
+        result.IsView = false;
+        result.IsHear = false;
+        return result;
+    }
 
     if( hide.Invis > dist || look.Vision >= dist )
-        return true;
+        return result;
 
     uint max_view = look.MaxView;
     uint max_hear = look.MaxHear;
-
-    bool is_view = true;
-    bool is_hear = true;
 
     uchar start_dir = GetFarDir( look.hexx, look.hexy, hide.hexx, hide.hexy );
     uchar look_dir = ( look.dir > start_dir ? look.dir - start_dir : start_dir - look.dir );
@@ -227,7 +231,11 @@ bool LookData::CheckLook( Map& map, LookData& look, LookData& hide )
 
     // new optimization: return early if distance larger than max_view and max_hear
     if( dist > max_view && dist > tmp_max_hear )
-        return false;
+    {
+        result.IsView = false;
+        result.IsHear = false;
+        return result;
+    }
 
     static TraceData trace;
     if( !trace.Walls )
@@ -297,15 +305,15 @@ bool LookData::CheckLook( Map& map, LookData& look, LookData& hide )
     }
 
     if( !trace.IsFullTrace )
-        is_view = false;
+        result.IsView = false;
     else if( dist > max_view )
-        is_view = false;
+        result.IsView = false;
 
     if( dist > ( uint )( max_hear * hear_mul ) )
-        is_hear = false;
+        result.IsHear = false;
 
     trace.Walls->clear( );
     trace.Items->clear( );
-    return is_view || is_hear;
+    return result;
 }
 #endif

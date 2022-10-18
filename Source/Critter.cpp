@@ -361,8 +361,8 @@ void Critter::ProcessVisibleCritters()
             LookData crlook = cr->Data.Look.GetMixed(map->Data.Look);
 
             crlook.InitCritter(*cr);
-            bool allow_self = LookData::CheckLook(*map, look, crlook);
-            bool allow_opp = LookData::CheckLook(*map, crlook, look);
+            bool allow_self = LookData::CheckLook(*map, look, crlook).IsLook;
+            bool allow_opp = LookData::CheckLook(*map, crlook, look).IsLook;
 
             if (allow_self)
             {
@@ -881,7 +881,7 @@ void Critter::ProcessVisibleItems()
                 allowed = look >= dist; //*/
                 hideitem.InitItem( *item );
                 hideitem = hideitem.GetMixed( map->Data.Look );
-                allowed = LookData::CheckLook( *map, lookdata, hideitem );//*/
+                allowed = LookData::CheckLook( *map, lookdata, hideitem ).IsLook;//*/
             }
 
             if( allowed )
