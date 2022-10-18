@@ -9,6 +9,7 @@
 #ifdef FONLINE_SERVER
 class Critter;
 class Map;
+class Item;
 #endif
 
 #define MATERIALS_COUNT (50)
@@ -51,10 +52,10 @@ public:
     LookData();
 
 #ifdef FONLINE_SERVER
-    void InitLook(Critter& critter);
-    void InitHide(Critter& critter);
     void InitCritter(Critter& critter);
-    void InitMap(Map& map);
+    void InitMap( Map& map);
+    void InitItem( Item& item );
+    static bool CheckLook( Map& map, LookData& look, LookData& hide );
 #endif
 
     LookData GetMixed(LookData& other);

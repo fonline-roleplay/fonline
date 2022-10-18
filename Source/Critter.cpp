@@ -290,130 +290,6 @@ void Critter::SyncLockCritters( bool self_critters, bool only_players )
     }
 }
 
-bool check_look(Map& map, LookData& look, LookData& hide)
-{
-    // Consider remove this
-    if (look.access >= ACCESS_MODER && look.Vision > 0)
-            return true;
-
-    uint dist = DistGame(look.hexx, look.hexy, hide.hexx, hide.hexy);
-
-    if ( look.Vision >= dist && hide.Invis <= dist)
-        return true;
-    if (hide.Invis > 0 && hide.Invis <= dist)
-        return false;
-
-    if (hide.Invis > dist || look.Vision >= dist)
-        return true;
-
-    uint max_view = look.MaxView;
-    uint max_hear = look.MaxHear;
-
-    bool is_view = true;
-    bool is_hear = true;
-
-    uchar start_dir = GetFarDir(look.hexx, look.hexy, hide.hexx, hide.hexy);
-    uchar look_dir = (look.dir > start_dir ? look.dir - start_dir : start_dir - look.dir);
-
-    if (look_dir > 3)
-        look_dir = 6 - look_dir;
-
-    double hear_mul = (0.01 * look.HearDirMultiplier[look_dir] ) * (0.01 * hide.HideHearMultiplier ) * (0.01 * hide.HideHearDirMultiplier[start_dir]),
-        view_mul = (0.01 * look.ViewDirMultiplier[look_dir] ) * (0.01 * hide.HideViewMultiplier) * (0.01 * hide.HideViewDirMultiplier[start_dir]);
-
-    if (hide.isruning)
-        hear_mul *= 0.01 * hide.RunningNoiseMultiplier;
-
-    if ( look.isruning)
-        hear_mul *= 0.01 * look.RunningHearMultiplier;
-
-    max_view = (uint) ( max_view * view_mul );
-    uint tmp_max_hear = (uint)( max_hear * hear_mul );
-
-    // new optimization: return early if distance larger than max_view and max_hear
-    if (dist > max_view && dist > tmp_max_hear)
-        return false;
-
-    static TraceData trace;
-    if (!trace.Walls)
-        trace.Walls = new SceneryClRefVec();
-    if (!trace.Items)
-        trace.Items = new ItemPtrVec();
-        
-    trace.ForceFullTrace = true;
-    trace.TraceMap = &map;
-    trace.BeginHx = look.hexx;
-    trace.BeginHy = look.hexy;
-    trace.EndHx = hide.hexx;
-    trace.EndHy = hide.hexy;
-    MapMngr.TraceBullet(trace);
-
-    ProtoItem*  protoItem = nullptr;
-    for (auto it = trace.Walls->begin(), end = trace.Walls->end(); it != end; ++it)
-    {
-        protoItem = ItemMngr.GetProtoItem((*it)->ProtoId);
-        if (protoItem && !protoItem->IsPassed())
-        {
-            uint disttoitem = DistGame(look.hexx, look.hexy, (*it)->MapX, (*it)->MapY);
-            if (disttoitem >= max_hear)
-                break;
-
-            uint distchange = max_hear - disttoitem;
-            max_hear = disttoitem + (uint)(distchange * LookData::WallMaterialHearMultiplier[protoItem->Material] * 0.01);
-        }
-    }
-
-    Item* traceItem = nullptr;
-    bool isHex = false;
-    for (auto it = trace.Items->begin(), end = trace.Items->end(); it != end; ++it)
-    {
-        traceItem = *it;
-        isHex = (look.hexx == traceItem->AccHex.HexX && look.hexy == traceItem->AccHex.HexY);
-
-        if (traceItem->IsViewBlocks())
-        {
-            if (isHex)
-                view_mul *= 0.01 * traceItem->Proto->FORPData.Look_Block;
-            else
-            {
-                uint disttoitem = DistGame(look.hexx, look.hexy, traceItem->AccHex.HexX, traceItem->AccHex.HexY);
-                if (disttoitem >= max_view)
-                    break;
-
-                uint distchange = max_view - disttoitem;
-                max_view = disttoitem + (uint)(distchange * traceItem->Proto->FORPData.Look_BlockDir[GetFarDir(look.hexx, look.hexy, traceItem->AccHex.HexX, traceItem->AccHex.HexY)] * 0.01);
-            }
-        }
-
-        if (traceItem->IsHearBlocks())
-        {
-            if (isHex)
-                hear_mul *= 0.01 * traceItem->Proto->FORPData.Hear_Block;
-            else
-            {
-                uint disttoitem = DistGame(look.hexx, look.hexy, traceItem->AccHex.HexX, traceItem->AccHex.HexY);
-                if (disttoitem >= max_hear)
-                    break;
-
-                uint distchange = max_hear - disttoitem;
-                max_hear = disttoitem + (uint)(distchange * traceItem->Proto->FORPData.Hear_BlockDir[GetFarDir(look.hexx, look.hexy, traceItem->AccHex.HexX, traceItem->AccHex.HexY)] * 0.01);
-            }
-        }
-    }
-
-    if (!trace.IsFullTrace)
-        is_view = false; 
-    else if (dist > max_view)
-        is_view = false;
-
-    if (dist > (uint)( max_hear * hear_mul ) )
-        is_hear = false;
-
-    trace.Walls->clear();
-    trace.Items->clear();
-    return is_view || is_hear;
-}
-
 void Critter::ProcessVisibleCritters()
 {
     if( IsNotValid )
@@ -485,8 +361,8 @@ void Critter::ProcessVisibleCritters()
             LookData crlook = cr->Data.Look.GetMixed(map->Data.Look);
 
             crlook.InitCritter(*cr);
-            bool allow_self = check_look(*map, look, crlook);
-            bool allow_opp = check_look(*map, crlook, look);
+            bool allow_self = LookData::CheckLook(*map, look, crlook);
+            bool allow_opp = LookData::CheckLook(*map, crlook, look);
 
             if (allow_self)
             {
@@ -963,7 +839,11 @@ void Critter::ProcessVisibleItems()
     if( !map )
         return;
 
-    int        look = GetLook();
+    int look = GetLook();
+    static LookData hideitem;
+    static LookData lookdata;
+    lookdata = Data.Look.GetMixed( map->Data.Look );
+    lookdata.InitCritter( *this );
     ItemPtrVec& items = map->GetItemsNoLock();
     for( auto it = items.begin(), end = items.end(); it != end; ++it )
     {
@@ -995,10 +875,13 @@ void Critter::ProcessVisibleItems()
             }
             else
             {
-                int dist = DistGame( Data.HexX, Data.HexY, item->AccHex.HexX, item->AccHex.HexY );
+                /*int dist = DistGame( Data.HexX, Data.HexY, item->AccHex.HexX, item->AccHex.HexY );
                 if( item->IsTrap() )
                     dist += item->TrapGetValue();
-                allowed = look >= dist;
+                allowed = look >= dist; //*/
+                hideitem.InitItem( *item );
+                hideitem = hideitem.GetMixed( map->Data.Look );
+                allowed = LookData::CheckLook( *map, lookdata, hideitem );//*/
             }
 
             if( allowed )
