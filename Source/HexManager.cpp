@@ -3433,8 +3433,10 @@ bool HexManager::TraceBullet( ushort hx, ushort hy, ushort tx, ushort ty, uint d
 
         if (fields)
         {
-            if( !f.Items.empty() )
-                fields->push_back(&f);
+            if( !f.Items.empty( ) )
+            {
+                fields->push_back( &f );
+            }
         }
         old_cx = cx;
         old_cy = cy;

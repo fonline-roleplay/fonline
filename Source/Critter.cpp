@@ -352,7 +352,7 @@ bool check_look(Map& map, LookData& look, LookData& hide)
     for (auto it = trace.Walls->begin(), end = trace.Walls->end(); it != end; ++it)
     {
         protoItem = ItemMngr.GetProtoItem((*it)->ProtoId);
-        if (protoItem && protoItem->IsBlocks())
+        if (protoItem && !protoItem->IsPassed())
         {
             uint disttoitem = DistGame(look.hexx, look.hexy, (*it)->MapX, (*it)->MapY);
             if (disttoitem >= max_hear)

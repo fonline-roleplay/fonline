@@ -321,6 +321,7 @@ public:
     bool IsGeneric()   { return Type == ITEM_TYPE_GENERIC; }
     bool IsCar()       { return Type == ITEM_TYPE_CAR; }
     bool IsEffect()    { return Type == ITEM_TYPE_EFFECT; }
+    bool IsPassed( )   { return FLAG( Flags, ITEM_NO_BLOCK ); }
 
     bool IsBlocks() { return BlockLines[ 0 ] != 0; }
 
