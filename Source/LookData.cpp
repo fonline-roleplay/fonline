@@ -186,7 +186,7 @@ void LookData::ScriptRegistration( asIScriptEngine* engine )
 #ifdef FONLINE_SERVER
 LookData::Result LookData::CheckLook( Map& map, LookData& look, LookData& hide )
 {
-    LookData::Result result;
+    LookData::Result result = { false };
     result.IsView = true;
     result.IsHear = true;
 
@@ -238,10 +238,8 @@ LookData::Result LookData::CheckLook( Map& map, LookData& look, LookData& hide )
     }
 
     static TraceData trace;
-    if( !trace.Walls )
-        trace.Walls = new SceneryClRefVec( );
-    if( !trace.Items )
-        trace.Items = new ItemPtrVec( );
+    if( !trace.Walls ) trace.Walls = new SceneryClRefVec( );
+    if( !trace.Items ) trace.Items = new ItemPtrVec( );
 
     trace.ForceFullTrace = true;
     trace.TraceMap = &map;
@@ -258,11 +256,10 @@ LookData::Result LookData::CheckLook( Map& map, LookData& look, LookData& hide )
         if( protoItem && !protoItem->IsPassed( ) )
         {
             uint disttoitem = DistGame( look.hexx, look.hexy, ( *it )->MapX, ( *it )->MapY );
-            if( disttoitem >= max_hear )
-                break;
-
-            uint distchange = max_hear - disttoitem;
-            max_hear = disttoitem + ( uint )( distchange * LookData::WallMaterialHearMultiplier[ protoItem->Material ] * 0.01 );
+            if( disttoitem < max_hear )
+            {
+                max_hear = disttoitem + ( uint )( ( max_hear - disttoitem ) * LookData::WallMaterialHearMultiplier[ protoItem->Material ] * 0.01 );
+            }
         }
     }
 
