@@ -321,12 +321,17 @@ public:
     bool IsGeneric()   { return Type == ITEM_TYPE_GENERIC; }
     bool IsCar()       { return Type == ITEM_TYPE_CAR; }
     bool IsEffect()    { return Type == ITEM_TYPE_EFFECT; }
-    bool IsPassed( )   { return FLAG( Flags, ITEM_NO_BLOCK ); }
+    bool IsPassed( )   { return FLAG( Flags, ITEM_NO_BLOCK ); } 
 
-    bool IsBlocks() { return BlockLines[ 0 ] != 0; }
+    bool IsBlocks() { return !IsPassed(); } 
 
-    bool IsViewBlocks() { return false; }
-    bool IsHearBlocks() { return false; }
+    bool IsViewBlocks() {
+        return FLAG( Flags, ITEM_VIEW_BLOCKS );
+    }
+
+    bool IsHearBlocks() {
+        return FLAG( Flags, ITEM_HEAR_BLOCK );
+    }
 
     bool LockerIsChangeble()
     {

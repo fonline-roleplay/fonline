@@ -789,31 +789,33 @@ void FOClient::LookBordersPrepare( )
                     fields.clear( );
                     if( dist_ == 0 )
                         dist_=1;
-                    HexMngr.TraceBullet( base_hx, base_hy, hx_, hy_, dist_, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, true, &fields );
+                    HexMngr.TraceBullet( base_hx, base_hy, hx_, hy_, dist_, 0.0f, NULL, false, NULL, 0, NULL, &block, NULL, false, &fields );
 
                     uint newdist=dist_;
                     if( !fields.empty( ) )
                     {
-                        for( auto it_filed=fields.begin( ), itf_end=fields.end( ); it_filed != itf_end; it_filed++ )
+                        for( auto it_fieled = fields.begin( ), itf_end = fields.end( ); it_fieled != itf_end; it_fieled++ )
                         {
-                            Field* f = *it_filed;
-                            for( auto it=f->Items.begin( ), it_end=f->Items.end( ); it != it_end; it++ )
+                            Field* field = *it_fieled;
+                            for( auto it = field->Items.begin( ), it_end = field->Items.end( ); it != it_end; it++ )
                             {
-                                auto item=*it;
+                                auto item = *it;
                                 if( item->IsHearBlocks( ) )
                                 {
-                                    uint disttoitem=DistGame( base_hx, base_hy, item->HexX, item->HexY );
-                                    uint distchange=newdist - disttoitem;
+                                    uint disttoitem = DistGame( base_hx, base_hy, item->HexX, item->HexY );
+                                    uint distchange = newdist - disttoitem;
                                     if( disttoitem < newdist )
                                         newdist = disttoitem + ( uint )( distchange * item->Proto->FORPData.Hear_BlockDir[ GetFarDir( base_hx, base_hy, item->HexX, item->HexY ) ] * 0.01 );
                                 }
 
-                                if( item->IsWall( ) && !item->IsPassed() )
+                                if( item->IsWall( ) && item->IsBlocks( ) )
                                 {
-                                    uint disttoitem=DistGame( base_hx, base_hy, item->HexX, item->HexY );
-                                    uint distchange=newdist - disttoitem;
+                                    uint disttoitem = DistGame( base_hx, base_hy, item->HexX, item->HexY );
+                                    uint distchange = newdist - disttoitem;
                                     if( disttoitem < newdist )
                                         newdist = disttoitem + ( uint )( distchange * LookData::WallMaterialHearMultiplier[ item->Proto->Material ] * 0.01 );
+
+                                    //AddMess( FOMB_GAME, Str::FormatBuf( "%u", item->GetProtoId() ) );
                                 }
                             }
                         }
