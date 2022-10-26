@@ -61,7 +61,8 @@ public:
         uint   ProccessSleep;
         uint   ProccessTick;
         LookData Look;
-        uchar  Reserved0[2];
+        bool   RefreshVisionFlag;
+        uchar  Reserved0[1];
         uint   Reserved1[6];
         int    UserData[ MAP_MAX_DATA ];
     } Data;
@@ -84,6 +85,9 @@ public:
     Location* GetLocation( bool lock );
     ushort    GetMaxHexX() { return Proto->Header.MaxHexX; }
     ushort    GetMaxHexY() { return Proto->Header.MaxHexY; }
+    void      RefreshVision( ) { Data.RefreshVisionFlag = true; }
+    void      RefreshVisionComplited( ) { Data.RefreshVisionFlag = false; }
+    bool      IsRefreshVision( ) { return Data.RefreshVisionFlag; }
     void      SetLoopTime( uint loop_num, uint ms );
     uchar     GetRain();
     void      SetRain( uchar capacity );

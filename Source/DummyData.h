@@ -864,6 +864,8 @@ struct BindClass
     static void Map_EventTurnBasedEnd()     {}
     static void Map_EventTurnBasedProcess() {}
 
+    static void Map_RefreshVision( ) { }
+
     static void Location_GetProtoId()    {}
     static void Location_GetMapCount()   {}
     static void Location_GetMap()        {}

@@ -4798,6 +4798,13 @@ void FOServer::SScriptFunc::Map_EventTurnBasedProcess( Map* map, Critter* cr, bo
     map->EventTurnBasedProcess( cr, begin_turn );
 }
 
+void FOServer::SScriptFunc::Map_RefreshVision( Map* map )
+{
+    if( map->IsNotValid )
+        SCRIPT_ERROR_R( "This nullptr." );
+    map->RefreshVision( );
+}
+
 uint FOServer::SScriptFunc::Location_GetId( Location* loc )
 {
     if( loc->IsNotValid )

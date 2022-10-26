@@ -740,6 +740,8 @@ BIND_ASSERT( engine->RegisterObjectMethod( "Map", "void EventTurnBasedBegin()", 
 BIND_ASSERT( engine->RegisterObjectMethod( "Map", "void EventTurnBasedEnd()", asFUNCTION( BIND_CLASS Map_EventTurnBasedEnd ), asCALL_CDECL_OBJFIRST ) );
 BIND_ASSERT( engine->RegisterObjectMethod( "Map", "void EventTurnBasedProcess(Critter& cr, bool beginTurn)", asFUNCTION( BIND_CLASS Map_EventTurnBasedProcess ), asCALL_CDECL_OBJFIRST ) );
 
+BIND_ASSERT( engine->RegisterObjectMethod( "Map", "void RefreshVision()", asFUNCTION( BIND_CLASS Map_RefreshVision ), asCALL_CDECL_OBJFIRST ) );
+
 BIND_ASSERT( engine->RegisterObjectProperty( "Map", "const uint Id", OFFSETOF( Map, Data.MapId ) ) );
 // BIND_ASSERT( engine->RegisterObjectProperty( "Map", "bool CombatRunning", OFFSETOF( Map, MapId ) ) );
 BIND_ASSERT( engine->RegisterObjectProperty( "Map", "const uint TurnBasedRound", OFFSETOF( Map, TurnBasedRound ) ) );

@@ -715,15 +715,27 @@ void FOServer::Logic_Work( void* data )
             if( map->IsNotValid )
                 continue;
 
+            if( map->IsRefreshVision( ) )
+            {
+                CrVec& critters = map->GetCrittersNoLock();
+                for( uint i = 0, iend = critters.size( ); i < iend; i++ )
+                {
+                    critters[ i ]->ProcessVisibleCritters( );
+                    critters[ i ]->ProcessVisibleItems( );
+                }
+                map->RefreshVisionComplited( );
+            }
+
 			// Npc proccess:
 			if( map->GetPlayersCount() != 0 || ( map->Data.ProccessSleep == 0 || map->Data.ProccessTick-- == 0 ) )
 			{
 				map->Data.ProccessTick = map->Data.ProccessSleep;
 
-				PcVec npcs;
+				static PcVec npcs;
 				map->GetNpcs( npcs, false );
 				for (uint i = 0, iend = npcs.size(); i < iend; i++)
 					Logic_CritterProccess(npcs[i]);
+                npcs.clear( );
 			}
 
             // Process logic

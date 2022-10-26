@@ -821,6 +821,8 @@ public:
         static void Map_EventTurnBasedEnd( Map* map );
         static void Map_EventTurnBasedProcess( Map* map, Critter* cr, bool begin_turn );
 
+        static void Map_RefreshVision( Map* map );
+
         static uint   Location_GetId( Location* loc );
         static ushort Location_GetProtoId( Location* loc );
         static uint   Location_GetMapCount( Location* loc );
