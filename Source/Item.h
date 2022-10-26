@@ -323,7 +323,10 @@ public:
     bool IsEffect()    { return Type == ITEM_TYPE_EFFECT; }
     bool IsPassed( )   { return FLAG( Flags, ITEM_NO_BLOCK ); } 
 
-    bool IsBlocks() { return !IsPassed(); } 
+    bool IsBlocks( )
+    {
+        return BlockLines[ 0 ] != 0;
+    }
 
     bool IsViewBlocks() {
         return FLAG( Flags, ITEM_VIEW_BLOCKS );
@@ -506,7 +509,6 @@ public:
     ushort GetSortValue() { return Data.SortValue; }
 
     bool IsStackable() { return Proto->Stackable; }
-    bool IsBlocks()    { return Proto->IsBlocks(); }
 
     bool IsPassed()           { return FLAG( Data.Flags, ITEM_NO_BLOCK ) && FLAG( Data.Flags, ITEM_SHOOT_THRU ); }
     bool IsRaked()            { return FLAG( Data.Flags, ITEM_SHOOT_THRU ); }

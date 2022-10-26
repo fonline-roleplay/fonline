@@ -807,7 +807,7 @@ void FOClient::LookBordersPrepare( )
                                         newdist = disttoitem + ( uint )( distchange * item->Proto->FORPData.Hear_BlockDir[ GetFarDir( base_hx, base_hy, item->HexX, item->HexY ) ] * 0.01 );
                                 }
 
-                                if( item->IsWall( ) && item->IsBlocks( ) )
+                                if( item->IsWall( ) && !item->IsPassed( ) )
                                 {
                                     uint disttoitem = DistGame( base_hx, base_hy, item->HexX, item->HexY );
                                     uint distchange = newdist - disttoitem;
