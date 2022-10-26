@@ -1370,6 +1370,12 @@ bool FOServer::RegenerateMap( Map* map )
     map->Init( map_proto, map_loc );
     map->SetId( map_id, map_pid );
     map->Generate();
+    if( Script::PrepareContext( ServerFunctions.MapInit, _FUNC_, "map_create" ) )
+    {
+        Script::SetArgObject( map );
+        Script::SetArgBool( false );
+        Script::RunPrepared( );
+    }
     return true;
 }
 

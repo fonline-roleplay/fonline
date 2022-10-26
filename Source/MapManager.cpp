@@ -507,6 +507,13 @@ void MapManager::RunInitScriptMaps()
         Map* map = ( *it ).second;
         if( map->Data.ScriptId )
             map->ParseScript( NULL, false );
+
+        if( Script::PrepareContext( ServerFunctions.MapInit, _FUNC_, "map_create" ) )
+        {
+            Script::SetArgObject( map );
+            Script::SetArgBool( false );
+            Script::RunPrepared( );
+        }
     }
 }
 
@@ -698,6 +705,13 @@ Map* MapManager::CreateMap( ushort pid_map, Location* loc_map, uint map_id )
         lastMapId++;
         loc_map->GetMapsNoLock().push_back( map );
         mapLocker.Unlock();
+
+        if( Script::PrepareContext( ServerFunctions.MapInit, _FUNC_, "map_create" ) )
+        {
+            Script::SetArgObject( map );
+            Script::SetArgBool( true );
+            Script::RunPrepared( );
+        }
     }
     else
     {
@@ -715,13 +729,6 @@ Map* MapManager::CreateMap( ushort pid_map, Location* loc_map, uint map_id )
     }
 
     SYNC_LOCK( map );
-    
-	if (Script::PrepareContext(ServerFunctions.MapInit, _FUNC_, "map_create"))
-	{
-		Script::SetArgObject(map);
-		Script::SetArgBool(map_id == 0);
-		Script::RunPrepared();
-	}
 	
 	Job::PushBack( JOB_MAP, map );
 
