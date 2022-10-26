@@ -860,6 +860,9 @@ bool FOServer::SScriptFunc::Item_ChangeProto( Item* item, ushort pid )
         map->EraseItem( item->GetId() );
         item->Proto = proto_item;
         map->AddItem( item, hx, hy );
+
+        if( old_proto_item->IsHearBlocks( ) || old_proto_item->IsViewBlocks( ) || proto_item->IsHearBlocks( ) || proto_item->IsViewBlocks( ) )
+            map->RefreshVision( );
     }
     return true;
 }

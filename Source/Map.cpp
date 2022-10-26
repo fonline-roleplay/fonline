@@ -714,6 +714,8 @@ void Map::SetItem( Item* item, ushort hx, ushort hy )
         SetHexFlag( hx, hy, FH_GAG_ITEM );
     if( item->IsBlocks() )
         PlaceItemBlocks( hx, hy, item->Proto );
+    if( item->IsHearBlocks( ) || item->IsViewBlocks( ) )
+        RefreshVision( );
 
     if( item->FuncId[ ITEM_EVENT_WALK ] > 0 )
         SetHexFlag( hx, hy, FH_WALK_ITEM );
@@ -755,6 +757,8 @@ void Map::EraseItem( uint item_id )
         RecacheHexShoot( hx, hy );
     if( item->IsBlocks() )
         ReplaceItemBlocks( hx, hy, item->Proto );
+    if( item->IsHearBlocks( ) || item->IsViewBlocks( ) )
+        RefreshVision( );
 
     // Process critters view
     CrVec critters;

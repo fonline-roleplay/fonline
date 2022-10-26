@@ -774,7 +774,6 @@ void FOClient::LookBordersPrepare( )
                         MoveHexByDirUnsafe( hx, hy, dir );
                     }
 
-
                     ushort hx_=CLAMP( hx, 0, maxhx - 1 );
                     ushort hy_=CLAMP( hy, 0, maxhy - 1 );
 
