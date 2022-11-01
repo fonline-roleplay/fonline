@@ -6409,6 +6409,21 @@ bool FOServer::SScriptFunc::CheckLook( Map& map, LookData& look, LookData& hide,
     LookData mixLook, mixHide;
     look.GetMixed( map.Data.Look, mixLook );
     hide.GetMixed( map.Data.Look, mixHide );
+    
+
+    mixLook.dir = look.dir;
+    mixLook.hexx = look.hexx;
+    mixLook.hexy = look.hexy;
+    mixLook.isplayer = look.isplayer;
+    mixLook.isruning = look.isruning;
+    mixLook.access = look.access;
+
+    mixHide.dir = hide.dir;
+    mixHide.hexx = hide.hexx;
+    mixHide.hexy = hide.hexy;
+    mixHide.isplayer = hide.isplayer;
+    mixHide.isruning = hide.isruning;
+    mixHide.access = hide.access;
 
     auto result = LookData::CheckLook( map, mixLook, mixHide );
     isView = result.IsView;
