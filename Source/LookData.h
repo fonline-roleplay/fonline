@@ -51,6 +51,8 @@ public:
     mutable int refcounter;
     LookData();
 
+    LookData& operator=( const LookData& other );
+
     struct Result
     {
         union
@@ -67,13 +69,13 @@ public:
     static LookData ScriptLookData0, ScriptLookData1;
 
 #ifdef FONLINE_SERVER
-    void InitCritter(Critter& critter);
-    void InitMap( Map& map);
-    void InitItem( Item& item );
+    void InitCritter( const Critter& critter);
+    void InitMap( const Map& map);
+    void InitItem( const Item& item );
     static Result CheckLook( Map& map, LookData& look, LookData& hide );
 #endif
 
-    LookData GetMixed(LookData& other);
+    void GetMixed( const LookData& other, LookData& outData );
 
 
     void AddRef() const;

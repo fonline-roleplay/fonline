@@ -345,10 +345,11 @@ void Critter::ProcessVisibleCritters()
     if( !map )
         return;
 
-    LookData look = Data.Look.GetMixed(map->Data.Look);
+    LookData look, crlook;
+    Data.Look.GetMixed( map->Data.Look, look );
     look.InitCritter(*this);
-    CrVec critters;
-    map->GetCritters( critters, true );
+
+    CrVec& critters = map->GetCrittersNoLock( );
     for( auto it = critters.begin(), end = critters.end(); it != end; ++it )
     {
         Critter* cr = *it;
@@ -358,9 +359,9 @@ void Critter::ProcessVisibleCritters()
         int dist = DistGame( GetHexX(), GetHexY(), cr->GetHexX(), cr->GetHexY() );
         if (FLAG(GameOpt.LookChecks, LOOK_CHECK_LOOK_DATA))
         {
-            LookData crlook = cr->Data.Look.GetMixed(map->Data.Look);
-
+            cr->Data.Look.GetMixed(map->Data.Look, crlook );
             crlook.InitCritter(*cr);
+
             bool allow_self = LookData::CheckLook(*map, look, crlook).IsLook;
             bool allow_opp = LookData::CheckLook(*map, crlook, look).IsLook;
 
@@ -842,7 +843,7 @@ void Critter::ProcessVisibleItems()
     int look = GetLook();
     static LookData hideitem;
     static LookData lookdata;
-    lookdata = Data.Look.GetMixed( map->Data.Look );
+    Data.Look.GetMixed( map->Data.Look, lookdata );
     lookdata.InitCritter( *this );
     ItemPtrVec& items = map->GetItemsNoLock();
     for( auto it = items.begin(), end = items.end(); it != end; ++it )
@@ -875,12 +876,8 @@ void Critter::ProcessVisibleItems()
             }
             else
             {
-                /*int dist = DistGame( Data.HexX, Data.HexY, item->AccHex.HexX, item->AccHex.HexY );
-                if( item->IsTrap() )
-                    dist += item->TrapGetValue();
-                allowed = look >= dist; //*/
+                hideitem.GetMixed( map->Data.Look, hideitem );
                 hideitem.InitItem( *item );
-                hideitem = hideitem.GetMixed( map->Data.Look );
                 allowed = LookData::CheckLook( *map, lookdata, hideitem ).IsLook;//*/
             }
 

@@ -328,11 +328,13 @@ public:
         return BlockLines[ 0 ] != 0;
     }
 
-    bool IsViewBlocks() {
+    bool IsViewBlocks() 
+    {
         return FLAG( Flags, ITEM_VIEW_BLOCKS );
     }
 
-    bool IsHearBlocks() {
+    bool IsHearBlocks() 
+    {
         return FLAG( Flags, ITEM_HEAR_BLOCK );
     }
 
@@ -532,6 +534,11 @@ public:
     bool IsNoLoot()           { return FLAG( Data.Flags, ITEM_NO_LOOT ); }
     bool IsNoSteal()          { return FLAG( Data.Flags, ITEM_NO_STEAL ); }
     bool IsGag()              { return FLAG( Data.Flags, ITEM_GAG ); }
+
+    bool IsBlocks( )
+    {
+        return Proto->IsBlocks();
+    }
 
     bool IsViewBlocks() { return FLAG(Data.Flags, ITEM_VIEW_BLOCKS); }
     bool IsHearBlocks() { return FLAG(Data.Flags, ITEM_HEAR_BLOCK); }

@@ -58,7 +58,7 @@ LookData::LookData() : refcounter(1)
 
 #ifdef FONLINE_SERVER
 
-void LookData::InitCritter(Critter& critter)
+void LookData::InitCritter( const Critter& critter)
 {
     dir = critter.GetDir();
     hexx = critter.GetHexX();
@@ -72,7 +72,7 @@ void LookData::InitCritter(Critter& critter)
     isruning = critter.IsRuning;
 }
 
-void LookData::InitMap( Map& map)
+void LookData::InitMap( const Map& map)
 {
     ViewDirMultiplier[0] = 100;
     ViewDirMultiplier[1] = 100;
@@ -88,48 +88,49 @@ void LookData::InitMap( Map& map)
     RunningHearMultiplier = 100;
 }
 
-void LookData::InitItem( Item& item )
+void LookData::InitItem( const Item& item )
 {
-    HideViewDirMultiplier[ 0 ] = 100;
-    HideViewDirMultiplier[ 1 ] = 100;
-    HideViewDirMultiplier[ 2 ] = 100;
-    HideViewDirMultiplier[ 3 ] = 100;
-    HideViewDirMultiplier[ 4 ] = 100;
-    HideViewDirMultiplier[ 5 ] = 100;
+    if( item.Accessory == ITEM_ACCESSORY_HEX )
+    {
+        HideViewDirMultiplier[ 0 ] = 100;
+        HideViewDirMultiplier[ 1 ] = 100;
+        HideViewDirMultiplier[ 2 ] = 100;
+        HideViewDirMultiplier[ 3 ] = 100;
+        HideViewDirMultiplier[ 4 ] = 100;
+        HideViewDirMultiplier[ 5 ] = 100;
 
-    HideViewMultiplier = 100;
-    HideHearMultiplier = 0;
+        HideViewMultiplier = 100;
+        HideHearMultiplier = 0;
 
-    dir = 0; // critter.GetDir( );
-    hexx = item.AccHex.HexX;
-    hexy = item.AccHex.HexY;
-    isplayer = false;
-    access = 0;
-    isruning = false;
+        dir = 0; // critter.GetDir( );
+        hexx = item.AccHex.HexX;
+        hexy = item.AccHex.HexY;
+        isplayer = false;
+        access = 0;
+        isruning = false;
+    }
 }
 #endif
 
-LookData LookData::GetMixed(LookData& other)
+void LookData::GetMixed( const LookData& other, LookData& outData )
 {
-    LookData result(*this);
+    outData = *this;
 
-    result.ViewDirMultiplier[0] *= (uint)(0.01 * other.ViewDirMultiplier[0]);
-    result.ViewDirMultiplier[1] *= (uint)(0.01 * other.ViewDirMultiplier[1]);
-    result.ViewDirMultiplier[2] *= (uint)(0.01 * other.ViewDirMultiplier[2]);
-    result.ViewDirMultiplier[3] *= (uint)(0.01 * other.ViewDirMultiplier[3]);
+    outData.ViewDirMultiplier[0] *= (uint)(0.01 * other.ViewDirMultiplier[0]);
+    outData.ViewDirMultiplier[1] *= (uint)(0.01 * other.ViewDirMultiplier[1]);
+    outData.ViewDirMultiplier[2] *= (uint)(0.01 * other.ViewDirMultiplier[2]);
+    outData.ViewDirMultiplier[3] *= (uint)(0.01 * other.ViewDirMultiplier[3]);
 
-    result.HearDirMultiplier[0] *= (uint)(0.01 * other.HearDirMultiplier[0]);
-    result.HearDirMultiplier[1] *= (uint)(0.01 * other.HearDirMultiplier[1]);
-    result.HearDirMultiplier[2] *= (uint)(0.01 * other.HearDirMultiplier[2]);
-    result.HearDirMultiplier[3] *= (uint)(0.01 * other.HearDirMultiplier[3]);
+    outData.HearDirMultiplier[0] *= (uint)(0.01 * other.HearDirMultiplier[0]);
+    outData.HearDirMultiplier[1] *= (uint)(0.01 * other.HearDirMultiplier[1]);
+    outData.HearDirMultiplier[2] *= (uint)(0.01 * other.HearDirMultiplier[2]);
+    outData.HearDirMultiplier[3] *= (uint)(0.01 * other.HearDirMultiplier[3]);
 
-    result.RunningNoiseMultiplier *= (uint)(0.01 * other.RunningNoiseMultiplier);
-    result.RunningHearMultiplier *= (uint)(0.01 * other.RunningHearMultiplier);
+    outData.RunningNoiseMultiplier *= (uint)(0.01 * other.RunningNoiseMultiplier);
+    outData.RunningHearMultiplier *= (uint)(0.01 * other.RunningHearMultiplier);
 
-    result.MaxView += other.MaxView;
-    result.MaxHear += other.MaxHear;
-
-    return result;
+    outData.MaxView += other.MaxView;
+    outData.MaxHear += other.MaxHear;
 }
 
 void LookData::AddRef() const
@@ -160,6 +161,12 @@ void LookData::SetWallMaterialHearMultiplier(unsigned index, unsigned char value
         return;
 
     WallMaterialHearMultiplier[index] = value;
+}
+
+LookData& LookData::operator=( const LookData& other )
+{
+    memcpy( this, &other, OFFSETOF( LookData, HideHearMultiplier ) );
+    return *this;
 }
 
 LookData* LookData::Create()
@@ -194,7 +201,6 @@ LookData::Result LookData::CheckLook( Map& map, LookData& look, LookData& hide )
         return result;
 
     uint dist = DistGame( look.hexx, look.hexy, hide.hexx, hide.hexy );
-
     if( look.Vision >= dist && hide.Invis <= dist )
         return result;
 

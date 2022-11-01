@@ -1709,6 +1709,8 @@ BIND_ASSERT(engine->RegisterGlobalFunction("void set_WallMaterialHearMultiplier(
 BIND_ASSERT( engine->RegisterGlobalProperty( "LookData HotLookData_0", &LookData::ScriptLookData0 ) );
 BIND_ASSERT( engine->RegisterGlobalProperty( "LookData HotLookData_1", &LookData::ScriptLookData1 ) );
 
+BIND_ASSERT( engine->RegisterObjectMethod( "LookData", "LookData& opAssign(LookData& look)", asMETHODPR( LookData, operator=, ( const LookData& ), LookData& ), asCALL_THISCALL ) );
+
 #ifdef BIND_SERVER
 BIND_ASSERT(engine->RegisterObjectMethod("Critter", "LookData@ get_Look()", asFUNCTION(BIND_CLASS Crit_GetLookData), asCALL_CDECL_OBJFIRST));
 BIND_ASSERT(engine->RegisterObjectMethod("Map", "LookData@ get_Look()", asFUNCTION(BIND_CLASS Map_GetLookData), asCALL_CDECL_OBJFIRST));
@@ -1716,6 +1718,10 @@ BIND_ASSERT(engine->RegisterObjectMethod("Map", "LookData@ get_Look()", asFUNCTI
 BIND_ASSERT(engine->RegisterObjectMethod("Critter", "void LookData_Update()", asFUNCTION(BIND_CLASS Crit_UpdateLookData), asCALL_CDECL_OBJFIRST));
 
 BIND_ASSERT( engine->RegisterGlobalFunction( "bool CheckLook( Map& map, LookData& look, LookData& hide, bool&out isView = void, bool&out isHear = void )", asFUNCTION( BIND_CLASS CheckLook ), asCALL_CDECL ) );
+
+BIND_ASSERT( engine->RegisterObjectMethod( "LookData", "void WorkItem(const Item&in item)", asMETHODPR( LookData, InitItem, ( const Item& item ), void ), asCALL_THISCALL ) );
+BIND_ASSERT( engine->RegisterObjectMethod( "LookData", "void WorkMap(const Map&in map)", asMETHODPR( LookData, InitMap, ( const Map& map ), void ), asCALL_THISCALL ) );
+BIND_ASSERT( engine->RegisterObjectMethod( "LookData", "void WorkCritter(const Critter&in critter)", asMETHODPR( LookData, InitCritter, ( const Critter& critter ), void ), asCALL_THISCALL ) );
 
 #endif
 /*

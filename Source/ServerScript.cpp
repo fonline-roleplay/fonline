@@ -6406,8 +6406,9 @@ bool FOServer::SScriptFunc::CheckLook( Map& map, LookData& look, LookData& hide,
     if( map.IsNotValid )
         SCRIPT_ERROR_R0( "This nullptr." );
 
-    LookData mixLook = look.GetMixed( map.Data.Look );
-    LookData mixHide = hide.GetMixed( map.Data.Look );
+    LookData mixLook, mixHide;
+    look.GetMixed( map.Data.Look, mixLook );
+    hide.GetMixed( map.Data.Look, mixHide );
 
     auto result = LookData::CheckLook( map, mixLook, mixHide );
     isView = result.IsView;
