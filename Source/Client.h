@@ -657,6 +657,8 @@ public:
 
 		static FOWindow*     Global_GetMainWindows( );
 
+        static void Global_SetDebugLookMode( bool isDebug );
+
         static bool&         ConsoleActive;
         static bool&         GmapActive, & GmapWait;
         static float&        GmapZoom;
@@ -1715,9 +1717,19 @@ public:
 
     bool IsTurnBasedMyTurn() { return IsTurnBased && Timer::GameTick() < TurnBasedTime && Chosen && Chosen->GetId() == TurnBasedCurCritterId && Chosen->GetAllAp() > 0; }
 
-    bool     RebuildLookBorders;
-    bool     DrawViewBorders, DrawHearBorders;
-    PointVec ViewBorders, HearBorders;
+    class VisualLookBorder
+    {
+    public:
+
+        bool IsRebuild;
+        bool IsDrawView, IsDrawHear;
+        PointVec View, Hear;
+
+        void Clear( );
+        void Prepare( uchar direction, ushort hexx, ushort hexy, int colorView, int colorHear );
+        void Draw();
+
+    } ChosenLookBorder, DebugLookBorder;
 
     void LookBordersPrepare();
     void LookBordersDraw();

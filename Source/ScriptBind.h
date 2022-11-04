@@ -1113,7 +1113,8 @@ BIND_ASSERT( engine->RegisterGlobalFunction( "void RefreshMap(bool onlyTiles, bo
 BIND_ASSERT( engine->RegisterGlobalFunction( "void MouseClick(int x, int y, int button, int cursor)", asFUNCTION( BIND_CLASS Global_MouseClick ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "void KeyboardPress(uint8 key1, uint8 key2)", asFUNCTION( BIND_CLASS Global_KeyboardPress ), asCALL_CDECL ) );
 
-BIND_ASSERT( engine->RegisterGlobalFunction( "FOWindow@+ get_MainWindow()", asFUNCTION( BIND_CLASS Global_GetMainWindows ), asCALL_CDECL ) ); 
+BIND_ASSERT( engine->RegisterGlobalFunction( "FOWindow@+ get_MainWindow()", asFUNCTION( BIND_CLASS Global_GetMainWindows ), asCALL_CDECL ) );
+BIND_ASSERT( engine->RegisterGlobalFunction( "void SetDebugLookMode( bool isDebug )", asFUNCTION( BIND_CLASS Global_SetDebugLookMode ), asCALL_CDECL ) );
 
 //==========================hotrin 01.12.2021========================
 BIND_ASSERT( engine->RegisterGlobalFunction( "void OpenWebLink(string& text)", asFUNCTION( BIND_CLASS Global_OpenWebLink ), asCALL_CDECL ) );
@@ -1722,6 +1723,8 @@ BIND_ASSERT( engine->RegisterGlobalFunction( "bool CheckLook( Map& map, LookData
 BIND_ASSERT( engine->RegisterObjectMethod( "LookData", "void WorkItem(const Item&in item)", asMETHODPR( LookData, InitItem, ( const Item& item ), void ), asCALL_THISCALL ) );
 BIND_ASSERT( engine->RegisterObjectMethod( "LookData", "void WorkMap(const Map&in map)", asMETHODPR( LookData, InitMap, ( const Map& map ), void ), asCALL_THISCALL ) );
 BIND_ASSERT( engine->RegisterObjectMethod( "LookData", "void WorkCritter(const Critter&in critter)", asMETHODPR( LookData, InitCritter, ( const Critter& critter ), void ), asCALL_THISCALL ) );
+
+BIND_ASSERT( engine->RegisterObjectMethod( "Critter", "void SendFileToClient( file& f )", asFUNCTION( BIND_CLASS Crit_SendFileToClient ), asCALL_CDECL_OBJFIRST ) );
 
 #endif
 /*

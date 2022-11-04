@@ -1038,7 +1038,8 @@ struct BindClass
     static void Global_SetEffect()              {}
     static void Global_RefreshMap()             {}
 
-	static void Global_GetMainWindows( )        {}
+	static void Global_GetMainWindows()         {}
+    static void Global_SetDebugLookMode()       {}
 
     static int  ConsoleActive;
     static int  GmapActive, GmapWait;

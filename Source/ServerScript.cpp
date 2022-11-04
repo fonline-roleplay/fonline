@@ -6431,6 +6431,17 @@ bool FOServer::SScriptFunc::CheckLook( Map& map, LookData& look, LookData& hide,
     return result.IsLook;
 }
 
+void FOServer::SScriptFunc::Crit_SendFileToClient( Critter* critter, ScriptFile& file )
+{
+    if( critter->IsNotValid )
+        SCRIPT_ERROR_R( "This nullptr." );
+
+    if( critter->IsNpc() )
+        SCRIPT_ERROR_R( "This npc." );
+
+    Client* client = ( Client* )critter;
+}
+
 /************************************************************************/
 /*                                                                      */
 /************************************************************************/

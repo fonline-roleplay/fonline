@@ -17,6 +17,8 @@
 #include "NetProtocol.h"
 #include "Access.h"
 
+#include "AngelScript/scriptfile.h"
+
 #if defined ( USE_LIBEVENT )
 # include "Event2/event.h"
 # include "Event2/bufferevent.h"
@@ -939,6 +941,7 @@ public:
         static LookData* Map_GetLookData(Map* map);
         static void Crit_UpdateLookData(Critter* critter);
         static bool CheckLook( Map& map, LookData& look, LookData& hide, bool& isView, bool& isHear );
+        static void Crit_SendFileToClient( Critter* critter, ScriptFile& file );
     } ScriptFunc;
 };
 
