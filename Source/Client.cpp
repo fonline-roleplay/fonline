@@ -12335,6 +12335,11 @@ void FOClient::SScriptFunc::Global_SetDebugLookMode( bool isDebug )
     }
 }
 
+bool FOClient::SScriptFunc::Global_IsDebugLookMode( )
+{
+    return Self->DebugLookBorder.IsDrawView;
+}
+
 bool&  FOClient::SScriptFunc::ConsoleActive = FOClient::ConsoleActive;
 bool&  FOClient::SScriptFunc::GmapActive = FOClient::GmapActive;
 bool&  FOClient::SScriptFunc::GmapWait = FOClient::GmapWait;

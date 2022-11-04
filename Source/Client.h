@@ -658,6 +658,7 @@ public:
 		static FOWindow*     Global_GetMainWindows( );
 
         static void Global_SetDebugLookMode( bool isDebug );
+        static bool Global_IsDebugLookMode( );
 
         static bool&         ConsoleActive;
         static bool&         GmapActive, & GmapWait;

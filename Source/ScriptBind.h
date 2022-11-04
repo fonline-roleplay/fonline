@@ -1115,6 +1115,7 @@ BIND_ASSERT( engine->RegisterGlobalFunction( "void KeyboardPress(uint8 key1, uin
 
 BIND_ASSERT( engine->RegisterGlobalFunction( "FOWindow@+ get_MainWindow()", asFUNCTION( BIND_CLASS Global_GetMainWindows ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "void SetDebugLookMode( bool isDebug )", asFUNCTION( BIND_CLASS Global_SetDebugLookMode ), asCALL_CDECL ) );
+BIND_ASSERT( engine->RegisterGlobalFunction( "bool IsDebugLookMode( )", asFUNCTION( BIND_CLASS Global_IsDebugLookMode ), asCALL_CDECL ) );
 
 //==========================hotrin 01.12.2021========================
 BIND_ASSERT( engine->RegisterGlobalFunction( "void OpenWebLink(string& text)", asFUNCTION( BIND_CLASS Global_OpenWebLink ), asCALL_CDECL ) );

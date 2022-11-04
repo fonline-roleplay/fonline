@@ -1040,6 +1040,7 @@ struct BindClass
 
 	static void Global_GetMainWindows()         {}
     static void Global_SetDebugLookMode()       {}
+    static void Global_IsDebugLookMode()        {}
 
     static int  ConsoleActive;
     static int  GmapActive, GmapWait;
