@@ -165,7 +165,7 @@ void LookData::SetWallMaterialHearMultiplier(unsigned index, unsigned char value
 
 LookData& LookData::operator=( const LookData& other )
 {
-    memcpy( this, &other, OFFSETOF( LookData, HideHearMultiplier ) );
+    memcpy( this, &other, OFFSETOF( LookData, dir ) );
     return *this;
 }
 
@@ -307,9 +307,7 @@ LookData::Result LookData::CheckLook( Map& map, LookData& look, LookData& hide )
         }
     }
 
-    if( !trace.IsFullTrace )
-        result.IsView = false;
-    else if( dist > max_view )
+    if( !trace.IsFullTrace || dist > max_view )
         result.IsView = false;
 
     if( dist > ( uint )( max_hear * hear_mul ) )
