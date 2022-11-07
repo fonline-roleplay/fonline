@@ -1725,7 +1725,7 @@ BIND_ASSERT( engine->RegisterObjectMethod( "LookData", "void WorkItem(const Item
 BIND_ASSERT( engine->RegisterObjectMethod( "LookData", "void WorkMap(const Map&in map)", asMETHODPR( LookData, InitMap, ( const Map& map ), void ), asCALL_THISCALL ) );
 BIND_ASSERT( engine->RegisterObjectMethod( "LookData", "void WorkCritter(const Critter&in critter)", asMETHODPR( LookData, InitCritter, ( const Critter& critter ), void ), asCALL_THISCALL ) );
 
-BIND_ASSERT( engine->RegisterObjectMethod( "Critter", "void SendFileToClient( file& f )", asFUNCTION( BIND_CLASS Crit_SendFileToClient ), asCALL_CDECL_OBJFIRST ) );
+BIND_ASSERT( engine->RegisterObjectMethod( "Critter", "void SendFileToClient( string& filePath )", asFUNCTION( BIND_CLASS Crit_SendFileToClient ), asCALL_CDECL_OBJFIRST ) );
 
 #endif
 /*

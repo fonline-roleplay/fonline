@@ -79,6 +79,8 @@ public:
     virtual bool           WriteUint64( asQWORD data );
     virtual bool           WriteData( CScriptArray& data, unsigned int count );
 
+    virtual FILE*          GetFile( );
+
 protected:
     virtual ~ScriptFile();
 

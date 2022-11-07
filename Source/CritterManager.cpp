@@ -197,7 +197,12 @@ void CritterManager::SaveCrittersFile( void ( * save_func )( void*, size_t ) )
         cr->Data.IsDataExt = ( cr->DataExt ? true : false );
         save_func( &cr->Data, sizeof( cr->Data ) );
         if( cr->Data.IsDataExt )
+        {
+            auto data = cr->DataExt->FileCollectionContext;
+            memzero( &cr->DataExt->FileCollectionContext, sizeof( cr->DataExt->FileCollectionContext ) );
             save_func( cr->DataExt, sizeof( CritDataExt ) );
+            cr->DataExt->FileCollectionContext = data;
+        }
         uint te_count = (uint) cr->CrTimeEvents.size();
         save_func( &te_count, sizeof( te_count ) );
         if( te_count )

@@ -238,6 +238,10 @@ bool ScriptFile::WriteData( CScriptArray& data, unsigned int count )
         return false;
     return fwrite( data.At( 0 ), count, 1, file ) != 0;
 }
+FILE* ScriptFile::GetFile( )
+{
+    return file;
+}
 // ////////////////////////////////////////////////////////////////////////
 
 void RegisterScriptFile_Generic( asIScriptEngine* engine )

@@ -4,6 +4,7 @@
 #include "Version.h"
 #include "ScriptPragmas.h"
 #include "LookData.h"
+#include "CollectionFile.h"
 
 // Global_LoadImage
 #include "PNG/png.h"
@@ -6431,7 +6432,7 @@ bool FOServer::SScriptFunc::CheckLook( Map& map, LookData& look, LookData& hide,
     return result.IsLook;
 }
 
-void FOServer::SScriptFunc::Crit_SendFileToClient( Critter* critter, ScriptFile& file )
+void FOServer::SScriptFunc::Crit_SendFileToClient( Critter* critter, ScriptString& filePath )
 {
     if( critter->IsNotValid )
         SCRIPT_ERROR_R( "This nullptr." );
@@ -6439,7 +6440,15 @@ void FOServer::SScriptFunc::Crit_SendFileToClient( Critter* critter, ScriptFile&
     if( critter->IsNpc() )
         SCRIPT_ERROR_R( "This npc." );
 
+    auto file = CollectionFile::Get( filePath.c_str( ) );
+    if( !file )
+        file = CollectionFile::Open( filePath.c_str( ) );
+
     Client* client = ( Client* )critter;
+
+    // client.SendFile( file );
+
+    file->Release( );
 }
 
 /************************************************************************/

@@ -1343,8 +1343,12 @@ void FOServer::NetIO_Input( Client::NetIOArg* io )
         return;
     }
 
+    uint filesize = 0;
+    if( cl->DataExt )
+        filesize = cl->DataExt->FileCollectionContext.FileSize;
+
     cl->Bin.Lock();
-    if( cl->Bin.GetCurPos() + io->Bytes >= GameOpt.FloodSize && !Singleplayer )
+    if( cl->Bin.GetCurPos() + io->Bytes >= GameOpt.FloodSize + filesize && !Singleplayer )
     {
         WriteLogF( _FUNC_, " - Flood.\n" );
         cl->Bin.Reset();
