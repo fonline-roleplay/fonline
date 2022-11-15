@@ -1727,14 +1727,27 @@ void MapManager::TraceBullet( TraceData& trace )
 
         if (!map->IsHexRaked(cx, cy))
         {
+            if( !trace.NotRakedTrace )
+            {
+                if( trace.Block )
+                {
+                    ( *trace.Block ).first = cx;
+                    ( *trace.Block ).second = cy;
+                }
+
+                if( trace.PreBlock )
+                {
+                    ( *trace.PreBlock ).first = old_cx;
+                    ( *trace.PreBlock ).second = old_cy;
+                }
+            }
+
             trace.NotRakedTrace = true;
             if( !trace.ForceFullTrace )
                 break;
         }
         if (trace.Walls && map->IsHexWall( cx, cy ))
-        {
             map->Proto->GetWalls(cx, cy, *trace.Walls);
-        }
         if (trace.Items && map->IsHexItem(cx, cy))
             map->GetItemsHex( cx, cy, *trace.Items, false );
         if( trace.Critters && map->IsHexCritter( cx, cy ) )
@@ -1759,17 +1772,6 @@ void MapManager::TraceBullet( TraceData& trace )
 
         old_cx = cx;
         old_cy = cy;
-    }
-
-    if( trace.PreBlock )
-    {
-        ( *trace.PreBlock ).first = old_cx;
-        ( *trace.PreBlock ).second = old_cy;
-    }
-    if( trace.Block )
-    {
-        ( *trace.Block ).first = cx;
-        ( *trace.Block ).second = cy;
     }
 }
 

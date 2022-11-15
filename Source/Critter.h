@@ -11,6 +11,7 @@
 #include "CritterData.h"
 #include "DataMask.h"
 #include "NetProtocol.h"
+#include "CollectionFile.h"
 
 #if defined ( USE_LIBEVENT )
 # include "Event2/event.h"
@@ -751,6 +752,9 @@ public:
     void Send_CheckUIDS();
     void Send_SomeItem( Item* item );       // Without checks!
     void Send_LookData();
+
+    void Send_WorkCollectionFileContext( );
+    bool Send_PrepareCollectionFileContext( const CollectionFile* file, uint packet_size );
 
     // Locations
     bool CheckKnownLocById( uint loc_id );

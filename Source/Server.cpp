@@ -1345,7 +1345,10 @@ void FOServer::NetIO_Input( Client::NetIOArg* io )
 
     uint filesize = 0;
     if( cl->DataExt )
-        filesize = cl->DataExt->FileCollectionContext.FileSize;
+    {
+        if( cl->DataExt->FileCollectionContext.File )
+            filesize = cl->DataExt->FileCollectionContext.File->GetSize( );
+    }
 
     cl->Bin.Lock();
     if( cl->Bin.GetCurPos() + io->Bytes >= GameOpt.FloodSize + filesize && !Singleplayer )
@@ -1850,6 +1853,18 @@ void FOServer::Process( ClientPtr& cl )
 
             cl->Bin.SkipMsg( msg );
             BIN_END( cl );
+        }
+
+        auto dataExt = cl->GetDataExt( );
+        if( dataExt )
+        {
+            if( !dataExt->FileCollectionContext.IsBusy )
+            {
+                if( !dataExt->QueueFileRecive.empty( ) )
+                {
+
+                }
+            }
         }
     }
 }

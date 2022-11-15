@@ -5157,6 +5157,68 @@ void Client::Send_LookData()
     BOUT_END(this);
 }
 
+void Client::Send_WorkCollectionFileContext( )
+{
+    /*context->File = file;
+    context->Flags.IsPrepared = true;
+    context->PacketSize = 1024;
+    context->PacketNumber = 0;
+    */
+
+    if( !GetDataExt( ) )
+        return;
+    auto context = &GetDataExt( )->FileCollectionContext;
+
+    const uint size = context->PacketSize;
+    char* buffer = new char[ size ];
+    uint len = context->PacketNumber * size;
+    if( len + size > context->File->GetSize( ) )
+    {
+        memcpy( buffer, context->File->GetBuffer( ) + len, context->File->GetSize( ) - ( len + size ) );
+        
+        context->PacketNumber = 0;
+        context->PacketSize = 0;
+        context->IsBusy = false;
+        context->File->Release( );
+        context->File = nullptr;
+    }
+    else
+    {
+        memcpy( buffer, context->File->GetBuffer( ) + len, size );
+        context->PacketNumber++;
+    }
+
+    BOUT_BEGIN( this );
+    Bout << NETMSG_SEND_FILE_IN_COLLECTION;
+    Bout << size + sizeof( uint ) + sizeof( uint );
+    Bout.Push( buffer, size );
+    BOUT_END( this );
+
+    delete[ size ] buffer;
+}
+
+bool Client::Send_PrepareCollectionFileContext( const CollectionFile* file, uint packet_size )
+{
+    if( !file )
+        return false;
+
+    if( file->GetHash( ) == 0 )
+        return false;
+
+    string file_name = Str::GetName( file->GetHash( ) );
+    uint msg_len = sizeof( uint ) + sizeof( uint ) + sizeof( int ) + sizeof( uint ) + sizeof( uint ) + sizeof( ushort ) + file_name.size( );
+    BOUT_BEGIN( this );
+    Bout << NETMSG_PREPARE_SEND_FILE;
+    Bout << msg_len;
+    Bout << file->GetHash( );
+    Bout << file->GetSize( );
+    Bout << packet_size;
+    Bout << file_name.size( );// ushort text_len
+    Bout.Push( file_name.begin( ), file_name.size( ) ); // char file_name[text_len]
+    BOUT_END( this );
+    return true;
+}
+
 /************************************************************************/
 /* Locations                                                            */
 /************************************************************************/

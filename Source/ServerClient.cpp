@@ -88,6 +88,36 @@ void FOServer::ProcessCritter( Critter* cr )
             cl->RemoveFromGame();
         }
 
+        if( cl->GameState == STATE_PLAYING )
+        {
+            auto dataExt = cl->GetDataExt( );
+            if( dataExt )
+            {
+                if( !dataExt->FileCollectionContext.IsBusy )
+                {
+                    if( !dataExt->QueueFileRecive.empty( ) )
+                    {
+                        auto file = dataExt->QueueFileRecive.front();
+                        if( file )
+                        {
+                            if( cl->Send_PrepareCollectionFileContext( file, 1024 ) )
+                            {
+                                dataExt->FileCollectionContext.File = file;
+                                dataExt->FileCollectionContext.Flags.IsPrepared = true;
+                                dataExt->FileCollectionContext.PacketSize = 1024;
+                                dataExt->FileCollectionContext.PacketNumber = 0;
+                            }
+                            else file->Release( );
+                        }
+                    }
+                }
+                else
+                {
+                    cl->Send_WorkCollectionFileContext( );
+                }
+            }
+        }
+
         // Cache intelligence for GetSayIntellect, every 3 seconds
         if( tick >= cl->CacheValuesNextTick )
         {

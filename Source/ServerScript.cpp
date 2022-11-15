@@ -6440,13 +6440,16 @@ void FOServer::SScriptFunc::Crit_SendFileToClient( Critter* critter, ScriptStrin
     if( critter->IsNpc() )
         SCRIPT_ERROR_R( "This npc." );
 
-    auto file = CollectionFile::Get( filePath.c_str( ) );
+    auto file = CollectionFile::Get( Str::GetHash( filePath.c_str() ) );
     if( !file )
         file = CollectionFile::Open( filePath.c_str( ) );
 
     Client* client = ( Client* )critter;
-
-    // client.SendFile( file );
+    
+    auto dataExt = client->GetDataExt( );
+    
+    file->AddRef( );
+    dataExt->QueueFileRecive.push( file );
 
     file->Release( );
 }

@@ -6,9 +6,9 @@
 #include "CollectionFile.h"
 
 Mutex CollectionFile::MapMutex;
-std::map<const char*, CollectionFile* > CollectionFile::MapFiles;
+std::map< uint, CollectionFile* > CollectionFile::MapFiles;
 
-CollectionFile::CollectionFile( ): refcounter( 0 ), Buffer( nullptr ), Size( 0 ), Path( )
+CollectionFile::CollectionFile( ): refcounter( 0 ), Buffer( nullptr ), Size( 0 ), Hash( 0 )
 {
 
 }
@@ -20,7 +20,6 @@ CollectionFile::~CollectionFile( )
         delete[ Size ] Buffer;
         Buffer = nullptr;
     }
-    Path.clear( );
 }
 
 int CollectionFile::AddRef( )
@@ -34,11 +33,26 @@ void CollectionFile::Release( )
         Close( this );
 }
 
-CollectionFile* CollectionFile::Get( const char* file )
+uint CollectionFile::GetHash( ) const
+{
+    return Hash;
+}
+
+uint CollectionFile::GetSize( ) const
+{
+    return Size;
+}
+
+const char* CollectionFile::GetBuffer( ) const
+{
+    return Buffer;
+}
+
+CollectionFile* CollectionFile::Get( uint hash )
 {
     MapMutex.Lock( );
     CollectionFile* result = nullptr;
-    auto find = MapFiles.find( file );
+    auto find = MapFiles.find( hash );
     if( find != MapFiles.end( ) )
         result = find->second;
     MapMutex.Unlock( );
@@ -68,7 +82,7 @@ CollectionFile* CollectionFile::Open( const char* filePath )
     CollectionFile* result = new CollectionFile( );
     result->Size = size;
     result->Buffer = buffer;
-    result->Path = filePath;
+    result->Hash = Str::GetHash( filePath );
 
     return result;
 }

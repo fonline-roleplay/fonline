@@ -1,11 +1,14 @@
 #ifndef __CRITTER_DATA__
 #define __CRITTER_DATA__
 
+#include <queue>
+
 #include "Item.h"
 #include "FileManager.h"
 #include "AI.h"
 #include "Defines.h"
 #include "LookData.h"
+#include "CollectionFile.h"
 
 #define MAX_CRIT_PROTOS         ( 10000 )
 #define MAX_STORED_LOCATIONS    ( 1000 )
@@ -93,14 +96,18 @@ struct CritDataExt
 		uint   Reserved23[ 10 ];
 		struct FileCollectionData
 		{
-			uint CollectionKey;
-			uint FileId;
-			uint FileSize;
-			struct
-			{
-				bool IsPrepared : 1;
-				bool IsSend : 1;
-			} Flags;
+            CollectionFile* File;
+            uint PacketSize;
+            uint PacketNumber;
+            union
+            {
+                bool IsBusy;
+                struct
+                {
+                    bool IsPrepared : 1;
+                    bool IsSend : 1;
+                } Flags;
+            };
 		} FileCollectionContext;
 	};
 
@@ -112,7 +119,8 @@ struct CritDataExt
     uint   PlayIp[ MAX_STORED_IP ];
     ushort PlayPort[ MAX_STORED_IP ];
     uint   CurrentIp;
-    uint   Reserved26[ 29 ];
+    std::queue<CollectionFile*> QueueFileRecive;
+    uint   Reserved26[ 19 ];
 };
 
 #endif // __CRITTER_DATA__

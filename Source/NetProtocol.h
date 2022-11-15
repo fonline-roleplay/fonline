@@ -1163,18 +1163,18 @@
 // ////////////////////////////////////////////////////////////////////////
 // Send file in collection
 // uint msg_len
-// char[file_size] file_bin
+// char file_bin[packet_size]
 // ////////////////////////////////////////////////////////////////////////
 
 #define NETMSG_PREPARE_SEND_FILE                        MAKE_NETMSG_HEADER( 172 )
-#define NETMSG_PREPARE_SEND_FILE_SIZE                  ( sizeof( uint ) + sizeof( int ) + sizeof( uint ) + sizeof( uint ) + sizeof( uint ) )
 // ////////////////////////////////////////////////////////////////////////
 // Send file in collection
 // uint msg_len
-// int collection_id
-// uint file_id
+// int hash
 // uint file_size
 // uint packet_size
+// ushort text_len
+// char file_name[text_len]
 // ////////////////////////////////////////////////////////////////////////
 
 #define NETMSG_SEND_LOOK_DATA                        MAKE_NETMSG_HEADER( 173 )
