@@ -244,9 +244,13 @@ LookData::Result LookData::CheckLook( Map& map, LookData& look, LookData& hide )
     }
 
     static TraceData trace;
+    static UShortPair block;
     if( !trace.Walls ) trace.Walls = new SceneryClRefVec( );
     if( !trace.Items ) trace.Items = new ItemPtrVec( );
+    if( !trace.Block ) trace.Block = &block;
 
+    block.first = 0;
+    block.second = 0;
     trace.ForceFullTrace = true;
     trace.TraceMap = &map;
     trace.BeginHx = look.hexx;
@@ -307,7 +311,7 @@ LookData::Result LookData::CheckLook( Map& map, LookData& look, LookData& hide )
         }
     }
 
-    if( !trace.IsFullTrace || dist > max_view )
+    if( dist > max_view || ( !trace.IsFullTrace && block.first != hide.hexx && block.second != hide.hexy ) )
         result.IsView = false;
 
     if( dist > ( uint )( max_hear * hear_mul ) )

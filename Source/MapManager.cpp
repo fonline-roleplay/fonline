@@ -1659,9 +1659,9 @@ void MapManager::GM_GroupSetMove( GlobalMapGroup* group, float to_x, float to_y,
 
 void MapManager::TraceBullet( TraceData& trace )
 {
-    Map*   map = trace.TraceMap;
-    ushort maxhx = map->GetMaxHexX();
-    ushort maxhy = map->GetMaxHexY();
+    Map* map = trace.TraceMap;
+    ushort maxhx = map->GetMaxHexX( );
+    ushort maxhy = map->GetMaxHexY( );
     ushort hx = trace.BeginHx;
     ushort hy = trace.BeginHy;
     ushort tx = trace.EndHx;
@@ -1708,7 +1708,7 @@ void MapManager::TraceBullet( TraceData& trace )
             bool result = trace.HexCallback( map, trace.FindCr, old_cx, old_cy, cx, cy, dir );
             old_cx = cx;
             old_cy = cy;
-            if (trace.CallbackBreakIsTrue && result)
+            if( trace.CallbackBreakIsTrue && result )
                 break;
             continue;
         }
@@ -1725,17 +1725,30 @@ void MapManager::TraceBullet( TraceData& trace )
                 last_passed_ok = true;
         }
 
-        if (!map->IsHexRaked(cx, cy))
+        if( !map->IsHexRaked( cx, cy ) )
         {
+            if( !trace.NotRakedTrace )
+            {
+                if( trace.Block )
+                {
+                    ( *trace.Block ).first = cx;
+                    ( *trace.Block ).second = cy;
+                }
+
+                if( trace.PreBlock )
+                {
+                    ( *trace.PreBlock ).first = old_cx;
+                    ( *trace.PreBlock ).second = old_cy;
+                }
+            }
+
             trace.NotRakedTrace = true;
             if( !trace.ForceFullTrace )
                 break;
         }
-        if (trace.Walls && map->IsHexWall( cx, cy ))
-        {
-            map->Proto->GetWalls(cx, cy, *trace.Walls);
-        }
-        if (trace.Items && map->IsHexItem(cx, cy))
+        if( trace.Walls && map->IsHexWall( cx, cy ) )
+            map->Proto->GetWalls( cx, cy, *trace.Walls );
+        if( trace.Items && map->IsHexItem( cx, cy ) )
             map->GetItemsHex( cx, cy, *trace.Items, false );
         if( trace.Critters && map->IsHexCritter( cx, cy ) )
             map->GetCrittersHex( cx, cy, 0, trace.FindType, *trace.Critters, false );
@@ -1749,7 +1762,7 @@ void MapManager::TraceBullet( TraceData& trace )
                     trace.IsCritterFounded = true;
                     break;
                 }
-                if( trace.IsCheckTeam && cr->Data.Params[ ST_TEAM_ID ] == (int) trace.BaseCrTeamId )
+                if( trace.IsCheckTeam && cr->Data.Params[ ST_TEAM_ID ] == ( int )trace.BaseCrTeamId )
                 {
                     trace.IsTeammateFounded = true;
                     break;
@@ -1759,17 +1772,6 @@ void MapManager::TraceBullet( TraceData& trace )
 
         old_cx = cx;
         old_cy = cy;
-    }
-
-    if( trace.PreBlock )
-    {
-        ( *trace.PreBlock ).first = old_cx;
-        ( *trace.PreBlock ).second = old_cy;
-    }
-    if( trace.Block )
-    {
-        ( *trace.Block ).first = cx;
-        ( *trace.Block ).second = cy;
     }
 }
 
