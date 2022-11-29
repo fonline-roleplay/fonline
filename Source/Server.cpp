@@ -640,13 +640,13 @@ void FOServer::Logic_Work( void* data )
     while( true )
     {
         sync_mngr->UnlockAll();
-        Job job = Job::PopFront();
+        CurrentJob = Job::PopFront();
 
 		job_tick = Timer::AccurateTick( );
 
-        if( job.Type == JOB_CLIENT )
+        if( CurrentJob.Type == JOB_CLIENT )
         {
-            Client* cl = (Client*) job.Data;
+            Client* cl = (Client*)CurrentJob.Data;
             SYNC_LOCK( cl );
 
             // Disconnect
@@ -698,17 +698,17 @@ void FOServer::Logic_Work( void* data )
 
             // Process net
             Process( cl );
-            if( (Client*) job.Data != cl )
-                job.Data = cl;
+            if( (Client*)CurrentJob.Data != cl )
+                CurrentJob.Data = cl;
         }
-        else if( job.Type == JOB_CRITTER )
+        else if( CurrentJob.Type == JOB_CRITTER )
         {
-			if (!Logic_CritterProccess((Critter*)job.Data))
+			if (!Logic_CritterProccess((Critter*)CurrentJob.Data))
 				continue;
         }
-        else if( job.Type == JOB_MAP )
+        else if( CurrentJob.Type == JOB_MAP )
         {
-            Map* map = (Map*) job.Data;
+            Map* map = (Map*)CurrentJob.Data;
             SYNC_LOCK( map );
 
             // Check for removing
@@ -741,58 +741,58 @@ void FOServer::Logic_Work( void* data )
             // Process logic
             map->Process();
         }
-        else if( job.Type == JOB_TIME_EVENTS )
+        else if( CurrentJob.Type == JOB_TIME_EVENTS )
         {
             // Time events
             ProcessTimeEvents();
         }
-        else if( job.Type == JOB_GARBAGE_ITEMS )
+        else if( CurrentJob.Type == JOB_GARBAGE_ITEMS )
         {
             // Items garbage
             sync_mngr->PushPriority( 2 );
             ItemMngr.ItemGarbager();
             sync_mngr->PopPriority();
         }
-        else if( job.Type == JOB_GARBAGE_CRITTERS )
+        else if( CurrentJob.Type == JOB_GARBAGE_CRITTERS )
         {
             // Critters garbage
             sync_mngr->PushPriority( 2 );
             CrMngr.CritterGarbager();
             sync_mngr->PopPriority();
         }
-        else if( job.Type == JOB_GARBAGE_LOCATIONS )
+        else if( CurrentJob.Type == JOB_GARBAGE_LOCATIONS )
         {
             // Locations and maps garbage
             sync_mngr->PushPriority( 2 );
             MapMngr.LocationGarbager();
             sync_mngr->PopPriority();
         }
-        else if( job.Type == JOB_GARBAGE_SCRIPT )
+        else if( CurrentJob.Type == JOB_GARBAGE_SCRIPT )
         {
             // AngelScript garbage
             Script::ScriptGarbager();
         }
-        else if( job.Type == JOB_GARBAGE_VARS )
+        else if( CurrentJob.Type == JOB_GARBAGE_VARS )
         {
             // Game vars garbage
             VarsGarbarger( false );
         }
-        else if( job.Type == JOB_DEFERRED_RELEASE )
+        else if( CurrentJob.Type == JOB_DEFERRED_RELEASE )
         {
             // Release pointers
             Job::ProcessDeferredReleasing();
         }
-        else if( job.Type == JOB_GAME_TIME )
+        else if( CurrentJob.Type == JOB_GAME_TIME )
         {
             // Game time
             Timer::ProcessGameTime();
         }
-        else if( job.Type == JOB_BANS )
+        else if( CurrentJob.Type == JOB_BANS )
         {
             // Bans
             ProcessBans();
         }
-        else if( job.Type == JOB_LOOP_SCRIPT )
+        else if( CurrentJob.Type == JOB_LOOP_SCRIPT )
         {
             // Script game loop
             static uint game_loop_tick = 1;
@@ -807,7 +807,7 @@ void FOServer::Logic_Work( void* data )
                     game_loop_tick = Timer::FastTick() + wait;
             }
         }
-        else if( job.Type == JOB_THREAD_LOOP )
+        else if( CurrentJob.Type == JOB_THREAD_LOOP )
         {
             // Sleep
             uint sleep_time = Timer::FastTick();
@@ -882,12 +882,12 @@ void FOServer::Logic_Work( void* data )
             // Start time of next cycle
             cycle_tick = Timer::FastTick();
         }
-        else if( job.Type == JOB_THREAD_SYNCHRONIZE )
+        else if( CurrentJob.Type == JOB_THREAD_SYNCHRONIZE )
         {
             // Threads synchronization
             LogicThreadSync.SynchronizePoint();
         }
-        else if( job.Type == JOB_THREAD_FINISH )
+        else if( CurrentJob.Type == JOB_THREAD_FINISH )
         {
             // Exit from thread
             break;
@@ -898,10 +898,11 @@ void FOServer::Logic_Work( void* data )
             continue;
         }
 		
-		JobPerformance[job.Type] += Timer::AccurateTick( ) - job_tick;
+		JobPerformance[ CurrentJob.Type] += Timer::AccurateTick( ) - job_tick;
 
         // Add job to back
-        uint job_count = Job::PushBack( job );
+        uint job_count = Job::PushBack( CurrentJob );
+        CurrentJob.Null( );
 
         // Calculate fps
         static volatile uint job_cur = 0;

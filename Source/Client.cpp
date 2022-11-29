@@ -5926,8 +5926,12 @@ void FOClient::Net_OnLoadMap()
     HexMngr.SetWeather( map_time, map_rain );
     SetDayTime( true );
     Net_SendLoadMapOk();
+    bool isview = ChosenLookBorder.IsDrawView,
+        ishear = ChosenLookBorder.IsDrawHear;
     ChosenLookBorder.Clear();
     DebugLookBorder.Clear( );
+    ChosenLookBorder.IsDrawView = isview;
+    ChosenLookBorder.IsDrawHear = ishear;
     ChosenLookBorder.IsRebuild = true;
     DebugLookBorder.IsRebuild = true;
     #ifndef FO_D3D

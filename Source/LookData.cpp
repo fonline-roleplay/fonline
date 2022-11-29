@@ -15,7 +15,7 @@ static asFREEFUNC_t  userFree = asFreeMem;
 
 unsigned char LookData::WallMaterialHearMultiplier[MATERIALS_COUNT];
 
-LookData LookData::ScriptLookData0, LookData::ScriptLookData1;
+LookData LookData::ScriptLookData0, LookData::ScriptLookData1, LookData::ItemLookData, LookData::ItemLightLookData;
 
 LookData::LookData() : refcounter(1)
 {
@@ -92,16 +92,6 @@ void LookData::InitItem( const Item& item )
 {
     if( item.Accessory == ITEM_ACCESSORY_HEX )
     {
-        HideViewDirMultiplier[ 0 ] = 100;
-        HideViewDirMultiplier[ 1 ] = 100;
-        HideViewDirMultiplier[ 2 ] = 100;
-        HideViewDirMultiplier[ 3 ] = 100;
-        HideViewDirMultiplier[ 4 ] = 100;
-        HideViewDirMultiplier[ 5 ] = 100;
-
-        HideViewMultiplier = 100;
-        HideHearMultiplier = 0;
-
         dir = 0; // critter.GetDir( );
         hexx = item.AccHex.HexX;
         hexy = item.AccHex.HexY;
@@ -193,6 +183,14 @@ void LookData::ScriptRegistration( asIScriptEngine* engine )
 #ifdef FONLINE_SERVER
 LookData::Result LookData::CheckLook( Map& map, LookData& look, LookData& hide )
 {
+    /*
+    if( true )
+    {
+        LookData::Result result = { false };
+        result.IsView = true;
+        result.IsHear = true;
+        return result;
+    }//*/
     LookData::Result result = { false };
     result.IsView = true;
     result.IsHear = true;
@@ -257,6 +255,7 @@ LookData::Result LookData::CheckLook( Map& map, LookData& look, LookData& hide )
     trace.BeginHy = look.hexy;
     trace.EndHx = hide.hexx;
     trace.EndHy = hide.hexy;
+    trace.Dist = dist;
     MapMngr.TraceBullet( trace ); 
 
     ProtoItem* protoItem = nullptr;
@@ -310,8 +309,8 @@ LookData::Result LookData::CheckLook( Map& map, LookData& look, LookData& hide )
             }
         }
     }
-
-    if( dist > max_view || ( !trace.IsFullTrace && block.first != hide.hexx && block.second != hide.hexy ) )
+    
+    if( dist > max_view  || ( !trace.IsFullTrace && block.first != hide.hexx && block.second != hide.hexy ) )
         result.IsView = false;
 
     if( dist > ( uint )( max_hear * hear_mul ) )

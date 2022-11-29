@@ -41,7 +41,8 @@ extern const char* ItemEventFuncName[ ITEM_EVENT_MAX ];
 #define ITEM_TYPE_WALL                ( 12 )
 #define ITEM_TYPE_CAR                 ( 13 )
 #define ITEM_TYPE_EFFECT              ( 14 )
-#define ITEM_MAX_TYPES                ( 15 )
+#define ITEM_TYPE_DECAL               ( 15 )
+#define ITEM_MAX_TYPES                ( 16 )
 
 // Grid Types
 #define GRID_EXITGRID                 ( 1 )

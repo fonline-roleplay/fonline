@@ -203,6 +203,7 @@ public:
     bool         IsInitProtoMap( ushort pid_map );
     Map*         CreateMap( ushort pid_map, Location* loc_map, uint map_id );
     Map*         GetMap( uint map_id, bool sync_lock = true );
+    MapExt* GetMapExt( uint map_id, bool sync_lock = true );
     Map*         GetMapByPid( ushort map_pid, uint skip_count );
     void         GetMaps( MapVec& maps, bool lock );
     uint         GetMapsCount();

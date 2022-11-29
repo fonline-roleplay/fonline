@@ -676,6 +676,8 @@ BIND_ASSERT( engine->RegisterObjectMethod( "Map", "Item@+ GetItem(uint16 hexX, u
 BIND_ASSERT( engine->RegisterObjectMethod( "Map", "uint GetItems(uint16 hexX, uint16 hexY, Item@[]@+ items) const", asFUNCTION( BIND_CLASS Map_GetItemsHex ), asCALL_CDECL_OBJFIRST ) );
 BIND_ASSERT( engine->RegisterObjectMethod( "Map", "uint GetItems(uint16 hexX, uint16 hexY, uint radius, uint16 protoId, Item@[]@+ items) const", asFUNCTION( BIND_CLASS Map_GetItemsHexEx ), asCALL_CDECL_OBJFIRST ) );
 BIND_ASSERT( engine->RegisterObjectMethod( "Map", "uint GetItems(uint16 protoId, Item@[]@+ items) const", asFUNCTION( BIND_CLASS Map_GetItemsByPid ), asCALL_CDECL_OBJFIRST ) );
+BIND_ASSERT( engine->RegisterObjectMethod( "Map", "uint GetDecals(uint16 hexX, uint16 hexY, Item@[]@+ items) const", asFUNCTION( BIND_CLASS Map_GetDecalsHex ), asCALL_CDECL_OBJFIRST ) );
+BIND_ASSERT( engine->RegisterObjectMethod( "Map", "uint GetDecals(uint16 hexX, uint16 hexY, uint radius, uint16 protoId, Item@[]@+ items) const", asFUNCTION( BIND_CLASS Map_GetDecalsHexEx ), asCALL_CDECL_OBJFIRST ) );
 BIND_ASSERT( engine->RegisterObjectMethod( "Map", "uint GetItemsByType(int type, Item@[]@+ items) const", asFUNCTION( BIND_CLASS Map_GetItemsByType ), asCALL_CDECL_OBJFIRST ) );
 BIND_ASSERT( engine->RegisterObjectMethod( "Map", "Item@+ GetDoor(uint16 hexX, uint16 hexY) const", asFUNCTION( BIND_CLASS Map_GetDoor ), asCALL_CDECL_OBJFIRST ) );
 BIND_ASSERT( engine->RegisterObjectMethod( "Map", "Item@+ GetCar(uint16 hexX, uint16 hexY) const", asFUNCTION( BIND_CLASS Map_GetCar ), asCALL_CDECL_OBJFIRST ) );
@@ -1714,6 +1716,10 @@ BIND_ASSERT( engine->RegisterGlobalProperty( "LookData HotLookData_1", &LookData
 BIND_ASSERT( engine->RegisterObjectMethod( "LookData", "LookData& opAssign(LookData& look)", asMETHODPR( LookData, operator=, ( const LookData& ), LookData& ), asCALL_THISCALL ) );
 
 #ifdef BIND_SERVER
+
+BIND_ASSERT( engine->RegisterGlobalProperty( "LookData ItemLookData", &LookData::ItemLookData ) );
+BIND_ASSERT( engine->RegisterGlobalProperty( "LookData ItemLightLookData", &LookData::ItemLightLookData ) );
+
 BIND_ASSERT(engine->RegisterObjectMethod("Critter", "LookData@ get_Look()", asFUNCTION(BIND_CLASS Crit_GetLookData), asCALL_CDECL_OBJFIRST));
 BIND_ASSERT(engine->RegisterObjectMethod("Map", "LookData@ get_Look()", asFUNCTION(BIND_CLASS Map_GetLookData), asCALL_CDECL_OBJFIRST));
 

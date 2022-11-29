@@ -11,6 +11,8 @@ static Mutex JobLocker; // Defense code from simultaneously execution
 typedef deque< Job > JobDeque;
 static JobDeque Jobs;
 
+Job CurrentJob;
+
 Job::Job(): Type( JOB_NOP ),
             Data( NULL ),
             ThreadId( 0 )
@@ -22,6 +24,13 @@ Job::Job( int type, void* data, bool cur_thread ): Type( type ),
 {
     if( cur_thread )
         ThreadId = Thread::GetCurrentId();
+}
+
+void Job::Null( )
+{
+    Type = JOB_NOP;
+    Data = NULL;
+    ThreadId = 0;
 }
 
 void Job::PushBack( int type )

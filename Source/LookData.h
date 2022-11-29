@@ -66,7 +66,7 @@ public:
         };
     };
 
-    static LookData ScriptLookData0, ScriptLookData1;
+    static LookData ScriptLookData0, ScriptLookData1, ItemLookData, ItemLightLookData;
 
 #ifdef FONLINE_SERVER
     void InitCritter( const Critter& critter);

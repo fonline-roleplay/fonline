@@ -26,6 +26,9 @@ class Map;
 class Location;
 class Item;
 class GameVar;
+class Job;
+
+extern Job CurrentJob;
 
 class Job
 {
@@ -36,6 +39,8 @@ public:
 
     Job();
     Job( int type, void* data, bool cur_thread );
+
+    void Null( );
 
     static void PushBack( int type );
     static void PushBack( int type, void* data );

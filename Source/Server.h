@@ -758,6 +758,8 @@ public:
         static Item*      Map_AddItem( Map* map, ushort hx, ushort hy, ushort proto_id, uint count );
         static uint       Map_GetItemsHex( Map* map, ushort hx, ushort hy, CScriptArray* items );
         static uint       Map_GetItemsHexEx( Map* map, ushort hx, ushort hy, uint radius, ushort pid, CScriptArray* items );
+        static uint       Map_GetDecalsHex( Map* map, ushort hx, ushort hy, CScriptArray* items );
+        static uint       Map_GetDecalsHexEx( Map* map, ushort hx, ushort hy, uint radius, ushort pid, CScriptArray* items );
         static uint       Map_GetItemsByPid( Map* map, ushort pid, CScriptArray* items );
         static uint       Map_GetItemsByType( Map* map, int type, CScriptArray* items );
         static Item*      Map_GetItem( Map* map, uint item_id );

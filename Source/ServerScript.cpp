@@ -858,7 +858,7 @@ bool FOServer::SScriptFunc::Item_ChangeProto( Item* item, ushort pid )
         ushort hx = item->AccHex.HexX;
         ushort hy = item->AccHex.HexY;
         item->Proto = old_proto_item;
-        map->EraseItem( item->GetId() );
+        map->EraseItem( item );
         item->Proto = proto_item;
         map->AddItem( item, hx, hy );
 
@@ -1867,10 +1867,10 @@ bool FOServer::SScriptFunc::Crit_ToKnockout( Critter* cr, uint anim2begin, uint 
 
 void FOServer::SScriptFunc::Crit_RefreshVisible( Critter* cr )
 {
-    if( cr->IsNotValid )
+    /*if( cr->IsNotValid )
         SCRIPT_ERROR_R( "This nullptr." );
     cr->ProcessVisibleCritters();
-    cr->ProcessVisibleItems();
+    cr->ProcessVisibleItems();*/
 }
 
 void FOServer::SScriptFunc::Crit_ViewMap( Critter* cr, Map* map, uint look, ushort hx, ushort hy, uchar dir )
@@ -3907,6 +3907,32 @@ uint FOServer::SScriptFunc::Map_GetItemsHexEx( Map* map, ushort hx, ushort hy, u
         SCRIPT_ERROR_R0( "Invalid hexes args." );
     ItemPtrVec items_;
     map->GetItemsHexEx( hx, hy, radius, pid, items_, items != NULL );
+    if( items )
+        Script::AppendVectorToArrayRef< Item* >( items_, items );
+    return (uint) items_.size();
+}
+
+uint FOServer::SScriptFunc::Map_GetDecalsHex( Map* map, ushort hx, ushort hy, CScriptArray* items )
+{
+    if( map->IsNotValid )
+        SCRIPT_ERROR_R0( "This nullptr." );
+    if( hx >= map->GetMaxHexX() || hy >= map->GetMaxHexY() )
+        SCRIPT_ERROR_R0( "Invalid hexes args." );
+    ItemPtrVec items_;
+    map->GetDecalsHex( hx, hy, items_, items != NULL );
+    if( items )
+        Script::AppendVectorToArrayRef< Item* >( items_, items );
+    return (uint) items_.size();
+}
+
+uint FOServer::SScriptFunc::Map_GetDecalsHexEx( Map* map, ushort hx, ushort hy, uint radius, ushort pid, CScriptArray* items )
+{
+    if( map->IsNotValid )
+        SCRIPT_ERROR_R0( "This nullptr." );
+    if( hx >= map->GetMaxHexX() || hy >= map->GetMaxHexY() )
+        SCRIPT_ERROR_R0( "Invalid hexes args." );
+    ItemPtrVec items_;
+    map->GetDecalsHexEx( hx, hy, radius, pid, items_, items != NULL );
     if( items )
         Script::AppendVectorToArrayRef< Item* >( items_, items );
     return (uint) items_.size();

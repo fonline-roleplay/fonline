@@ -28,6 +28,7 @@ extern const char* MapEventFuncName[ MAP_EVENT_MAX ];
 #define MAP_MAX_DATA                    ( 100 )
 
 class Map;
+class MapExt;
 class Location;
 class LookData;
 
@@ -82,6 +83,7 @@ public:
     void Lock()   { dataLocker.Lock(); }
     void Unlock() { dataLocker.Unlock(); }
 
+    MapExt* GetExt( );
     Location* GetLocation( bool lock );
     ushort    GetMaxHexX() { return Proto->Header.MaxHexX; }
     ushort    GetMaxHexY() { return Proto->Header.MaxHexY; }
@@ -125,7 +127,7 @@ public:
 
     bool AddItem( Item* item, ushort hx, ushort hy );
     void SetItem( Item* item, ushort hx, ushort hy );
-    void EraseItem( uint item_id );
+    void EraseItem( Item* item );
     void ChangeDataItem( Item* item );
     void ChangeViewItem( Item* item );
     void AnimateItem( Item* item, uchar from_frm, uchar to_frm );
@@ -140,6 +142,8 @@ public:
     ItemPtrVec& GetItemsNoLock() { return hexItems; }
     void        GetItemsHex( ushort hx, ushort hy, ItemPtrVec& items, bool lock );
     void        GetItemsHexEx( ushort hx, ushort hy, uint radius, ushort pid, ItemPtrVec& items, bool lock );
+    void        GetDecalsHex( ushort hx, ushort hy, ItemPtrVec& items, bool lock );
+    void        GetDecalsHexEx( ushort hx, ushort hy, uint radius, ushort pid, ItemPtrVec& items, bool lock );
     void        GetItemsPid( ushort pid, ItemPtrVec& items, bool lock );
     void        GetItemsType( int type, ItemPtrVec& items, bool lock );
     void        GetItemsTrap( ushort hx, ushort hy, ItemPtrVec& items, bool lock );
@@ -253,7 +257,41 @@ public:
         if( RefCounter <= 0 ) delete this;
     }
 };
-typedef map< uint, Map* > MapMap;
+
+class MapExt
+{
+public:
+    MapExt( Map* map );
+    ~MapExt( );
+
+    ProtoMap* Proto;
+    uint MapId;
+    SyncObject Sync;
+    ItemPtrVec HexDecals;
+    uchar* HexFlags;
+
+    Map* GetMap( );
+    void Clear( bool full );
+    void SetDecal( Item* item, ushort hx, ushort hy );
+    void EraseDecal( Item* item );
+    short RefCounter;
+    void AddRef( )
+    {
+        RefCounter++;
+    }
+    void Release( )
+    {
+        RefCounter--;
+        if( RefCounter <= 0 ) delete this;
+    }
+
+    ItemPtrVec& GetDecalsNoLock( )
+    {
+        return HexDecals;
+    }
+};
+
+typedef map< uint, pair<Map*,MapExt*> > MapMap;
 typedef vector< Map* >    MapVec;
 
 class ProtoLocation

@@ -797,6 +797,8 @@ struct BindClass
     static void Map_AddItem()                  {}
     static void Map_GetItemsHex()              {}
     static void Map_GetItemsHexEx()            {}
+    static void Map_GetDecalsHex()              {}
+    static void Map_GetDecalsHexEx()            {}
     static void Map_GetItemsByPid()            {}
     static void Map_GetItemsByType()           {}
     static void Map_GetItem()                  {}

@@ -170,6 +170,7 @@ public:
     void SyncLockCritters( bool self_critters, bool only_players );
     void ProcessVisibleCritters();
     void ProcessVisibleItems();
+    void ProcessVisibleItemVec( ItemPtrVec& items );
     void ViewMap( Map* map, int look, ushort hx, ushort hy, int dir );
     void ClearVisible();
 

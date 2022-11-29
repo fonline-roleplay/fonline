@@ -840,21 +840,30 @@ void Critter::ProcessVisibleItems()
     if( !map )
         return;
 
-    int look = GetLook();
+    ProcessVisibleItemVec( map->GetItemsNoLock( ) );
+    if( IsPlayer() )
+        ProcessVisibleItemVec( map->GetExt( )->GetDecalsNoLock( ) );
+}
+
+void Critter::ProcessVisibleItemVec( ItemPtrVec& items )
+{
+    Map* map = MapMngr.GetMap( GetMap( ) );
+    if( !map )
+        return;
+
     static LookData hideitem;
     static LookData lookdata;
     Data.Look.GetMixed( map->Data.Look, lookdata );
     lookdata.InitCritter( *this );
-    ItemPtrVec& items = map->GetItemsNoLock();
-    for( auto it = items.begin(), end = items.end(); it != end; ++it )
+    for( auto it = items.begin( ), end = items.end( ); it != end; ++it )
     {
         Item* item = *it;
 
-        if( item->IsHidden() )
+        if( item->IsHidden( ) )
             continue;
-        else if( item->IsAlwaysView() )
+        else if( item->IsAlwaysView( ) )
         {
-            if( AddIdVisItem( item->GetId() ) )
+            if( AddIdVisItem( item->GetId( ) ) )
             {
                 Send_AddItemOnMap( item );
                 EventShowItemOnMap( item, item->ViewPlaceOnMap, item->ViewByCritter );
@@ -863,27 +872,32 @@ void Critter::ProcessVisibleItems()
         else
         {
             bool allowed = false;
-            if( item->IsTrap() && FLAG( GameOpt.LookChecks, LOOK_CHECK_ITEM_SCRIPT ) )
+            if( item->IsTrap( ) && FLAG( GameOpt.LookChecks, LOOK_CHECK_ITEM_SCRIPT ) )
             {
-                if( Script::PrepareContext( ServerFunctions.CheckTrapLook, _FUNC_, GetInfo() ) )
+                if( Script::PrepareContext( ServerFunctions.CheckTrapLook, _FUNC_, GetInfo( ) ) )
                 {
                     Script::SetArgObject( map );
                     Script::SetArgObject( this );
                     Script::SetArgObject( item );
-                    if( Script::RunPrepared() )
-                        allowed = Script::GetReturnedBool();
+                    if( Script::RunPrepared( ) )
+                        allowed = Script::GetReturnedBool( );
                 }
             }
             else
             {
+                if( item->IsLight( ) )
+                    hideitem = LookData::ItemLightLookData;
+                else
+                    hideitem = LookData::ItemLookData;
+
                 hideitem.GetMixed( map->Data.Look, hideitem );
                 hideitem.InitItem( *item );
-                allowed = LookData::CheckLook( *map, lookdata, hideitem ).IsLook;//*/
+                allowed = LookData::CheckLook( *map, lookdata, hideitem ).IsLook;
             }
 
             if( allowed )
             {
-                if( AddIdVisItem( item->GetId() ) )
+                if( AddIdVisItem( item->GetId( ) ) )
                 {
                     Send_AddItemOnMap( item );
                     EventShowItemOnMap( item, item->ViewPlaceOnMap, item->ViewByCritter );
@@ -891,7 +905,7 @@ void Critter::ProcessVisibleItems()
             }
             else
             {
-                if( DelIdVisItem( item->GetId() ) )
+                if( DelIdVisItem( item->GetId( ) ) )
                 {
                     Send_EraseItemFromMap( item );
                     EventHideItemOnMap( item, item->ViewPlaceOnMap, item->ViewByCritter );

@@ -1083,7 +1083,7 @@ void ItemManager::EraseItemHolder( Item* item )
     {
         Map* map = MapMngr.GetMap( item->AccHex.MapId, true );
         if( map )
-            map->EraseItem( item->GetId() );
+            map->EraseItem( item );
     }
     break;
     case ITEM_ACCESSORY_CONTAINER:

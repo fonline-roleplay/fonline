@@ -106,6 +106,12 @@ void Map::Clear( bool full )
             ItemMngr.ItemToGarbage( item );
         }
     }
+
+    MapExt* ext = GetExt( );
+    if( ext )
+    {
+        ext->Clear( full );
+    }
 }
 
 struct ItemNpcPtr
@@ -451,6 +457,11 @@ void Map::Process()
     }
 }
 
+MapExt* Map::GetExt( )
+{
+    return MapMngr.GetMapExt( GetId() );
+}
+
 Location* Map::GetLocation( bool lock )
 {
     if( lock )
@@ -651,6 +662,18 @@ bool Map::AddItem( Item* item, ushort hx, ushort hy )
     GetCritters( critters, true );
 
     item->ViewPlaceOnMap = true;
+
+    static LookData hideitem;
+    static LookData lookdata;
+
+    if( item->IsLight( ) )
+        hideitem = LookData::ItemLightLookData;
+    else
+        hideitem = LookData::ItemLookData;
+
+    hideitem.GetMixed( Data.Look, hideitem );
+    hideitem.InitItem( *item );
+
     for( auto it = critters.begin(), end = critters.end(); it != end; ++it )
     {
         Critter* cr = *it;
@@ -672,10 +695,9 @@ bool Map::AddItem( Item* item, ushort hx, ushort hy )
                 }
                 else
                 {
-                    int dist = DistGame( cr->GetHexX(), cr->GetHexY(), hx, hy );
-                    if( item->IsTrap() )
-                        dist += item->TrapGetValue();
-                    allowed = dist <= cr->GetLook();
+                    Data.Look.GetMixed( Data.Look, lookdata );
+                    lookdata.InitCritter( *cr );
+                    allowed = LookData::CheckLook( *this, lookdata, hideitem ).IsLook;
                 }
                 if( !allowed )
                     continue;
@@ -703,50 +725,70 @@ void Map::SetItem( Item* item, ushort hx, ushort hy )
     item->AccHex.MapId = GetId();
     item->AccHex.HexX = hx;
     item->AccHex.HexY = hy;
-    hexItems.push_back( item );
-    SetHexFlag( hx, hy, FH_ITEM );
+    if( item->GetType( ) == ITEM_TYPE_DECAL )
+    {
+        MapExt* ext = GetExt( );
+        if( ext )
+        {
+            ext->SetDecal( item, hx, hy );
+        }
+    }
+    else
+    {
+        hexItems.push_back( item );
+        SetHexFlag( hx, hy, FH_ITEM );
 
-    if( !item->IsPassed() )
-        SetHexFlag( hx, hy, FH_BLOCK_ITEM );
-    if( !item->IsRaked() )
-        SetHexFlag( hx, hy, FH_NRAKE_ITEM );
-    if( item->IsGag() )
-        SetHexFlag( hx, hy, FH_GAG_ITEM );
-    if( item->IsBlocks() )
-        PlaceItemBlocks( hx, hy, item->Proto );
-    if( item->IsHearBlocks( ) || item->IsViewBlocks( ) )
-        RefreshVision( );
+        if( !item->IsPassed( ) )
+            SetHexFlag( hx, hy, FH_BLOCK_ITEM );
+        if( !item->IsRaked( ) )
+            SetHexFlag( hx, hy, FH_NRAKE_ITEM );
+        if( item->IsGag( ) )
+            SetHexFlag( hx, hy, FH_GAG_ITEM );
+        if( item->IsBlocks( ) )
+            PlaceItemBlocks( hx, hy, item->Proto );
+        if( item->IsHearBlocks( ) || item->IsViewBlocks( ) )
+            RefreshVision( );
 
-    if( item->FuncId[ ITEM_EVENT_WALK ] > 0 )
-        SetHexFlag( hx, hy, FH_WALK_ITEM );
-    if( item->IsGeck() )
-        mapLocation->GeckCount++;
+        if( item->FuncId[ ITEM_EVENT_WALK ] > 0 )
+            SetHexFlag( hx, hy, FH_WALK_ITEM );
+        if( item->IsGeck( ) )
+            mapLocation->GeckCount++;
+    }
 }
 
-void Map::EraseItem( uint item_id )
+void Map::EraseItem( Item* item )
 {
-    if( !item_id )
+    if( !item )
     {
-        WriteLogF( _FUNC_, " - Item id is zero, id<%u>.\n", item_id );
+        WriteLogF( _FUNC_, " - Item is nullptr.\n" );
         return;
     }
 
-    auto it = hexItems.begin();
-    auto end = hexItems.end();
-    for( ; it != end; ++it )
-        if( ( *it )->GetId() == item_id )
-            break;
-    if( it == hexItems.end() )
-        return;
+    if( item->GetType( ) != ITEM_TYPE_DECAL )
+    {
+        auto it = hexItems.begin( );
+        auto end = hexItems.end( );
+        for( ; it != end; ++it )
+            if( ( *it )->GetId( ) == item->GetId( ) )
+                break;
+        if( it == hexItems.end( ) )
+            return;
 
-    Item* item = *it;
-    hexItems.erase( it );
+        hexItems.erase( it );
+    }
+    else
+    {
+        MapExt* ext = GetExt( );
+        if( ext )
+        {
+            ext->EraseDecal( item );
+        }
+    }
 
     ushort hx = item->AccHex.HexX;
     ushort hy = item->AccHex.HexY;
 
     item->Accessory = 0xd1;
-
     if( item->IsGeck() )
         mapLocation->GeckCount--;
     if( !item->IsPassed() && !item->IsRaked() )
@@ -800,6 +842,17 @@ void Map::ChangeViewItem( Item* item )
     CrVec critters;
     GetCritters( critters, true );
 
+    static LookData hideitem;
+    static LookData lookdata;
+
+    if( item->IsLight( ) )
+        hideitem = LookData::ItemLightLookData;
+    else
+        hideitem = LookData::ItemLookData;
+
+    hideitem.GetMixed( Data.Look, hideitem );
+    hideitem.InitItem( *item );
+
     for( auto it = critters.begin(), end = critters.end(); it != end; ++it )
     {
         Critter* cr = *it;
@@ -828,10 +881,9 @@ void Map::ChangeViewItem( Item* item )
                 }
                 else
                 {
-                    int dist = DistGame( cr->GetHexX(), cr->GetHexY(), item->AccHex.HexX, item->AccHex.HexY );
-                    if( item->IsTrap() )
-                        dist += item->TrapGetValue();
-                    allowed = dist <= cr->GetLook();
+                    Data.Look.GetMixed( Data.Look, lookdata );
+                    lookdata.InitCritter( *cr );
+                    allowed = LookData::CheckLook( *this, lookdata, hideitem ).IsLook;
                 }
                 if( !allowed )
                 {
@@ -859,10 +911,9 @@ void Map::ChangeViewItem( Item* item )
                 }
                 else
                 {
-                    int dist = DistGame( cr->GetHexX(), cr->GetHexY(), item->AccHex.HexX, item->AccHex.HexY );
-                    if( item->IsTrap() )
-                        dist += item->TrapGetValue();
-                    allowed = dist <= cr->GetLook();
+                    Data.Look.GetMixed( Data.Look, lookdata );
+                    lookdata.InitCritter( *cr );
+                    allowed = LookData::CheckLook( *this, lookdata, hideitem ).IsLook;
                 }
                 if( !allowed )
                     continue;
@@ -990,6 +1041,36 @@ void Map::GetItemsHex( ushort hx, ushort hy, ItemPtrVec& items, bool lock )
 void Map::GetItemsHexEx( ushort hx, ushort hy, uint radius, ushort pid, ItemPtrVec& items, bool lock )
 {
     for( auto it = hexItems.begin(), end = hexItems.end(); it != end; ++it )
+    {
+        Item* item = *it;
+        if( ( !pid || item->GetProtoId() == pid ) && DistGame( item->AccHex.HexX, item->AccHex.HexY, hx, hy ) <= radius )
+            items.push_back( item );
+    }
+
+    if( lock )
+        for( auto it = items.begin(), end = items.end(); it != end; ++it )
+            SYNC_LOCK( *it );
+}
+
+void Map::GetDecalsHex( ushort hx, ushort hy, ItemPtrVec& items, bool lock )
+{
+    auto decals = GetExt( )->GetDecalsNoLock( );
+    for( auto it = decals.begin(), end = decals.end(); it != end; ++it )
+    {
+        Item* item = *it;
+        if( item->AccHex.HexX == hx && item->AccHex.HexY == hy )
+            items.push_back( item );
+    }
+
+    if( lock )
+        for( auto it = items.begin(), end = items.end(); it != end; ++it )
+            SYNC_LOCK( *it );
+}
+
+void Map::GetDecalsHexEx( ushort hx, ushort hy, uint radius, ushort pid, ItemPtrVec& items, bool lock )
+{
+    auto decals = GetExt( )->GetDecalsNoLock( );
+    for( auto it = decals.begin(), end = decals.end(); it != end; ++it )
     {
         Item* item = *it;
         if( ( !pid || item->GetProtoId() == pid ) && DistGame( item->AccHex.HexX, item->AccHex.HexY, hx, hy ) <= radius )
@@ -1581,7 +1662,7 @@ void Map::GetCritterCar( Critter* cr, Item* car )
     ushort hy = car->AccHex.HexY;
 
     // Move car from map to inventory
-    EraseItem( car->GetId() );
+    EraseItem( car );
     SETFLAG( car->Data.Flags, ITEM_HIDDEN );
     cr->AddItem( car, false );
 
@@ -1592,7 +1673,7 @@ void Map::GetCritterCar( Critter* cr, Item* car )
         if( !child )
             continue;
 
-        EraseItem( child->GetId() );
+        EraseItem( child );
         SETFLAG( child->Data.Flags, ITEM_HIDDEN );
         cr->AddItem( child, false );
     }
@@ -2447,4 +2528,54 @@ bool Location::IsCanDelete()
         }
     }
     return true;
+}
+
+MapExt::MapExt( Map* map ) : Proto( map->Proto), HexFlags( nullptr ), RefCounter ( 1 ), MapId( map->GetId() )
+{
+    HexFlags = new uchar[ Proto->Header.MaxHexX * Proto->Header.MaxHexY ];
+    memzero( HexFlags, Proto->Header.MaxHexX * Proto->Header.MaxHexY );
+}
+
+MapExt::~MapExt( )
+{
+    Clear( true );
+    SAFEDELA( HexFlags );
+}
+
+Map* MapExt::GetMap( )
+{
+    return MapMngr.GetMap( MapId );
+}
+
+void MapExt::Clear( bool full )
+{
+    ItemPtrVec del_items = HexDecals;
+    HexDecals.clear( );
+
+    if( full )
+    {
+        for( auto it = del_items.begin( ), end = del_items.end( ); it != end; ++it )
+        {
+            Item* item = *it;
+            ItemMngr.ItemToGarbage( item );
+        }
+    }
+}
+
+void MapExt::SetDecal( Item* item, ushort hx, ushort hy )
+{
+    HexDecals.push_back( item );
+}
+
+void MapExt::EraseDecal( Item* item )
+{
+    auto it = HexDecals.begin( );
+    auto end = HexDecals.end( );
+    for( ; it != end; ++it )
+        if( ( *it )->GetId( ) == item->GetId( ) )
+            break;
+    if( it == HexDecals.end( ) )
+        return;
+
+    HexDecals.erase( it );
 }

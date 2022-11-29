@@ -168,8 +168,11 @@ void MapManager::Clear()
     for( auto it = allLocations.begin(); it != allLocations.end(); ++it )
         SAFEREL( ( *it ).second );
     allLocations.clear();
-    for( auto it = allMaps.begin(); it != allMaps.end(); ++it )
-        SAFEREL( ( *it ).second );
+    for( auto it = allMaps.begin( ); it != allMaps.end( ); ++it )
+    {
+        SAFEREL( ( *it ).second.first );
+        SAFEREL( ( *it ).second.second );
+    }
     allMaps.clear();
 }
 
@@ -504,7 +507,7 @@ void MapManager::RunInitScriptMaps()
     MapMap maps = allMaps;
     for( auto it = maps.begin(), end = maps.end(); it != end; ++it )
     {
-        Map* map = ( *it ).second;
+        Map* map = ( *it ).second.first;
         if( map->Data.ScriptId )
             map->ParseScript( NULL, false );
 
@@ -576,7 +579,7 @@ void MapManager::GetLocationAndMapIds( UIntSet& loc_ids, UIntSet& map_ids )
     for( auto it = allLocations.begin(), end = allLocations.end(); it != end; ++it )
         loc_ids.insert( ( *it ).second->GetId() );
     for( auto it = allMaps.begin(), end = allMaps.end(); it != end; ++it )
-        map_ids.insert( ( *it ).second->GetId() );
+        map_ids.insert( ( *it ).second.first->GetId() );
 }
 
 bool MapManager::IsInitProtoLocation( ushort pid_loc )
@@ -691,6 +694,7 @@ Map* MapManager::CreateMap( ushort pid_map, Location* loc_map, uint map_id )
     }
 
     Map* map = new Map();
+    MapExt* mapext = nullptr;
     if( !map || !map->Init( &ProtoMaps[ pid_map ], loc_map ) )
     {
         WriteLogF( _FUNC_, " - Map init fail, pid<%u>.\n", pid_map );
@@ -706,6 +710,7 @@ Map* MapManager::CreateMap( ushort pid_map, Location* loc_map, uint map_id )
         loc_map->GetMapsNoLock().push_back( map );
         mapLocker.Unlock();
 
+        mapext = new MapExt( map );
         if( Script::PrepareContext( ServerFunctions.MapInit, _FUNC_, "map_create" ) )
         {
             Script::SetArgObject( map );
@@ -726,6 +731,7 @@ Map* MapManager::CreateMap( ushort pid_map, Location* loc_map, uint map_id )
 
         map->SetId( map_id, pid_map );
         loc_map->GetMapsNoLock().push_back( map );
+        mapext = new MapExt( map );
     }
 
     SYNC_LOCK( map );
@@ -733,7 +739,7 @@ Map* MapManager::CreateMap( ushort pid_map, Location* loc_map, uint map_id )
 	Job::PushBack( JOB_MAP, map );
 
     mapLocker.Lock();
-    allMaps.insert( PAIR( map->GetId(), map ) );
+    allMaps.insert( PAIR( map->GetId(), PAIR( map, mapext ) ) );
     mapLocker.Unlock();
 
     return map;
@@ -749,12 +755,30 @@ Map* MapManager::GetMap( uint map_id, bool sync_lock )
     mapLocker.Lock();
     auto it = allMaps.find( map_id );
     if( it != allMaps.end() )
-        map = ( *it ).second;
+        map = ( *it ).second.first;
     mapLocker.Unlock();
 
     if( map && sync_lock )
         SYNC_LOCK( map );
     return map;
+}
+
+MapExt* MapManager::GetMapExt( uint map_id, bool sync_lock )
+{
+    if( !map_id )
+        return NULL;
+
+    MapExt* ext = NULL;
+
+    mapLocker.Lock( );
+    auto it = allMaps.find( map_id );
+    if( it != allMaps.end( ) )
+        ext = ( *it ).second.second;
+    mapLocker.Unlock( );
+
+    if( ext && sync_lock )
+        SYNC_LOCK( ext );
+    return ext;
 }
 
 Map* MapManager::GetMapByPid( ushort map_pid, uint skip_count )
@@ -765,7 +789,7 @@ Map* MapManager::GetMapByPid( ushort map_pid, uint skip_count )
     mapLocker.Lock();
     for( auto it = allMaps.begin(), end = allMaps.end(); it != end; ++it )
     {
-        Map* map = ( *it ).second;
+        Map* map = ( *it ).second.first;
         if( map->GetPid() == map_pid )
         {
             if( !skip_count )
@@ -789,7 +813,7 @@ void MapManager::GetMaps( MapVec& maps, bool lock )
 
     maps.reserve( allMaps.size() );
     for( auto it = allMaps.begin(), end = allMaps.end(); it != end; ++it )
-        maps.push_back( ( *it ).second );
+        maps.push_back( ( *it ).second.first );
 
     if( lock )
         for( auto it = maps.begin(), end = maps.end(); it != end; ++it )
@@ -958,7 +982,12 @@ void MapManager::LocationGarbager()
 
                     // Delete from main array
                     mapLocker.Lock();
-                    allMaps.erase( map->GetId() );
+                    auto itAllMaps = allMaps.find( map->GetId( ) );
+                    if( itAllMaps != allMaps.end( ) )
+                    {
+                        delete itAllMaps->second.second;
+                        allMaps.erase( map->GetId( ) );
+                    }
                     mapLocker.Unlock();
                 }
 
@@ -1727,21 +1756,6 @@ void MapManager::TraceBullet( TraceData& trace )
 
         if (!map->IsHexRaked(cx, cy))
         {
-            if( !trace.NotRakedTrace )
-            {
-                if( trace.Block )
-                {
-                    ( *trace.Block ).first = cx;
-                    ( *trace.Block ).second = cy;
-                }
-
-                if( trace.PreBlock )
-                {
-                    ( *trace.PreBlock ).first = old_cx;
-                    ( *trace.PreBlock ).second = old_cy;
-                }
-            }
-
             trace.NotRakedTrace = true;
             if( !trace.ForceFullTrace )
                 break;
@@ -1772,6 +1786,21 @@ void MapManager::TraceBullet( TraceData& trace )
 
         old_cx = cx;
         old_cy = cy;
+    }
+
+    if( !trace.NotRakedTrace )
+    {
+        if( trace.Block )
+        {
+            ( *trace.Block ).first = cx;
+            ( *trace.Block ).second = cy;
+        }
+
+        if( trace.PreBlock )
+        {
+            ( *trace.PreBlock ).first = old_cx;
+            ( *trace.PreBlock ).second = old_cy;
+        }
     }
 }
 
