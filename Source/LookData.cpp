@@ -243,9 +243,9 @@ LookData::Result LookData::CheckLook( Map& map, LookData& look, LookData& hide )
 
     static TraceData trace;
     static UShortPair block;
-    //if( !trace.Walls ) trace.Walls = new SceneryClRefVec( );
-    // if( !trace.Items ) trace.Items = new ItemPtrVec( );
-    //if( !trace.Block ) trace.Block = &block;
+    if( !trace.Walls ) trace.Walls = new SceneryClRefVec( );
+    if( !trace.Items ) trace.Items = new ItemPtrVec( );
+    if( !trace.Block ) trace.Block = &block;
 
     block.first = 0;
     block.second = 0;
