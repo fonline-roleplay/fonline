@@ -631,19 +631,15 @@ void FOServer::Logic_Work( void* data )
     // Cycle time
     uint cycle_tick = Timer::FastTick();
 
-	double JobPerformance[ JOB_COUNT ];
-	for( uint i = 0; i < JOB_COUNT; i++ )
-		JobPerformance[ i ] = 0.0f;
+    const char* jobNames[ ] = { "JobNone", "JobClients", "JobCritters", "JobMaps", "JobTimeEvents", "JobGarbageItems", "JobGarbageCritters", "JobGarbageLocations", "JobGarbageSript", "JobGarbageVars", "JobDeferredRelease", "JobGameTime", "JobBans", "JobLoopScript", "JobThreadLoop", "JobThreadSynchronize", "JobFinish" };
 
-	double job_tick = 0.0;
     // Word loop
     while( true )
     {
         sync_mngr->UnlockAll();
         CurrentJob = Job::PopFront();
 
-		job_tick = Timer::AccurateTick( );
-
+        Script::StartCallStack( jobNames[CurrentJob.Type], false );
         if( CurrentJob.Type == JOB_CLIENT )
         {
             Client* cl = (Client*)CurrentJob.Data;
@@ -693,6 +689,7 @@ void FOServer::Logic_Work( void* data )
                 ConnectedClientsLocker.Unlock();
 
                 Job::DeferredRelease( cl );
+                Script::CallStackInfoWriteAndClose( );
                 continue;
             }
 
@@ -703,18 +700,23 @@ void FOServer::Logic_Work( void* data )
         }
         else if( CurrentJob.Type == JOB_CRITTER )
         {
-			if (!Logic_CritterProccess((Critter*)CurrentJob.Data))
-				continue;
+            if( !Logic_CritterProccess( ( Critter* )CurrentJob.Data ) )
+            {
+                Script::CallStackInfoWriteAndClose( );
+                continue;
+            }
         }
         else if( CurrentJob.Type == JOB_MAP )
         {
-            Map* map = (Map*)CurrentJob.Data;
+            Map* map = ( Map* )CurrentJob.Data;
             SYNC_LOCK( map );
 
             // Check for removing
             if( map->IsNotValid )
+            {
+                Script::CallStackInfoWriteAndClose( );
                 continue;
-
+            }
             if( map->IsRefreshVision( ) )
             {
                 CrVec& critters = map->GetCrittersNoLock();
@@ -727,6 +729,7 @@ void FOServer::Logic_Work( void* data )
             }
 
 			// Npc proccess:
+            Script::StartCallStack( "NpcProccess", false );
 			if( map->GetPlayersCount() != 0 || ( map->Data.ProccessSleep == 0 || map->Data.ProccessTick-- == 0 ) )
 			{
 				map->Data.ProccessTick = map->Data.ProccessSleep;
@@ -737,7 +740,7 @@ void FOServer::Logic_Work( void* data )
 					Logic_CritterProccess(npcs[i]);
                 npcs.clear( );
 			}
-
+            Script::CallStackInfoWriteAndClose( );
             // Process logic
             map->Process();
         }
@@ -809,17 +812,20 @@ void FOServer::Logic_Work( void* data )
         }
         else if( CurrentJob.Type == JOB_THREAD_LOOP )
         {
+            Script::CallStackInfoWriteAndClose( );
+            Script::CallStackNextCycle( );
+
             // Sleep
-            uint sleep_time = Timer::FastTick();
+            uint sleep_time = Timer::FastTick( );
             if( ServerGameSleep >= 0 )
                 Sleep( ServerGameSleep );
-            sleep_time = Timer::FastTick() - sleep_time;
+            sleep_time = Timer::FastTick( ) - sleep_time;
 
             // Thread statistics
             // Manage threads data
             static Mutex  stats_locker;
             static PtrVec stats_ptrs;
-            stats_locker.Lock();
+            stats_locker.Lock( );
             struct StatisticsThread
             {
                 uint CycleTime;
@@ -832,14 +838,14 @@ void FOServer::Logic_Work( void* data )
             } static THREAD* stats = NULL;
             if( !stats )
             {
-                stats = new StatisticsThread();
+                stats = new StatisticsThread( );
                 memzero( stats, sizeof( StatisticsThread ) );
                 stats->LoopMin = MAX_UINT;
                 stats_ptrs.push_back( stats );
             }
 
             // Fill statistics
-            uint loop_tick = Timer::FastTick() - cycle_tick - sleep_time;
+            uint loop_tick = Timer::FastTick( ) - cycle_tick - sleep_time;
             stats->LoopTime += loop_tick;
             stats->LoopCycles++;
             if( loop_tick > stats->LoopMax )
@@ -851,9 +857,9 @@ void FOServer::Logic_Work( void* data )
             // Calculate whole threads statistics
             uint real_min_cycle = MAX_UINT;           // Calculate real cycle count for deferred releasing
             uint cycle_time = 0, loop_time = 0, loop_cycles = 0, loop_min = 0, loop_max = 0, lags = 0;
-            for( auto it = stats_ptrs.begin(), end = stats_ptrs.end(); it != end; ++it )
+            for( auto it = stats_ptrs.begin( ), end = stats_ptrs.end( ); it != end; ++it )
             {
-                StatisticsThread* stats_thread = (StatisticsThread*) *it;
+                StatisticsThread* stats_thread = ( StatisticsThread* )*it;
                 cycle_time += stats_thread->CycleTime;
                 loop_time += stats_thread->LoopTime;
                 loop_cycles += stats_thread->LoopCycles;
@@ -862,25 +868,21 @@ void FOServer::Logic_Work( void* data )
                 lags += stats_thread->LagsCount;
                 real_min_cycle = MIN( real_min_cycle, stats->LoopCycles );
             }
-            uint count = (uint) stats_ptrs.size();
+            uint count = ( uint )stats_ptrs.size( );
             Statistics.CycleTime = cycle_time / count;
             Statistics.LoopTime = loop_time / count;
             Statistics.LoopCycles = loop_cycles / count;
             Statistics.LoopMin = loop_min / count;
             Statistics.LoopMax = loop_max / count;
             Statistics.LagsCount = lags / count;
-			for( uint i = 0; i < JOB_COUNT; i++ )
-			{
-				Statistics.JobPerformance[ i ] = JobPerformance[ i ];
-				JobPerformance[ i ] = 0.0f;
-			}
-            stats_locker.Unlock();
+
+            stats_locker.Unlock( );
 
             // Set real cycle count for deferred releasing
             Job::SetDeferredReleaseCycle( real_min_cycle );
 
             // Start time of next cycle
-            cycle_tick = Timer::FastTick();
+            cycle_tick = Timer::FastTick( );
         }
         else if( CurrentJob.Type == JOB_THREAD_SYNCHRONIZE )
         {
@@ -895,10 +897,12 @@ void FOServer::Logic_Work( void* data )
         else         // JOB_NOP
         {
             Sleep( 100 );
+            Script::CallStackInfoWriteAndClose( );
             continue;
         }
-		
-		JobPerformance[ CurrentJob.Type] += Timer::AccurateTick( ) - job_tick;
+
+		if( CurrentJob.Type != JOB_THREAD_LOOP )
+            Script::CallStackInfoWriteAndClose( );
 
         // Add job to back
         uint job_count = Job::PushBack( CurrentJob );
@@ -1347,8 +1351,8 @@ void FOServer::NetIO_Input( Client::NetIOArg* io )
     uint filesize = 0;
     if( cl->DataExt )
     {
-        if( cl->DataExt->FileCollectionContext.File )
-            filesize = cl->DataExt->FileCollectionContext.File->GetSize( );
+//        if( cl->DataExt->FileCollectionContext.File )
+ //           filesize = cl->DataExt->FileCollectionContext.File->GetSize( );
     }
 
     cl->Bin.Lock();
@@ -1859,13 +1863,13 @@ void FOServer::Process( ClientPtr& cl )
         auto dataExt = cl->GetDataExt( );
         if( dataExt )
         {
-            if( !dataExt->FileCollectionContext.IsBusy )
+/*            if( !dataExt->FileCollectionContext.IsBusy )
             {
                 if( !dataExt->QueueFileRecive.empty( ) )
                 {
 
                 }
-            }
+            }*/
         }
     }
 }
@@ -3522,6 +3526,10 @@ bool FOServer::InitReal()
     if( !profiler_mode )
         sample_time = 0;
     Script::Profiler::SetData( sample_time, ( ( profiler_mode & 1 ) != 0 ) ? 300000 : 0, ( ( profiler_mode & 2 ) != 0 ) );
+
+    // DetailedCallStackInfo
+    Script::CallStackInfo::CallStackInfoMode = cfg.GetInt( "DetailedCallStackInfo", 0 );
+    Script::CallStackInfo::CallStackInfoMode = CLAMP( Script::CallStackInfo::CallStackInfoMode, 0, 2 );
 
     // Threading
     LogicThreadSetAffinity = cfg.GetInt( "LogicThreadSetAffinity", 0 ) != 0;

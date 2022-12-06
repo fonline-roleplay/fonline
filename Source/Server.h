@@ -459,6 +459,8 @@ public:
         uint  LagsCount;
 
 		double JobPerformance[ JOB_COUNT ];
+        std::map<char*, uint> ScriptsCallTime;
+
     } static Statistics;
 
     static uint   PlayersInGame() { return CrMngr.PlayersInGame(); }

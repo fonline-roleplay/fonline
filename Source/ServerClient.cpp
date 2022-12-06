@@ -13,7 +13,7 @@ void FOServer::ProcessCritter( Critter* cr )
     // Idle global function
     if( tick >= cr->GlobalIdleNextTick )
     {
-        if( Script::PrepareContext( ServerFunctions.CritterIdle, _FUNC_, cr->GetInfo() ) )
+        if( Script::PrepareContext( ServerFunctions.CritterIdle, "CritterIdleGlobalFunction", cr->GetInfo() ) )
         {
             Script::SetArgObject( cr );
             Script::RunPrepared();
@@ -34,7 +34,7 @@ void FOServer::ProcessCritter( Critter* cr )
             Critter::CrTimeEvent me = cr->CrTimeEvents[ 0 ];
             cr->EraseCrTimeEvent( 0 );
             uint                 time = GameOpt.TimeMultiplier * 1800; // 30 minutes on error
-            if( Script::PrepareContext( Script::GetScriptFuncBindId( me.FuncNum ), _FUNC_, cr->GetInfo() ) )
+            if( Script::PrepareContext( Script::GetScriptFuncBindId( me.FuncNum ), "CritterTimeEvents", cr->GetInfo() ) )
             {
                 Script::SetArgObject( cr );
                 Script::SetArgUInt( me.Identifier );
@@ -93,7 +93,7 @@ void FOServer::ProcessCritter( Critter* cr )
             auto dataExt = cl->GetDataExt( );
             if( dataExt )
             {
-                if( !dataExt->FileCollectionContext.IsBusy )
+                /*if( !dataExt->FileCollectionContext.IsBusy )
                 {
                     if( !dataExt->QueueFileRecive.empty( ) )
                     {
@@ -114,7 +114,7 @@ void FOServer::ProcessCritter( Critter* cr )
                 else
                 {
                     cl->Send_WorkCollectionFileContext( );
-                }
+                }*/
             }
         }
 
@@ -135,7 +135,9 @@ void FOServer::ProcessCritter( Critter* cr )
         // Process
         if( npc->IsLife() )
         {
+            Script::StartCallStack( "ProcessAI", false );
             ProcessAI( npc );
+            Script::CallStackInfoWriteAndClose( );
             if( npc->IsNeedRefreshBag() )
                 npc->RefreshBag();
         }

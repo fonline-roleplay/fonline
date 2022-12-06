@@ -104,7 +104,7 @@ static LONG WINAPI TopLevelFilterReadableDump( EXCEPTION_POINTERS* except )
 		fprintf( f, "\n" );
 
 #ifdef FONLINE_SERVER
-		fprintf( f, "\tCurrent job:     %i\n", CurrentJob.Type );
+		fprintf( f, "\nCallStack:\n%s\n", Script::FormatCallstackInfo( true ).c_str() );
 #endif
 		// Exception information
 		if( except )

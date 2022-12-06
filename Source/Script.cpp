@@ -54,6 +54,75 @@ bool             LogDebugInfo = true;
 StrVec           WrongGlobalObjects;
 
 #ifdef FONLINE_SERVER
+Script::CallStackInfo* CallStackInfoRoot[ 2 ] = { new Script::CallStackInfo( "FOnline", false, nullptr ), new Script::CallStackInfo( "FOnline", false, nullptr ) };
+Script::CallStackInfo* CurrentCallStack = CallStackInfoRoot[0];
+
+int Script::CallStackInfo::CallStackInfoMode = 0;
+Mutex CallStackInfoRootLocker;
+int callstackdeep = 0;
+
+void Script::StartCallStack( const char* key, bool isscript )
+{
+    if( CallStackInfo::CallStackInfoMode )
+    {
+        CurrentCallStack = CurrentCallStack->GetOrCreateChild( key, isscript );
+        CurrentCallStack->CallBegin( );
+        callstackdeep++;
+    }
+}
+
+void Script::CallStackInfoWriteAndClose( )
+{
+    if( CallStackInfo::CallStackInfoMode )
+    {
+        CurrentCallStack->CallEnd( );
+        CurrentCallStack = CurrentCallStack->GetParent( );
+        callstackdeep--;
+    }
+}
+
+void Script::CallStackNextCycle( )
+{
+    if( CallStackInfo::CallStackInfoMode >= 2 )
+    {
+        if( CurrentCallStack != CallStackInfoRoot[ 0 ] )
+            WriteLogF( _FUNC_, " - CallStack wrong <%s> <%s> %i.\n", CurrentCallStack->name.c_str( ), CallStackInfoRoot[ 0 ]->name.c_str( ), callstackdeep );
+        CallStackInfoRootLocker.Lock( );
+        Script::CallStackInfo* temp = CallStackInfoRoot[ 0 ];
+        CallStackInfoRoot[ 0 ] = CallStackInfoRoot[ 1 ];
+        CallStackInfoRoot[ 1 ] = temp;
+        CallStackInfo::SynchronizeCallStacks( );
+        CallStackInfoRootLocker.Unlock( );
+        CurrentCallStack = CallStackInfoRoot[ 0 ];
+    }
+}
+
+std::string Script::FormatCallstackInfo( bool iscurrent /* = false */ )
+{
+    if( CallStackInfo::CallStackInfoMode == 0 )
+        return "Call stack info disabled";
+    std::stringstream stream;
+    if( iscurrent )
+    {
+        Script::CallStackInfo* current = CurrentCallStack;
+        while( current && current->GetParent() )
+        {
+            stream << "\t" << current->name << "\n";
+            current = current->GetParent( );
+        }
+    }
+    else
+    {
+        if( CallStackInfo::CallStackInfoMode >= 2 )
+        {
+            CallStackInfoRootLocker.Lock( );
+            CallStackInfoRoot[ 1 ]->GarbareInfo( stream );
+            CallStackInfoRootLocker.Unlock( );
+        }
+    }
+    return stream.str();
+}
+
 uint   GarbagerCycle = 120000;
 uint   EvaluationCycle = 120000;
 double MaxGarbagerTime = 40.0;
@@ -955,6 +1024,13 @@ asIScriptEngine* Script::CreateEngine( Preprocessor::PragmaCallback* pragma_call
     RegisterScriptMath( engine );
 	RegisterScriptGrid( engine );
 
+#ifdef FONLINE_SERVER
+    if( Str::Compare( dll_target, "SERVER" ) )
+    {
+        CallStackInfo::RegistrationScriptCustomCallStack( engine );
+    }
+#endif
+
     EngineData* edata = new EngineData();
     edata->PragmaCB = pragma_callback;
     edata->DllTarget = dll_target;
@@ -1009,6 +1085,8 @@ asIScriptContext* Script::CreateContext()
 
     Str::Copy( buf, CONTEXT_BUFFER_SIZE, "<error>" );
     ctx->SetUserData( buf );
+    char* buf2 = new char[ CONTEXT_BUFFER_SIZE ];
+    ctx->SetUserData( buf2, 1 );
     return ctx;
 }
 
@@ -2376,6 +2454,11 @@ bool Script::PrepareContext( int bind_id, const char* call_func, const char* ctx
     }
 
     CurrentArg = 0;
+
+#ifdef FONLINE_SERVER
+    StartCallStack( call_func, false );
+#endif
+
     return true;
 }
 
@@ -2589,6 +2672,9 @@ bool Script::RunPrepared()
             PrintContextCallstack( ctx );           // Name and state of context will be printed in this function
             ctx->Abort();
             EndExecution();
+#ifdef FONLINE_SERVER
+            CallStackInfoWriteAndClose( );
+#endif
             return false;
         }
         else if( RunTimeoutMessage && delta >= RunTimeoutMessage )
@@ -2600,6 +2686,9 @@ bool Script::RunPrepared()
         {
             WriteLogF( _FUNC_, " - Context<%s> execute error<%d>, state<%s>.\n", ctx->GetUserData(), result, ContextStatesStr[ (int) state ] );
             EndExecution();
+#ifdef FONLINE_SERVER
+            CallStackInfoWriteAndClose( );
+#endif
             return false;
         }
 
@@ -2613,6 +2702,10 @@ bool Script::RunPrepared()
     }
 
     EndExecution();
+
+#ifdef FONLINE_SERVER
+    CallStackInfoWriteAndClose( );
+#endif
     return true;
 }
 
@@ -2891,3 +2984,194 @@ CScriptArray *Script::CreateArray( const char* type )
 /************************************************************************/
 /*                                                                      */
 /************************************************************************/
+
+Script::CallStackInfo::CallStackInfo( const std::string _key, bool _isscript, Script::CallStackInfo* _parent, bool isabs ):
+    RootData( nullptr ), name( _key ), CurrentTime( 0 ), AllTime(0), absolutle( nullptr ), parent( _parent ),
+    MaxTime( 0 ), CurrentTimeOne( 0 ), MaxTimeOne( 0 ), childs( ), CycleDelta( 0 ),
+    linesize( 0 ), childdeep( 0 ), isscript( _isscript )
+{
+    if( parent )
+    {
+        root = parent->root;
+        childdeep = parent->childdeep + 1;
+        linesize = childdeep * 4 + name.size( );
+
+        if( !isabs )
+        {
+            absolutle = root->GetOrCreateAbsolutle( _key, _isscript );
+            if( root->linesize < linesize )
+                root->linesize = linesize;
+        }
+    }
+    else
+    {
+        root = this;
+        RootData = new _RootData( );
+    }
+}
+
+void Script::CallStackInfo::Next( )
+{
+    if( CurrentTime > MaxTime )
+        MaxTime = CurrentTime;
+    CurrentTime = 0;
+}
+
+void Script::CallStackInfo::Add( uint delta )
+{
+    CycleDelta += delta;
+    CurrentTime += delta;
+    CurrentTimeOne = delta;
+    if( delta > MaxTimeOne )
+        MaxTimeOne = delta;
+
+    AllTime += delta;
+
+    if( absolutle )
+        absolutle->Add( delta );
+}
+
+Script::CallStackInfo* Script::CallStackInfo::GetChild( std::string key )
+{
+    auto it = childs.find( key );
+    if( it != childs.end( ) )
+        return it->second;
+    return nullptr;
+}
+
+Script::CallStackInfo* Script::CallStackInfo::GetOrCreateChild( std::string key, bool isscript )
+{
+    Script::CallStackInfo* child = GetChild( key );
+    if( !child )
+    {
+        child = new Script::CallStackInfo( key, isscript, this );
+        childs.insert( PAIR( string( key ), child ) );
+    }
+    return child;
+}
+
+Script::CallStackInfo* Script::CallStackInfo::GetOrCreateAbsolutle( std::string key, bool isscript )
+{
+    if( !RootData )
+        return nullptr;
+
+    auto it = RootData->AbsolutleMap.find( key );
+    if( it == RootData->AbsolutleMap.end() )
+    {
+        Script::CallStackInfo* abs = new Script::CallStackInfo( key, isscript, root, true );
+        RootData->AbsolutleMap.insert( PAIR( string( key ), abs ) );
+        return abs;
+    }
+    return it->second;
+}
+
+void Script::CallStackInfo::CallBegin( )
+{
+    timer = Timer::FastTick( );
+    for( auto it = childs.begin( ); it != childs.end( ); it++ )
+        it->second->CycleDelta = 0;
+}
+
+void Script::CallStackInfo::CallEnd( )
+{
+    uint delta = Timer::FastTick( ) - timer;
+    for( auto it = childs.begin( ); it != childs.end( ); it++ )
+        delta -= it->second->CycleDelta;
+    Add( delta );
+}
+
+void Script::CallStackInfo::GarbareInfo( std::stringstream& stream, bool isstatistic /*= true*/, int deep /*= 0*/ )
+{
+    int _deep = deep;
+    while( _deep-- )
+        stream << "    ";
+
+    uint size = root->linesize - linesize;
+    stream << name;
+    if( isstatistic )
+    {
+        while( size-- )
+            stream << " ";
+        stream << "\t" << CurrentTime << "\t" << MaxTime << "\t" << AllTime << "\n";
+    }
+
+    if( !childs.empty( ) )
+    {
+        for( auto it = childs.begin( ); it != childs.end( ); it++ )
+            it->second->GarbareInfo( stream, true, deep + 1 );
+    }
+
+    if( RootData )
+    {
+        stream << "\n";
+        _deep = deep;
+        while( _deep-- )
+            stream << "    ";
+        stream << "Absolutle:\n";
+        for( auto it = RootData->AbsolutleMap.begin( ); it != RootData->AbsolutleMap.end( ); it++ )
+            it->second->GarbareInfo( stream, true, deep + 1 );
+    }
+}
+
+void Script::CallStackInfo::SynchronizeCallStacks( )
+{
+    auto temp0 = CallStackInfoRoot[ 0 ], temp1 = CallStackInfoRoot[ 1 ];
+
+    for( auto it1 = temp1->RootData->AbsolutleMap.begin( ); it1 != temp1->RootData->AbsolutleMap.end( ); it1++ )
+    {
+        auto abs = temp0->GetOrCreateAbsolutle( it1->first, it1->second->isscript );
+        abs->MaxTime = MAX( abs->MaxTime, it1->second->MaxTime );
+        abs->AllTime = it1->second->AllTime;
+        abs->CurrentTime = it1->second->CurrentTime;
+        abs->Next( );
+    }
+
+    SynchronizeCallStacksChilds( temp0, temp1 );
+}
+
+void Script::CallStackInfo::SynchronizeCallStacksChilds( CallStackInfo* info0, CallStackInfo* info1 )
+{
+    info0->MaxTime = MAX( info0->MaxTime, info1->MaxTime );
+    info0->AllTime = info1->AllTime;
+    info0->CurrentTime = info1->CurrentTime;
+    info0->Next( );
+    for( auto it = info1->childs.begin( ); it != info1->childs.end( ); it++ )
+        SynchronizeCallStacksChilds( info0->GetOrCreateChild( it->first, it->second->isscript ), it->second );
+}
+
+#ifdef FONLINE_SERVER
+void Script::CallStackInfo::RegistrationScriptCustomCallStack( asIScriptEngine* engine )
+{
+    class CustomCallStack
+    {
+    public:
+
+        static void Open( ScriptString& name )
+        {
+            Script::StartCallStack( Str::FormatBuf( "Script_%s", name.c_str( ) ), true );
+        }
+
+        static void Close( )
+        {
+            if( CurrentCallStack->IsScript( ) )
+                Script::CallStackInfoWriteAndClose( );
+            else WriteLogF( __FUNCTION__, "wrong script close callstack\n" );
+        }
+
+        static uint GetCallStackInfoMode( )
+        {
+            return Script::CallStackInfo::CallStackInfoMode;
+        }
+
+        static void SetCallStackInfoMode( uint value )
+        {
+            Script::CallStackInfo::CallStackInfoMode = CLAMP( value, 0, 2 );
+        }
+    };
+
+    engine->RegisterGlobalFunction( "void CallStackOpen( const string&in name )", asFUNCTION( CustomCallStack::Open ), asCALL_CDECL );
+    engine->RegisterGlobalFunction( "void CallStackClose( )", asFUNCTION( CustomCallStack::Close ), asCALL_CDECL );
+    engine->RegisterGlobalFunction( "uint get_CallStackInfoMode( )", asFUNCTION( CustomCallStack::GetCallStackInfoMode ), asCALL_CDECL );
+    engine->RegisterGlobalFunction( "void set_CallStackInfoMode( uint value )", asFUNCTION( CustomCallStack::SetCallStackInfoMode ), asCALL_CDECL );
+}
+#endif

@@ -240,7 +240,7 @@ public:
 
     // Scripts
 protected:
-    bool PrepareScriptFunc( int num_scr_func );
+    bool PrepareScriptFunc( int num_scr_func, const char* info );
 
 public:
     int FuncId[ CRITTER_EVENT_MAX ];

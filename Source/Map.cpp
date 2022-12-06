@@ -655,6 +655,7 @@ bool Map::AddItem( Item* item, ushort hx, ushort hy )
     if( hx >= GetMaxHexX() || hy >= GetMaxHexY() )
         return false;
 
+    Script::StartCallStack( "CheckLook", false );
     SetItem( item, hx, hy);
 
     // Process critters view
@@ -695,7 +696,7 @@ bool Map::AddItem( Item* item, ushort hx, ushort hy )
                 }
                 else
                 {
-                    Data.Look.GetMixed( Data.Look, lookdata );
+                    cr->Data.Look.GetMixed( Data.Look, lookdata );
                     lookdata.InitCritter( *cr );
                     allowed = LookData::CheckLook( *this, lookdata, hideitem ).IsLook;
                 }
@@ -709,7 +710,7 @@ bool Map::AddItem( Item* item, ushort hx, ushort hy )
         }
     }
     item->ViewPlaceOnMap = false;
-
+    Script::CallStackInfoWriteAndClose( );
     return true;
 }
 
@@ -725,15 +726,14 @@ void Map::SetItem( Item* item, ushort hx, ushort hy )
     item->AccHex.MapId = GetId();
     item->AccHex.HexX = hx;
     item->AccHex.HexY = hy;
-    if( item->GetType( ) == ITEM_TYPE_DECAL )
+    
+    MapExt* ext = GetExt( );
+    if( ext )
     {
-        MapExt* ext = GetExt( );
-        if( ext )
-        {
-            ext->SetDecal( item, hx, hy );
-        }
+        ext->SetItem( item, hx, hy );
     }
-    else
+    
+    if( item->GetType( ) != ITEM_TYPE_DECAL )
     {
         hexItems.push_back( item );
         SetHexFlag( hx, hy, FH_ITEM );
@@ -776,13 +776,11 @@ void Map::EraseItem( Item* item )
 
         hexItems.erase( it );
     }
-    else
+
+    MapExt* ext = GetExt( );
+    if( ext )
     {
-        MapExt* ext = GetExt( );
-        if( ext )
-        {
-            ext->EraseDecal( item );
-        }
+        ext->EraseItem( item );
     }
 
     ushort hx = item->AccHex.HexX;
@@ -839,6 +837,7 @@ void Map::ChangeDataItem( Item* item )
 
 void Map::ChangeViewItem( Item* item )
 {
+    Script::StartCallStack( "CheckLook", false );
     CrVec critters;
     GetCritters( critters, true );
 
@@ -881,7 +880,7 @@ void Map::ChangeViewItem( Item* item )
                 }
                 else
                 {
-                    Data.Look.GetMixed( Data.Look, lookdata );
+                    cr->Data.Look.GetMixed( Data.Look, lookdata );
                     lookdata.InitCritter( *cr );
                     allowed = LookData::CheckLook( *this, lookdata, hideitem ).IsLook;
                 }
@@ -911,7 +910,7 @@ void Map::ChangeViewItem( Item* item )
                 }
                 else
                 {
-                    Data.Look.GetMixed( Data.Look, lookdata );
+                    cr->Data.Look.GetMixed( Data.Look, lookdata );
                     lookdata.InitCritter( *cr );
                     allowed = LookData::CheckLook( *this, lookdata, hideitem ).IsLook;
                 }
@@ -924,6 +923,7 @@ void Map::ChangeViewItem( Item* item )
             cr->EventShowItemOnMap( item, false, NULL );
         }
     }
+    Script::CallStackInfoWriteAndClose( );
 }
 
 void Map::AnimateItem( Item* item, uchar from_frm, uchar to_frm )
@@ -1026,12 +1026,9 @@ Item* Map::GetItemGag( ushort hx, ushort hy )
 
 void Map::GetItemsHex( ushort hx, ushort hy, ItemPtrVec& items, bool lock )
 {
-    for( auto it = hexItems.begin(), end = hexItems.end(); it != end; ++it )
-    {
-        Item* item = *it;
-        if( item->AccHex.HexX == hx && item->AccHex.HexY == hy )
-            items.push_back( item );
-    }
+    MapExt* ext = GetExt( );
+    if( ext )
+        ext->GetItemsHex( hx, hy, 0, items );
 
     if( lock )
         for( auto it = items.begin(), end = items.end(); it != end; ++it )
@@ -1040,12 +1037,9 @@ void Map::GetItemsHex( ushort hx, ushort hy, ItemPtrVec& items, bool lock )
 
 void Map::GetItemsHexEx( ushort hx, ushort hy, uint radius, ushort pid, ItemPtrVec& items, bool lock )
 {
-    for( auto it = hexItems.begin(), end = hexItems.end(); it != end; ++it )
-    {
-        Item* item = *it;
-        if( ( !pid || item->GetProtoId() == pid ) && DistGame( item->AccHex.HexX, item->AccHex.HexY, hx, hy ) <= radius )
-            items.push_back( item );
-    }
+    MapExt* ext = GetExt( );
+    if( ext )
+        ext->GetItemsHexEx( hx, hy, radius, pid, items );
 
     if( lock )
         for( auto it = items.begin(), end = items.end(); it != end; ++it )
@@ -2551,6 +2545,13 @@ void MapExt::Clear( bool full )
 {
     ItemPtrVec del_items = HexDecals;
     HexDecals.clear( );
+    
+    for( auto it = ItemsHexs.begin( ), end = ItemsHexs.end( ); it != end; ++it )
+    {
+        it->second->clear( );
+        delete it->second;
+    }
+    ItemsHexs.clear( );
 
     if( full )
     {
@@ -2578,4 +2579,112 @@ void MapExt::EraseDecal( Item* item )
         return;
 
     HexDecals.erase( it );
+}
+
+struct HexItemsDescription
+{
+    union
+    {
+        uint key;
+        struct
+        {
+            ushort x;
+            ushort y;
+        } description;
+    };
+};
+
+void MapExt::GetItemsHex( ushort hx, ushort hy, ushort pid, ItemPtrVec& items )
+{
+    HexItemsDescription key;
+    key.description.x = hx;
+    key.description.y = hy;
+
+    auto itVec = ItemsHexs.find( key.key );
+    if( itVec != ItemsHexs.end( ) )
+    {
+        for( auto it = itVec->second->begin( ), end = itVec->second->end( ); it != end; ++it )
+        {
+            if( !pid || pid == ( * it )->GetProtoId() )
+                items.push_back( *it );
+        }
+    }
+}
+
+void MapExt::GetItemsHexEx( ushort hx, ushort hy, uint radius, ushort pid, ItemPtrVec& items )
+{
+    GetItemsHex( hx, hy, pid, items );
+    short* sx, * sy;
+    GetHexOffsets( hx & 1, sx, sy );
+    uint   count = NumericalNumber( radius ) * DIRS_COUNT;
+    short  maxhx = GetMaxHexX( );
+    short  maxhy = GetMaxHexY( );
+    for( uint i = 0; i < count; i++ )
+    {
+        short hx_ = ( short )hx + sx[ i ];
+        short hy_ = ( short )hy + sy[ i ];
+        if( hx_ >= 0 && hy_ >= 0 && hx_ < maxhx && hy_ < maxhy )
+            GetItemsHex( hx_, hy_, pid, items );
+    }
+}
+
+void MapExt::SetItem( Item* item, ushort hx, ushort hy )
+{
+    if( item->GetType( ) == ITEM_TYPE_DECAL )
+    {
+        SetDecal( item, hx, hy );
+    }
+    else
+    {
+        HexItemsDescription key;
+        key.description.x = hx;
+        key.description.y = hy;
+
+        auto it = ItemsHexs.find( key.key );
+        if( it != ItemsHexs.end( ) )
+        {
+            it->second->push_back( item );
+        }
+        else
+        {
+            ItemsHexs.insert( PAIR( key.key, new std::vector<Item*>() ) );
+            it = ItemsHexs.find( key.key );
+            if( it != ItemsHexs.end( ) )
+            {
+                it->second->push_back( item );
+            }
+            else
+            {
+
+            }
+        }
+    }
+}
+
+void MapExt::EraseItem( Item* item )
+{
+    if( item->GetType( ) == ITEM_TYPE_DECAL )
+    {
+        EraseDecal( item );
+    }
+    else
+    {
+        HexItemsDescription key;
+        key.description.x = item->AccHex.HexX;
+        key.description.y = item->AccHex.HexY;
+
+        auto itVec = ItemsHexs.find( key.key );
+        if( itVec != ItemsHexs.end( ) )
+        {
+            for( auto it = itVec->second->begin( ), end = itVec->second->end( ); it != end; ++it )
+            {
+                Item* itItem = *it;
+                if( item->GetId( ) == itItem->GetId( ) )
+                {
+                    itVec->second->erase( it );
+                    break;
+                }
+            }
+        }
+    }
 }

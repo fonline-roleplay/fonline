@@ -10160,9 +10160,6 @@ void FOClient::CurDraw()
         if( !cr || !Chosen || cr == Chosen )
             break;
 
-        if( !HexMngr.TraceBullet( Chosen->GetHexX(), Chosen->GetHexY(), cr->GetHexX(), cr->GetHexY(), Chosen->GetAttackDist(), 0.0f, cr, false, NULL, 0, NULL, NULL, NULL, true, nullptr) )
-            break;
-
         int hit = ScriptGetHitProc( cr, HIT_LOCATION_NONE );
         if( !hit )
             break;

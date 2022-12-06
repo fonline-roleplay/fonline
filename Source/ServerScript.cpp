@@ -6452,7 +6452,9 @@ bool FOServer::SScriptFunc::CheckLook( Map& map, LookData& look, LookData& hide,
     mixHide.isruning = hide.isruning;
     mixHide.access = hide.access;
 
+    Script::StartCallStack( "CheckLook", false );
     auto result = LookData::CheckLook( map, mixLook, mixHide );
+    Script::CallStackInfoWriteAndClose( );
     isView = result.IsView;
     isHear = result.IsHear;
     return result.IsLook;
@@ -6475,7 +6477,7 @@ void FOServer::SScriptFunc::Crit_SendFileToClient( Critter* critter, ScriptStrin
     auto dataExt = client->GetDataExt( );
     
     file->AddRef( );
-    dataExt->QueueFileRecive.push( file );
+    // dataExt->QueueFileRecive.push( file );
 
     file->Release( );
 }

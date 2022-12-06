@@ -270,10 +270,28 @@ public:
     ItemPtrVec HexDecals;
     uchar* HexFlags;
 
+    std::map<uint, std::vector<Item*>*> ItemsHexs;
+
+    inline ushort GetMaxHexX( )
+    {
+        return Proto->Header.MaxHexX;
+    }
+
+    inline ushort GetMaxHexY( )
+    {
+        return Proto->Header.MaxHexY;
+    }
+
     Map* GetMap( );
     void Clear( bool full );
     void SetDecal( Item* item, ushort hx, ushort hy );
     void EraseDecal( Item* item );
+
+    void GetItemsHex( ushort hx, ushort hy, ushort pid, ItemPtrVec& items );
+    void GetItemsHexEx( ushort hx, ushort hy, uint radius, ushort pid, ItemPtrVec& items );
+    void SetItem( Item* item, ushort hx, ushort hy );
+    void EraseItem( Item* item );
+
     short RefCounter;
     void AddRef( )
     {

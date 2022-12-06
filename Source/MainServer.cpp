@@ -40,6 +40,7 @@ FOServer   Server;
 string     UpdateLogName;
 Thread     GUIUpdateThread;
 
+extern Mutex CallStackInfoRootLocker;
 // GUI
 Fl_Window* GuiWindow;
 Fl_Box*    GuiLabelGameTime, * GuiLabelClients, * GuiLabelIngame, * GuiLabelNPC, * GuiLabelLocCount,
@@ -621,26 +622,9 @@ void UpdateInfo()
             break;
 		case 7:
 		{
-		#define JOB_NOP                   ( 0 )
-		#define JOB_CLIENT                ( 1 )
-		#define JOB_CRITTER               ( 2 )
-		#define JOB_MAP                   ( 3 )
-		#define JOB_TIME_EVENTS           ( 4 )
-		#define JOB_GARBAGE_ITEMS         ( 5 )
-		#define JOB_GARBAGE_CRITTERS      ( 6 )
-		#define JOB_GARBAGE_LOCATIONS     ( 7 )
-		#define JOB_GARBAGE_SCRIPT        ( 8 )
-		#define JOB_GARBAGE_VARS          ( 9 )
-		#define JOB_DEFERRED_RELEASE      ( 10 )
-		#define JOB_GAME_TIME             ( 11 )
-		#define JOB_BANS                  ( 12 )
-		#define JOB_LOOP_SCRIPT           ( 13 )
-		#define JOB_THREAD_LOOP           ( 14 )
-		#define JOB_THREAD_SYNCHRONIZE    ( 15 )
-		#define JOB_THREAD_FINISH         ( 16 )
-
-			static char* jobNames[] = { "none", "clients", "critters", "maps", "time events", "garbage items", "garbage critters", "garbage locations", "garbage sript", "garbage vars", "deferred release", "game time", "bans", "loopp script", "thread loop", "thread synchronize", "finish" };
-			std_str = "";
+            std_str = Script::FormatCallstackInfo( );
+			/*static char* jobNames[ ] = { "none", "clients", "critters", "maps", "time events", "garbage items", "garbage critters", "garbage locations", "garbage sript", "garbage vars", "deferred release", "game time", "bans", "loop script", "thread loop", "thread synchronize", "finish" };
+			std_str = "Jobs:\n";
 			char buf[ MAX_FOTEXT ] = { 0 };
 			for( uint i = 0; i < JOB_COUNT; i++ )
 			{
@@ -654,6 +638,24 @@ void UpdateInfo()
 				Str::Format( buf, "%s-\t%f\n", name, Server.Statistics.JobPerformance[ i ] );
 				std_str += buf;
 			}
+            std_str += "\n\nScripts:\n";
+            
+            uint max = 0, current = 0;
+            
+            ScriptsCallTimeLocker.Lock( );
+            for( auto it = ScriptsCallTime.begin( ); it != ScriptsCallTime.end( ); it++ )
+            {
+                Str::Format( buf, "%s:\t\t\t%i  %i  %i\n", it->first.c_str( ), it->second->CurrentTime, it->second->MaxTime, it->second->AllTime );
+                std_str += buf;
+                if( it->second->IsRoot )
+                {
+                    current += it->second->CurrentTime;
+                    max += it->second->MaxTime;
+                }
+            }
+            ScriptsCallTimeLocker.Unlock( );
+            Str::Format( buf, "\nCurrent: %i\tMax: %i\n", current, max );
+            std_str += buf;*/
 			UpdateLogName = "JobPerformance";
 		}
 			break;

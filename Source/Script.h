@@ -8,6 +8,7 @@
 #include "AngelScript/Preprocessor/pragma.h"
 #include <vector>
 #include <string>
+#include <sstream>
 
 #define GLOBAL_CONTEXT_STACK_SIZE    ( 10 )
 #define CONTEXT_BUFFER_SIZE          ( 512 )
@@ -35,59 +36,59 @@ struct ReservedScriptFunction
 namespace Script
 {
     bool Init( bool with_log, Preprocessor::PragmaCallback* pragma_callback, const char* dll_target );
-    void Finish();
-    bool InitThread();
-    void FinishThread();
+    void Finish( );
+    bool InitThread( );
+    void FinishThread( );
 
     void* LoadDynamicLibrary( const char* dll_name );
     void  SetWrongGlobalObjects( StrVec& names );
     void  SetConcurrentExecution( bool enabled );
     void  SetLoadLibraryCompiler( bool enabled );
 
-    void UnloadScripts();
+    void UnloadScripts( );
     bool ReloadScripts( const char* config, const char* key, bool skip_binaries, const char* file_pefix = NULL );
     bool BindReservedFunctions( const char* config, const char* key, ReservedScriptFunction* bind_func, uint bind_func_count );
 
-    #ifdef FONLINE_SERVER
+#ifdef FONLINE_SERVER
     namespace Profiler
     {
         void   SetData( uint sample_time, uint save_time, bool dynamic_display );
-        void   Init();
+        void   Init( );
         void   AddModule( const char* module_name );
-        void   EndModules();
-        void   SaveFunctionsData();
-        void   Finish();
-        string GetStatistics();
-        bool   IsActive();
+        void   EndModules( );
+        void   SaveFunctionsData( );
+        void   Finish( );
+        string GetStatistics( );
+        bool   IsActive( );
     }
-    #endif
+#endif
 
     void DummyAddRef( void* );
     void DummyRelease( void* );
 
-    asIScriptEngine* GetEngine();
+    asIScriptEngine* GetEngine( );
     void             SetEngine( asIScriptEngine* engine );
     asIScriptEngine* CreateEngine( Preprocessor::PragmaCallback* pragma_callback, const char* dll_target );
     void             FinishEngine( asIScriptEngine*& engine );
 
-    asIScriptContext* CreateContext();
+    asIScriptContext* CreateContext( );
     void              FinishContext( asIScriptContext*& ctx );
-    asIScriptContext* GetGlobalContext();
+    asIScriptContext* GetGlobalContext( );
     void              PrintContextCallstack( asIScriptContext* ctx );
 
-    const char*      GetActiveModuleName();
-    const char*      GetActiveFuncName();
+    const char* GetActiveModuleName( );
+    const char* GetActiveFuncName( );
     asIScriptModule* GetModule( const char* name );
     asIScriptModule* CreateModule( const char* module_name );
 
-    #ifdef FONLINE_SERVER
-    uint GetGCStatistics();
-    void ScriptGarbager();
+#ifdef FONLINE_SERVER
+    uint GetGCStatistics( );
+    void ScriptGarbager( );
     void CollectGarbage( asDWORD flags = asGC_FULL_CYCLE );
-    #else
+#else
     void SetGarbageCollectTime( uint ticks );
     void CollectGarbage( bool force = true );
-    #endif
+#endif
 
     void SetRunTimeout( uint suspend_timeout, uint message_timeout );
 
@@ -99,28 +100,28 @@ namespace Script
     bool  LoadScript( const char* module_name, const char* source, bool skip_binary, const char* file_prefix = NULL );
     bool  LoadScript( const char* module_name, const uchar* bytecode, uint len );
 
-	string GetTraceback( );
+    string GetTraceback( );
 
-    int  BindImportedFunctions();
+    int  BindImportedFunctions( );
     int  Bind( const char* module_name, const char* func_name, const char* decl, bool is_temp, bool disable_log = false );
     int  Bind( const char* script_name, const char* decl, bool is_temp, bool disable_log = false );
-	int  BindByFunction( asIScriptFunction*, bool is_temp, bool disable_log = false );
-    int  RebindFunctions();
+    int  BindByFunction( asIScriptFunction*, bool is_temp, bool disable_log = false );
+    int  RebindFunctions( );
     bool ReparseScriptName( const char* script_name, char* module_name, char* func_name, bool disable_log = false );
 
-    const StrVec& GetScriptFuncCache();
+    const StrVec& GetScriptFuncCache( );
     void          ResizeCache( uint count );
     uint          GetScriptFuncNum( const char* script_name, const char* decl );
     int           GetScriptFuncBindId( uint func_num );
     string        GetScriptFuncName( uint func_num );
 
     // Script execution
-    void BeginExecution();
-    void EndExecution();
+    void BeginExecution( );
+    void EndExecution( );
     void AddEndExecutionCallback( EndExecutionCallback func );
 
-	bool RunModuleInitFunctions( asIScriptModule* module );
-	bool RunAllModuleInitFunctions( );
+    bool RunModuleInitFunctions( asIScriptModule* module );
+    bool RunAllModuleInitFunctions( );
 
     bool   PrepareContext( int bind_id, const char* call_func, const char* ctx_info );
     void   SetArgUChar( uchar value );
@@ -132,20 +133,20 @@ namespace Script
     void   SetArgDouble( double value );
     void   SetArgObject( void* value );
     void   SetArgAddress( void* value );
-    bool   RunPrepared();
-    uint   GetReturnedUInt();
-    bool   GetReturnedBool();
-    void*  GetReturnedObject();
-    float  GetReturnedFloat();
-    double GetReturnedDouble();
-    void*  GetReturnedRawAddress();
+    bool   RunPrepared( );
+    uint   GetReturnedUInt( );
+    bool   GetReturnedBool( );
+    void* GetReturnedObject( );
+    float  GetReturnedFloat( );
+    double GetReturnedDouble( );
+    void* GetReturnedRawAddress( );
 
-    bool SynchronizeThread();
-    bool ResynchronizeThread();
+    bool SynchronizeThread( );
+    bool ResynchronizeThread( );
 
     // Logging
-    bool StartLog();
-    void EndLog();
+    bool StartLog( );
+    void EndLog( );
     void Log( const char* str );
     void LogA( const char* str );
     void LogError( const char* call_func, const char* error );
@@ -160,13 +161,13 @@ namespace Script
     template< typename Type >
     void AppendVectorToArray( vector< Type >& vec, CScriptArray* arr )
     {
-        if( !vec.empty() && arr )
+        if( !vec.empty( ) && arr )
         {
-            uint i = (uint) arr->GetSize();
-            arr->Resize( (asUINT) ( i + (uint) vec.size() ) );
-            for( uint k = 0, l = (uint) vec.size(); k < l; k++, i++ )
+            uint i = ( uint )arr->GetSize( );
+            arr->Resize( ( asUINT )( i + ( uint )vec.size( ) ) );
+            for( uint k = 0, l = ( uint )vec.size( ); k < l; k++, i++ )
             {
-                Type* p = (Type*) arr->At( i );
+                Type* p = ( Type* )arr->At( i );
                 *p = vec[ k ];
             }
         }
@@ -174,15 +175,15 @@ namespace Script
     template< typename Type >
     void AppendVectorToArrayRef( vector< Type >& vec, CScriptArray* arr )
     {
-        if( !vec.empty() && arr )
+        if( !vec.empty( ) && arr )
         {
-            uint i = (uint) arr->GetSize();
-            arr->Resize( (asUINT) ( i + (uint) vec.size() ) );
-            for( uint k = 0, l = (uint) vec.size(); k < l; k++, i++ )
+            uint i = ( uint )arr->GetSize( );
+            arr->Resize( ( asUINT )( i + ( uint )vec.size( ) ) );
+            for( uint k = 0, l = ( uint )vec.size( ); k < l; k++, i++ )
             {
-                Type* p = (Type*) arr->At( i );
+                Type* p = ( Type* )arr->At( i );
                 *p = vec[ k ];
-                ( *p )->AddRef();
+                ( *p )->AddRef( );
             }
         }
     }
@@ -191,18 +192,90 @@ namespace Script
     {
         if( arr )
         {
-            uint count = (uint) arr->GetSize();
+            uint count = ( uint )arr->GetSize( );
             if( count )
             {
                 vec.resize( count );
                 for( uint i = 0; i < count; i++ )
                 {
-                    Type* p = (Type*) arr->At( i );
+                    Type* p = ( Type* )arr->At( i );
                     vec[ i ] = *p;
                 }
             }
         }
     }
+
+    class CallStackInfo
+    {
+        typedef std::map<std::string, CallStackInfo*> CallStackInfoMap;
+
+        CallStackInfo* root;
+        CallStackInfo* absolutle;
+        CallStackInfo* parent;
+        CallStackInfoMap childs;
+
+        struct _RootData
+        {
+            CallStackInfoMap AbsolutleMap;
+        } *RootData;
+
+        uint timer;
+        uint linesize;
+        uint childdeep;
+
+        bool isscript;
+
+        uint CycleDelta;
+    public:
+
+        std::string name;
+
+        CallStackInfo( const std::string key, bool isscript, Script::CallStackInfo* _parent, bool isabs = false );
+        void Next( );
+        void Add( uint delta );
+
+        CallStackInfo* GetChild( std::string key );
+        CallStackInfo* GetOrCreateChild( std::string key, bool isscript );
+        CallStackInfo* GetOrCreateAbsolutle( std::string key, bool isscript );
+
+        void CallBegin( );
+        void CallEnd( );
+
+        void GarbareInfo( std::stringstream& stream, bool isstatistic = true, int deep = 0 );
+
+        uint CurrentTime;
+        uint MaxTime;
+        uint AllTime;
+
+        uint CurrentTimeOne;
+        uint MaxTimeOne;
+
+        inline CallStackInfo* GetParent( )
+        {
+            return parent;
+        }
+
+        inline bool IsScript( )
+        {
+            return isscript;
+        }
+
+        static void SynchronizeCallStacks( );
+        static void SynchronizeCallStacksChilds( CallStackInfo* info0, CallStackInfo* info1 );
+
+        static int CallStackInfoMode;
+
+#ifdef FONLINE_SERVER
+        static void RegistrationScriptCustomCallStack( asIScriptEngine* engine );
+#endif
+    };
+
+#ifdef FONLINE_SERVER
+    void CallStackNextCycle( );
+    void StartCallStack( const char* key, bool isscript );
+    void CallStackInfoWriteAndClose( );
+    std::string FormatCallstackInfo( bool iscurrent = false );
+#endif
 }
 
 class CBytecodeStream: public asIBinaryStream

@@ -190,7 +190,7 @@ LookData::Result LookData::CheckLook( Map& map, LookData& look, LookData& hide )
         result.IsView = true;
         result.IsHear = true;
         return result;
-    }//*/
+    }*/
     LookData::Result result = { false };
     result.IsView = true;
     result.IsHear = true;
@@ -243,9 +243,9 @@ LookData::Result LookData::CheckLook( Map& map, LookData& look, LookData& hide )
 
     static TraceData trace;
     static UShortPair block;
-    if( !trace.Walls ) trace.Walls = new SceneryClRefVec( );
-    if( !trace.Items ) trace.Items = new ItemPtrVec( );
-    if( !trace.Block ) trace.Block = &block;
+    //if( !trace.Walls ) trace.Walls = new SceneryClRefVec( );
+    // if( !trace.Items ) trace.Items = new ItemPtrVec( );
+    //if( !trace.Block ) trace.Block = &block;
 
     block.first = 0;
     block.second = 0;
@@ -258,66 +258,72 @@ LookData::Result LookData::CheckLook( Map& map, LookData& look, LookData& hide )
     trace.Dist = dist;
     MapMngr.TraceBullet( trace ); 
 
-    ProtoItem* protoItem = nullptr;
-    for( auto it = trace.Walls->begin( ), end = trace.Walls->end( ); it != end; ++it )
+    if( trace.Walls )
     {
-        protoItem = ItemMngr.GetProtoItem( ( *it )->ProtoId );
-        if( protoItem && !protoItem->IsPassed( ) )
+        ProtoItem* protoItem = nullptr;
+        for( auto it = trace.Walls->begin( ), end = trace.Walls->end( ); it != end; ++it )
         {
-            uint disttoitem = DistGame( look.hexx, look.hexy, ( *it )->MapX, ( *it )->MapY );
-            if( disttoitem < max_hear )
+            protoItem = ItemMngr.GetProtoItem( ( *it )->ProtoId );
+            if( protoItem && !protoItem->IsPassed( ) )
             {
-                max_hear = disttoitem + ( uint )( ( max_hear - disttoitem ) * LookData::WallMaterialHearMultiplier[ protoItem->Material ] * 0.01 );
+                uint disttoitem = DistGame( look.hexx, look.hexy, ( *it )->MapX, ( *it )->MapY );
+                if( disttoitem < max_hear )
+                {
+                    max_hear = disttoitem + ( uint )( ( max_hear - disttoitem ) * LookData::WallMaterialHearMultiplier[ protoItem->Material ] * 0.01 );
+                }
             }
         }
-    }
-
-    Item* traceItem = nullptr;
-    bool isHex = false;
-    for( auto it = trace.Items->begin( ), end = trace.Items->end( ); it != end; ++it )
-    {
-        traceItem = *it;
-        isHex = ( look.hexx == traceItem->AccHex.HexX && look.hexy == traceItem->AccHex.HexY );
-
-        if( traceItem->IsViewBlocks( ) )
-        {
-            if( isHex )
-                view_mul *= 0.01 * traceItem->Proto->FORPData.Look_Block;
-            else
-            {
-                uint disttoitem = DistGame( look.hexx, look.hexy, traceItem->AccHex.HexX, traceItem->AccHex.HexY );
-                if( disttoitem >= max_view )
-                    break;
-
-                uint distchange = max_view - disttoitem;
-                max_view = disttoitem + ( uint )( distchange * traceItem->Proto->FORPData.Look_BlockDir[ GetFarDir( look.hexx, look.hexy, traceItem->AccHex.HexX, traceItem->AccHex.HexY ) ] * 0.01 );
-            }
-        }
-
-        if( traceItem->IsHearBlocks( ) )
-        {
-            if( isHex )
-                hear_mul *= 0.01 * traceItem->Proto->FORPData.Hear_Block;
-            else
-            {
-                uint disttoitem = DistGame( look.hexx, look.hexy, traceItem->AccHex.HexX, traceItem->AccHex.HexY );
-                if( disttoitem >= max_hear )
-                    break;
-
-                uint distchange = max_hear - disttoitem;
-                max_hear = disttoitem + ( uint )( distchange * traceItem->Proto->FORPData.Hear_BlockDir[ GetFarDir( look.hexx, look.hexy, traceItem->AccHex.HexX, traceItem->AccHex.HexY ) ] * 0.01 );
-            }
-        }
+        trace.Walls->clear( );
     }
     
-    if( dist > max_view  || ( !trace.IsFullTrace && block.first != hide.hexx && block.second != hide.hexy ) )
+    if( trace.Items )
+    {
+        Item* traceItem = nullptr;
+        bool isHex = false;
+        for( auto it = trace.Items->begin( ), end = trace.Items->end( ); it != end; ++it )
+        {
+            traceItem = *it;
+            isHex = ( look.hexx == traceItem->AccHex.HexX && look.hexy == traceItem->AccHex.HexY );
+
+            if( traceItem->IsViewBlocks( ) )
+            {
+                if( isHex )
+                    view_mul *= 0.01 * traceItem->Proto->FORPData.Look_Block;
+                else
+                {
+                    uint disttoitem = DistGame( look.hexx, look.hexy, traceItem->AccHex.HexX, traceItem->AccHex.HexY );
+                    if( disttoitem >= max_view )
+                        break;
+
+                    uint distchange = max_view - disttoitem;
+                    max_view = disttoitem + ( uint )( distchange * traceItem->Proto->FORPData.Look_BlockDir[ GetFarDir( look.hexx, look.hexy, traceItem->AccHex.HexX, traceItem->AccHex.HexY ) ] * 0.01 );
+                }
+            }
+
+            if( traceItem->IsHearBlocks( ) )
+            {
+                if( isHex )
+                    hear_mul *= 0.01 * traceItem->Proto->FORPData.Hear_Block;
+                else
+                {
+                    uint disttoitem = DistGame( look.hexx, look.hexy, traceItem->AccHex.HexX, traceItem->AccHex.HexY );
+                    if( disttoitem >= max_hear )
+                        break;
+
+                    uint distchange = max_hear - disttoitem;
+                    max_hear = disttoitem + ( uint )( distchange * traceItem->Proto->FORPData.Hear_BlockDir[ GetFarDir( look.hexx, look.hexy, traceItem->AccHex.HexX, traceItem->AccHex.HexY ) ] * 0.01 );
+                }
+            }
+        }
+        trace.Items->clear( );
+    }
+    
+    if( dist > max_view  || ( !trace.IsFullTrace && ( !trace.Block || ( block.first != hide.hexx && block.second != hide.hexy ) ) ) )
         result.IsView = false;
 
     if( dist > ( uint )( max_hear * hear_mul ) )
         result.IsHear = false;
 
-    trace.Walls->clear( );
-    trace.Items->clear( );
     return result;
 }
 #endif

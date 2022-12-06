@@ -226,8 +226,8 @@ bool CritterManager::LoadCrittersFile( void* f, uint version )
         if( data.IsDataExt )
             FileRead( f, &data_ext, sizeof( data_ext ) );
 
-        memzero( &data_ext.FileCollectionContext, sizeof( data_ext.FileCollectionContext ) );
-        memzero( &data_ext.QueueFileRecive, sizeof( data_ext.QueueFileRecive ) );
+        //memzero( &data_ext.FileCollectionContext, sizeof( data_ext.FileCollectionContext ) );
+        //memzero( &data_ext.QueueFileRecive, sizeof( data_ext.QueueFileRecive ) );
 
         Critter::CrTimeEventVec tevents;
         uint                    te_count;
