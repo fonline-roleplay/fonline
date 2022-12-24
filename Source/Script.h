@@ -120,8 +120,8 @@ namespace Script
     void EndExecution( );
     void AddEndExecutionCallback( EndExecutionCallback func );
 
-    bool RunModuleInitFunctions( asIScriptModule* module );
-    bool RunAllModuleInitFunctions( );
+    int RunModuleFunctions( asIScriptModule* module, std::string& declName );
+    int RunAllModuleFunctions( std::string declName );
 
     bool   PrepareContext( int bind_id, const char* call_func, const char* ctx_info );
     void   SetArgUChar( uchar value );

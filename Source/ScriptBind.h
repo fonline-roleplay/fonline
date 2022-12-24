@@ -1115,6 +1115,9 @@ BIND_ASSERT( engine->RegisterGlobalFunction( "void RefreshMap(bool onlyTiles, bo
 BIND_ASSERT( engine->RegisterGlobalFunction( "void MouseClick(int x, int y, int button, int cursor)", asFUNCTION( BIND_CLASS Global_MouseClick ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "void KeyboardPress(uint8 key1, uint8 key2)", asFUNCTION( BIND_CLASS Global_KeyboardPress ), asCALL_CDECL ) );
 
+BIND_ASSERT( engine->RegisterFuncdef( "void FileCollectionUploadFuncdef( int result, uint id, string& filePath, int type, int p0, int p1, int p2 )" ) );
+BIND_ASSERT( engine->RegisterGlobalFunction( "bool AddFileToServerCollection( const string&in filePath, int type, int p0 = 0, int p1 = 0, int p2 = 0, FileCollectionUploadFuncdef@+ func = nullptr )", asFUNCTION( BIND_CLASS Global_AddFileToServerCollection ), asCALL_CDECL ) );
+
 BIND_ASSERT( engine->RegisterGlobalFunction( "FOWindow@+ get_MainWindow()", asFUNCTION( BIND_CLASS Global_GetMainWindows ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "void SetDebugLookMode( bool isDebug )", asFUNCTION( BIND_CLASS Global_SetDebugLookMode ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "bool IsDebugLookMode( )", asFUNCTION( BIND_CLASS Global_IsDebugLookMode ), asCALL_CDECL ) );
@@ -1123,6 +1126,8 @@ BIND_ASSERT( engine->RegisterGlobalFunction( "bool IsDebugLookMode( )", asFUNCTI
 BIND_ASSERT( engine->RegisterGlobalFunction( "void OpenWebLink(string& text)", asFUNCTION( BIND_CLASS Global_OpenWebLink ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "void ChosenRefreshMap()", asFUNCTION( BIND_CLASS Global_ChosenRefreshMap ), asCALL_CDECL ) );
 //===================================================================
+
+BIND_ASSERT( engine->RegisterGlobalFunction( "string@ WindowsExplorer_OpenFileName( string& filters )", asFUNCTION( BIND_CLASS Global_WindowsExplorer_OpenFileName ), asCALL_CDECL ) );
 
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __ConsoleActive", &BIND_CLASS ConsoleActive ) );
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __GmapActive", &BIND_CLASS GmapActive ) );
@@ -1516,6 +1521,8 @@ BIND_ASSERT( engine->RegisterGlobalProperty( "bool __ShowSpriteCuts", &GameOpt.S
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __ShowDrawOrder", &GameOpt.ShowDrawOrder ) );
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __SplitTilesCollection", &GameOpt.SplitTilesCollection ) );
 #endif
+
+BIND_ASSERT( engine->RegisterGlobalFunction( "int RunAllFunctions( string&in funcName )", asFUNCTION( BIND_CLASS Global_RunAllFunctions ), asCALL_CDECL ) );
 
 #if defined ( BIND_CLIENT ) || defined ( BIND_MAPPER )
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __Quit", &GameOpt.Quit ) );

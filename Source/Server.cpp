@@ -3553,6 +3553,9 @@ bool FOServer::InitReal()
     FileManager::CreateDirectoryTree( FileManager::GetFullPath( "", PT_SERVER_SAVE ) );
     FileManager::CreateDirectoryTree( FileManager::GetFullPath( "", PT_SERVER_CLIENTS ) );
     FileManager::CreateDirectoryTree( FileManager::GetFullPath( "", PT_SERVER_BANS ) );
+    FileManager::CreateDirectoryTree( FileManager::GetFullPath( "", PT_SERVER_LOGS ) );
+    FileManager::CreateDirectoryTree( FileManager::GetFullPath( "", PT_SERVER_DUMPS ) );
+    FileManager::CreateDirectoryTree( FileManager::GetFullPath( "", PT_SERVER_PROFILER ) );
 
     ConstantsManager::Initialize( PT_SERVER_DATA ); // Generate name of defines
     if( !InitScriptSystem() )
@@ -3597,7 +3600,7 @@ bool FOServer::InitReal()
     if( !ItemMngr.CheckProtoFunctions() )
         return false;                          // Check valid of proto functions
 
-	Script::RunAllModuleInitFunctions( );
+	Script::RunAllModuleFunctions( "ModuleInit" );
     // Initialization script
     Script::PrepareContext( ServerFunctions.Init, _FUNC_, "Game" );
     Script::RunPrepared();

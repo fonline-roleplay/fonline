@@ -1,3 +1,6 @@
+#include <iostream>
+#include <fstream>
+
 #include "StdAfx.h"
 #include "Client.h"
 #include "Access.h"
@@ -7,7 +10,6 @@
 #include "imgui.h"
 #include "ImGuiOverlay.h"
 #include "LookData.h"
-
 // Check buffer for error
 #define CHECK_IN_BUFF_ERROR                          \
     if( Bin.IsError() )                              \
@@ -52,6 +54,8 @@ FOClient::FOClient(): Active( false )
     DaySumRGB = 0;
     CurMode = 0;
     CurModeLast = 0;
+
+    CurrentFileSend = nullptr;
 
     GmapCar.Car = NULL;
     Animations.resize( 10000 );
@@ -2929,13 +2933,40 @@ void FOClient::ParseSocket()
     {
         NetProcess();
 
-        if( GameOpt.HelpInfo && Bout.IsEmpty() && !PingTick && Timer::FastTick() >= PingCallTick )
+        if( CurrentFileSend )
         {
-            Net_SendPing( PING_PING );
-            PingTick = Timer::FastTick();
+            switch( CurrentFileSend->state.current )
+            {
+            case 0: // Begin - Send a request
+                CurrentFileSend->state.current++;
+                break;
+
+            case 1: // Wait answer
+                break;
+
+            case 2: // Send
+                break;
+
+            case 3: // Finish
+                CurrentFileSend->Release( );
+                CurrentFileSend = nullptr;
+                break;
+
+            default: break;
+
+            }
         }
 
-        NetOutput();
+        if( Bout.IsEmpty( ) )
+        {
+            if( GameOpt.HelpInfo && !PingTick && Timer::FastTick( ) >= PingCallTick )
+            {
+                Net_SendPing( PING_PING );
+                PingTick = Timer::FastTick( );
+            }
+        }
+        else
+            NetOutput( );
     }
 
     if( !IsConnected )
@@ -3939,6 +3970,15 @@ void FOClient::Net_SendRefereshMe()
     Bout << NETMSG_SEND_REFRESH_ME;
 
     WaitPing();
+}
+
+void FOClient::Net_SendFileToServer( FileSendBuffer* filebuffer )
+{
+    if( CurrentFileSend )
+        return;
+
+    filebuffer->AddRef( );
+    CurrentFileSend = filebuffer;
 }
 
 void FOClient::Net_OnLoginSuccess()
@@ -10054,6 +10094,7 @@ bool FOClient::ReloadScripts()
 		{ &ClientFunctions.FOWindowEvent, "window_event", "FOWindowEventResult %s(FOWindow@, FOWindowEvent, FOWindowEventData@)" },
 		{ &ClientFunctions.ImGuiRender, "imgui_render", "void %s( FOWindow@ )" },
 		{ &ClientFunctions.CritterNameRender, "critter_name_render", "void %s( CritterCl@, int, int, int, int, uint )" },
+		{ &ClientFunctions.FileCollectionDownload, "file_collection_download", "void %s( int type, uint fileid )" }
     };
     const char*            config = msg_script.GetStr( STR_INTERNAL_SCRIPT_CONFIG );
     if( !Script::BindReservedFunctions( config, "client", BindGameFunc, sizeof( BindGameFunc ) / sizeof( BindGameFunc[ 0 ] ) ) )
@@ -10076,7 +10117,7 @@ bool FOClient::ReloadScripts()
 
     WriteLog( "Load scripts complete.\n" );
 
-	Script::RunAllModuleInitFunctions( );
+	Script::RunAllModuleFunctions( "ModuleInit" );
 
     return true;
 }
@@ -11476,6 +11517,31 @@ void FOClient::SScriptFunc::Global_KeyboardPress( uchar key1, uchar key2 )
 	MainWindow->KeyboardEventsLocker.Unlock( );
 }
 
+void operator>>( std::ifstream& stream, FileSendBuffer& buff )
+{
+    stream >> buff.buffer;
+}
+
+bool FOClient::SScriptFunc::Global_AddFileToServerCollection( ScriptString& fileName, int collection_type, int p0, int p1, int p2, asIScriptFunction* func )
+{
+    static FileSendBuffer buffer;
+    if( buffer.refcounter > 1 )
+        return false;
+
+    std::ifstream file( fileName.c_str( ) );
+    if( !file.is_open( ) )
+        return false;
+
+    file.seekg( ios_base::end );
+    int size = ( int )file.tellg( );
+    file.seekg( ios_base::beg );
+    buffer.Resize( size );
+    file >> buffer;
+    file.close( );
+
+    return true;
+}
+
 void FOClient::SScriptFunc::Global_GetTime( ushort& year, ushort& month, ushort& day, ushort& day_of_week, ushort& hour, ushort& minute, ushort& second, ushort& milliseconds )
 {
     DateTime dt;
@@ -11696,6 +11762,11 @@ void FOClient::SScriptFunc::Global_RunServerScriptUnsafe( ScriptString& func_nam
     if( p4 )
         Script::AssignScriptArrayInVector< uint >( dw, p4 );
     Self->Net_SendRunScript( true, func_name.c_str(), p0, p1, p2, p3 ? p3->c_str() : NULL, dw );
+}
+
+int FOClient::SScriptFunc::Global_RunAllFunctions( ScriptString& func_name )
+{
+    return Script::RunAllModuleFunctions( func_name.c_std_str() );
 }
 
 uint FOClient::SScriptFunc::Global_LoadSprite( ScriptString& spr_name, int path_index )
@@ -12614,4 +12685,14 @@ void FOClient::VisualLookBorder::Draw( )
         SprMngr.DrawPoints( View, PRIMITIVE_LINESTRIP, &GameOpt.SpritesZoom );
     if( IsDrawHear )
         SprMngr.DrawPoints( Hear, PRIMITIVE_LINESTRIP, &GameOpt.SpritesZoom );
+}
+
+extern string WindowsExplorer_OpenFileName( const char* filter );
+
+ScriptString* FOClient::SScriptFunc::Global_WindowsExplorer_OpenFileName( ScriptString& filter )
+{
+    string str = WindowsExplorer_OpenFileName( filter.c_str( ) );
+    if( !str.empty( ) )
+        return new ScriptString( str );
+    return nullptr;
 }

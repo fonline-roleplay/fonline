@@ -186,7 +186,10 @@ bool FOServer::InitScriptSystem()
         { &ServerFunctions.PlayerGetAccess, "player_getaccess", "bool %s(Critter&,int,string&)" },
         { &ServerFunctions.PlayerAllowCommand, "player_allowcommand", "bool %s(Critter@,string@,uint8)" },
         { &ServerFunctions.CheckTrapLook, "check_trap_look", "bool %s(Map&,Critter&,Item&)" },
-		{ &ServerFunctions.MapInit, "map_init", "bool %s(Map&,bool)"  }
+		{ &ServerFunctions.MapInit, "map_init", "bool %s(Map&,bool)"  },
+		{ &ServerFunctions.FileCollectionDownload, "file_collection_download", "void %s( Critter& critter, int type, uint fileid, int p0, int p1, int p2 )"  },
+		{ &ServerFunctions.FileCollectionUpload, "file_collection_upload", "bool %s( Critter& critter, int type, uint fileid, int p0, int p1, int p2 )"  },
+		{ &ServerFunctions.FileCollectionDownloadReqest, "file_collection_download_reqest", "bool %s( Critter& critter, int type, uint fileid, int p0, int p1, int p2 )"  }
     };
     if( !Script::BindReservedFunctions( (char*) scripts_cfg.GetBuf(), "server", BindGameFunc, sizeof( BindGameFunc ) / sizeof( BindGameFunc[ 0 ] ) ) )
     {
@@ -6139,6 +6142,11 @@ bool FOServer::SScriptFunc::Global_LoadConstants( int const_collection, ScriptSt
     return ConstantsManager::AddCollection( const_collection, file_name->c_str(), path_type );
 }
 
+int FOServer::SScriptFunc::Global_RunAllFunctions( ScriptString& func_name )
+{
+    return Script::RunAllModuleFunctions( func_name.c_std_str( ) );
+}
+
 bool FOServer::SScriptFunc::Global_IsCritterCanWalk( uint cr_type )
 {
     if( !CritType::IsEnabled( cr_type ) )
@@ -6477,7 +6485,7 @@ void FOServer::SScriptFunc::Crit_SendFileToClient( Critter* critter, ScriptStrin
     auto dataExt = client->GetDataExt( );
     
     file->AddRef( );
-    // dataExt->QueueFileRecive.push( file );
+    //dataExt->QueueFileRecive.push( file );
 
     file->Release( );
 }

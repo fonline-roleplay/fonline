@@ -1196,6 +1196,7 @@ struct BindClass
     static void Global_SetDefaultFont()     {}
     static void Global_MouseClick()         {}
     static void Global_KeyboardPress()      {}
+    static void Global_SendFileToServer()   {}
 	static void Global_OpenWebLink()        {}
 	static void Global_ChosenRefreshMap()   {}
     #endif
@@ -1218,6 +1219,10 @@ struct BindClass
     static void Global_AddConstant()            {}
     static void Global_LoadConstants()          {}
     static void Global_AllowSlot()              {}
+    static void Global_RunAllFunctions( )       {}
+
+    static void Global_AddFileToServerCollection( ){}
+    static void Global_WindowsExplorer_OpenFileName( ){}
 };
 
 #ifdef BIND_CLIENT

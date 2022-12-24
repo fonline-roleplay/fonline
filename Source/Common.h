@@ -473,6 +473,7 @@ struct ClientScriptFunctions
     int FOWindowEvent;
 	int ImGuiRender;
 	int CritterNameRender;
+    int FileCollectionDownload;
 } extern ClientFunctions;
 
 struct MapperScriptFunctions
@@ -557,6 +558,9 @@ struct ServerScriptFunctions
     int PlayerAllowCommand;
     int CheckTrapLook;
 	int MapInit;
+    int FileCollectionDownload;
+    int FileCollectionUpload;
+    int FileCollectionDownloadReqest;
 } extern ServerFunctions;
 
 // Net events

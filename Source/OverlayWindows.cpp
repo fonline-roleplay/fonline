@@ -5,6 +5,9 @@
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
 
+#include <Windows.h>
+#include <Commdlg.h>
+
 using namespace FOnline;
 
 const string TextMessage[] =
@@ -162,4 +165,23 @@ void OverlayWindows::Init( )
 	CreateDevice( );
 	Imgui->Init( Window, GetDevice( ) );
 	this->mutex.Unlock( );
+}
+
+string WindowsExplorer_OpenFileName( const char* filter )
+{
+	OPENFILENAME ofn;
+	char fileName[ MAX_PATH ] = "";
+	ZeroMemory( &ofn, sizeof( ofn ) );
+	ofn.lStructSize = sizeof( OPENFILENAME );
+	ofn.hwndOwner = nullptr;
+	ofn.lpstrFilter = filter;
+	ofn.lpstrFile = fileName;
+	ofn.nMaxFile = MAX_PATH;
+	ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+	ofn.lpstrDefExt = "";
+	ofn.lpstrInitialDir = ".";
+
+	if( GetOpenFileName( &ofn ) )
+		return fileName;
+	return "";
 }

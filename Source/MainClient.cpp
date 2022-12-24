@@ -186,7 +186,7 @@ int main( int argc, char** argv )
     // Place on top
     #ifdef FO_WINDOWS
     if( GameOpt.AlwaysOnTop )
-        SetWindowPos( MainWindow->GetHandle( ), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE );
+        SetWindowPos( MainWindow->GetHandle( ), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE );    
     #endif
 
     // Start

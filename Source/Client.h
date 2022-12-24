@@ -82,6 +82,7 @@ public:
     void ParseKeyboard();
     void ParseMouse();
 
+    FileSendBuffer* CurrentFileSend;
     char*         ComBuf;
     uint          ComLen;
     BufferManager Bin;
@@ -145,6 +146,8 @@ public:
     void Net_SendRunScript( bool unsafe, const char* func_name, int p0, int p1, int p2, const char* p3, UIntVec& p4 );
     void Net_SendKarmaVoting( uint crid, bool val_up );
     void Net_SendRefereshMe();
+
+    void Net_SendFileToServer( FileSendBuffer* filebuffer );
 
     void Net_OnLoginSuccess();
     void Net_OnAddCritter( bool is_npc );
@@ -610,6 +613,8 @@ public:
         static void          Global_RunServerScript( ScriptString& func_name, int p0, int p1, int p2, ScriptString* p3, CScriptArray* p4 );
         static void          Global_RunServerScriptUnsafe( ScriptString& func_name, int p0, int p1, int p2, ScriptString* p3, CScriptArray* p4 );
 
+        static int           Global_RunAllFunctions( ScriptString& func_name );
+
         static uint Global_LoadSprite( ScriptString& spr_name, int path_index );
         static uint Global_LoadSpriteHash( uint name_hash, uchar dir );
         static int  Global_GetSpriteWidth( uint spr_id, int spr_index );
@@ -655,7 +660,11 @@ public:
         static void          Global_MouseClick( int x, int y, int button, int cursor );
         static void          Global_KeyboardPress( uchar key1, uchar key2 );
 
+        static bool          Global_AddFileToServerCollection( ScriptString& fileName, int collection_type, int p0, int p1, int p2, asIScriptFunction* func );
+        
 		static FOWindow*     Global_GetMainWindows( );
+
+        static ScriptString* Global_WindowsExplorer_OpenFileName( ScriptString& filter );
 
         static void Global_SetDebugLookMode( bool isDebug );
         static bool Global_IsDebugLookMode( );

@@ -925,6 +925,7 @@ public:
         static ScriptString* Global_GetConstantName( int const_collection, int value );
         static void          Global_AddConstant( int const_collection, ScriptString* name, int value );
         static bool          Global_LoadConstants( int const_collection, ScriptString* file_name, int path_type );
+        static int           Global_RunAllFunctions( ScriptString& func_name );
         // static uint Global_GetVersion();
         static bool          Global_IsCritterCanWalk( uint cr_type );
         static bool          Global_IsCritterCanRun( uint cr_type );

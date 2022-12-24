@@ -2341,26 +2341,28 @@ void Script::AddEndExecutionCallback( EndExecutionCallback func )
     #endif
 }
 
-bool Script::RunModuleInitFunctions( asIScriptModule* module )
+int Script::RunModuleFunctions( asIScriptModule* module, std::string& declName )
 {
 	if( !module )
-		return false;
+		return -1;
+
+    int result = 0;
 
 	for( asUINT i = 0; i < module->GetFunctionCount( ); i++ )
 	{
 		asIScriptFunction* func = module->GetFunctionByIndex( i );
-		if( !Str::Compare( func->GetName( ), "ModuleInit" ) )
+		if( !Str::Compare( func->GetName( ), declName.c_str() ) )
 			continue;
 
 		if( func->GetParamCount( ) != 0 )
 		{
-			WriteLog( "Init function '{}::{}' can't have arguments.\n", func->GetNamespace( ), func->GetName( ) );
-			return false;
+			// WriteLog( "Init function '{}::{}' can't have arguments.\n", func->GetNamespace( ), func->GetName( ) );
+            continue;
 		}
-		if( func->GetReturnTypeId( ) != asTYPEID_VOID && func->GetReturnTypeId( ) != asTYPEID_BOOL )
+		if( func->GetReturnTypeId( ) != asTYPEID_VOID /* && func->GetReturnTypeId( ) != asTYPEID_BOOL*/ )
 		{
-			WriteLog( "Init function '{}::{}' must have void or bool return type.\n", func->GetNamespace( ), func->GetName( ) );
-			return false;
+            // WriteLog( "Init function '{}::{}' must have void or bool return type.\n", func->GetNamespace( ), func->GetName( ) );
+            continue;
 		}
 
 		uint bind_id = Script::BindByFunction( func, true );
@@ -2369,26 +2371,31 @@ bool Script::RunModuleInitFunctions( asIScriptModule* module )
 		if( !Script::RunPrepared( ) )
 		{
 			WriteLog( "Error executing init function '%s::%s'.\n", func->GetNamespace( ), func->GetName( ) );
-			return false;
+            continue;
 		}
 
-		if( func->GetReturnTypeId( ) == asTYPEID_BOOL && !Script::GetReturnedBool( ) )
+        result++;
+
+		/*if( func->GetReturnTypeId( ) == asTYPEID_BOOL && !Script::GetReturnedBool( ) )
 		{
 			WriteLog( "Initialization stopped by init function '%s::%s'.\n", func->GetNamespace( ), func->GetName( ) );
-			return false;
-		}
+            continue;
+		}*/
 	}
-	return true;
+	return result;
 }
 
-bool Script::RunAllModuleInitFunctions( )
+int Script::RunAllModuleFunctions( std::string declName )
 {
+    int result = 0;
+    int result_module = 0;
 	for( uint i = 0; i < Engine->GetModuleCount( ); i++ )
 	{
-		if( !RunModuleInitFunctions( Engine->GetModuleByIndex( i ) ) )
-			return false;
+        result_module = RunModuleFunctions( Engine->GetModuleByIndex( i ), declName );
+        if( result_module > 0 )
+            result += result_module;
 	}
-	return true;
+	return result;
 }
 
 bool Script::PrepareContext( int bind_id, const char* call_func, const char* ctx_info )
@@ -2984,7 +2991,7 @@ CScriptArray *Script::CreateArray( const char* type )
 /************************************************************************/
 /*                                                                      */
 /************************************************************************/
-
+#ifdef FONLINE_SERVER
 Script::CallStackInfo::CallStackInfo( const std::string _key, bool _isscript, Script::CallStackInfo* _parent, bool isabs ):
     RootData( nullptr ), name( _key ), CurrentTime( 0 ), AllTime(0), absolutle( nullptr ), parent( _parent ),
     MaxTime( 0 ), CurrentTimeOne( 0 ), MaxTimeOne( 0 ), childs( ), CycleDelta( 0 ),
@@ -3139,7 +3146,6 @@ void Script::CallStackInfo::SynchronizeCallStacksChilds( CallStackInfo* info0, C
         SynchronizeCallStacksChilds( info0->GetOrCreateChild( it->first, it->second->isscript ), it->second );
 }
 
-#ifdef FONLINE_SERVER
 void Script::CallStackInfo::RegistrationScriptCustomCallStack( asIScriptEngine* engine )
 {
     class CustomCallStack

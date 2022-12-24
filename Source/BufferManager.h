@@ -92,4 +92,81 @@ private:
     }
 };
 
+struct FileSendBuffer
+{
+    int refcounter;
+
+    size_t realsize;
+    char* buffer;
+
+    size_t size;
+
+    struct State
+    {
+        int current;
+
+        int packetcurrent;
+        int packetcount;
+        size_t packetsize;
+
+        State( )
+        {
+            current = 0;
+
+            packetcurrent = 0;
+            packetcount = 0;
+            packetsize = 0;
+        }
+
+        void CalculateInformation( size_t sizebuffer, size_t packet )
+        {
+            packetsize = packet;
+            packetcurrent = 0;
+            packetcount = sizebuffer / packet;
+        }
+
+        void Finish( )
+        {
+            current = 0;
+
+            packetcurrent = 0;
+            packetcount = 0;
+            packetsize = 0;
+        }
+    } state;
+
+    FileSendBuffer( ): size( 0 ), realsize( 0 ), buffer( nullptr )
+    {
+        refcounter = 1;
+    }
+
+    void Resize( size_t newsize )
+    {
+        if( newsize != size )
+        {
+            if( newsize > realsize )
+            {
+                if( realsize != 0 )
+                {
+                    delete[ realsize ] buffer;
+                }
+                realsize = newsize;
+                buffer = new char[ realsize ];
+            }
+
+            size = newsize;
+        }
+    }
+
+    void AddRef( )
+    {
+        refcounter++;
+    }
+
+    void Release( )
+    {
+        refcounter--;
+    }
+};
+
 #endif // __BUFFER_MANAGER__
