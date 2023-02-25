@@ -590,6 +590,9 @@
     <ClInclude Include="..\Source\LookData.h">
       <Filter>Client</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\md5.h">
+      <Filter>Client</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Zlib\adler32.c">
@@ -938,6 +941,9 @@
       <Filter>Client</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\LookData.cpp">
+      <Filter>Client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\md5.cpp">
       <Filter>Client</Filter>
     </ClCompile>
   </ItemGroup>

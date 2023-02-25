@@ -1848,6 +1848,18 @@ void FOServer::Process( ClientPtr& cl )
                 BIN_END( cl );
                 continue;
             }
+            case NETMSG_PREPARE_SEND_FILE_TO_SERVER:
+            {
+                Process_PrepareSendFileToServer( cl );
+                BIN_END( cl );
+                continue;
+            }
+			case NETMSG_SEND_FILE_PART_TO_SERVER:
+			{
+				Process_ReciveFilePart( cl );
+				BIN_END( cl );
+				continue;
+			}
             default:
             {
                 cl->Bin.SkipMsg( msg );

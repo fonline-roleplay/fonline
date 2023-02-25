@@ -5,6 +5,11 @@
 
 #define NET_BUFFER_SIZE    ( 2048 )
 
+#ifdef FONLINE_SERVER
+map< uint, FileSendBuffer*> FileSendBuffer::lib;
+map< uint, FileSendBuffer*> FileSendBuffer::DownloadLib;
+#endif
+
 BufferManager::BufferManager()
 {
     MEMORY_PROCESS( MEMORY_NET_BUFFER, NET_BUFFER_SIZE + sizeof( BufferManager ) );
@@ -529,7 +534,11 @@ bool BufferManager::NeedProcess()
         return ( NETMSG_SCORES_SIZE + bufReadPos <= bufEndPos );
     case NETMSG_SEND_LOOK_DATA:
         return (NETMSG_SEND_LOOK_DATA_SIZE + bufReadPos <= bufEndPos);
-    default:
+    case NETMSG_ALLOW_SEND_FILE_TO_SERVER:
+        return (NETMSG_ALLOW_SEND_FILE_TO_SERVER_SIZE + bufReadPos <= bufEndPos);
+	case NETMSG_NEXT_FILE_PART_REQEST:
+		return ( NETMSG_NEXT_FILE_PART_REQEST_SIZE + bufReadPos <= bufEndPos );
+	default:
         break;
     }
 
@@ -579,6 +588,8 @@ bool BufferManager::NeedProcess()
     case NETMSG_USER_HOLO_STR:
     case NETMSG_AUTOMAPS_INFO:
 	case NETMSG_SEND_FILE_IN_COLLECTION:
+    case NETMSG_PREPARE_SEND_FILE_TO_SERVER:
+	case NETMSG_SEND_FILE_PART_TO_SERVER:
         return ( msg_len + bufReadPos <= bufEndPos );
     default:
         // Unknown message
@@ -809,6 +820,11 @@ void BufferManager::SkipMsg( uint msg )
     case NETMSG_SEND_LOOK_DATA:
         size = NETMSG_SEND_LOOK_DATA_SIZE;
         break;
+    case NETMSG_ALLOW_SEND_FILE_TO_SERVER:
+        size = NETMSG_ALLOW_SEND_FILE_TO_SERVER_SIZE;
+    case NETMSG_NEXT_FILE_PART_REQEST:
+        size = NETMSG_NEXT_FILE_PART_REQEST_SIZE;
+        break;
 
     case NETMSG_CHECK_UID0:
     case NETMSG_CHECK_UID1:
@@ -847,6 +863,8 @@ void BufferManager::SkipMsg( uint msg )
     case NETMSG_USER_HOLO_STR:
     case NETMSG_AUTOMAPS_INFO:
 	case NETMSG_SEND_FILE_IN_COLLECTION:
+    case NETMSG_PREPARE_SEND_FILE_TO_SERVER:
+	case NETMSG_SEND_FILE_PART_TO_SERVER:
     {
         // Changeable size
         EncryptKey( sizeof( msg ) );
@@ -990,6 +1008,10 @@ bool BufferManager::IsValidMsg( uint msg )
     case NETMSG_AUTOMAPS_INFO:
 	case NETMSG_SEND_FILE_IN_COLLECTION:
     case NETMSG_SEND_LOOK_DATA:
+    case NETMSG_PREPARE_SEND_FILE_TO_SERVER:
+    case NETMSG_ALLOW_SEND_FILE_TO_SERVER:
+	case NETMSG_SEND_FILE_PART_TO_SERVER:
+	case NETMSG_NEXT_FILE_PART_REQEST:
         return true;
     default:
         return false;

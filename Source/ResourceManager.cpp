@@ -171,14 +171,12 @@ AnyFrames* ResourceManager::GetAnim( uint name_hash, int dir, int res_type )
     // Find already loaded
     uint id = name_hash + dir;
     auto it = loadedAnims.find( id );
-    if( it != loadedAnims.end() )
+    if( it != loadedAnims.end( ) )
         return ( *it ).second.Anim;
-
     // Load new animation
     const char* fname = Str::GetName( name_hash );
     if( !fname )
         return NULL;
-
     SprMngr.SurfType = res_type;
     AnyFrames* anim = SprMngr.LoadAnimation( fname, PT_DATA, ANIM_DIR( dir ) | ANIM_FRM_ANIM_PIX );
     SprMngr.SurfType = RES_NONE;

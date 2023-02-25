@@ -83,6 +83,8 @@ public:
     void ParseMouse();
 
     FileSendBuffer* CurrentFileSend;
+    asIScriptFunction* CurrentFileSendCellback;
+
     char*         ComBuf;
     uint          ComLen;
     BufferManager Bin;
@@ -147,7 +149,12 @@ public:
     void Net_SendKarmaVoting( uint crid, bool val_up );
     void Net_SendRefereshMe();
 
-    void Net_SendFileToServer( FileSendBuffer* filebuffer );
+    void Net_SendFileToServer( FileSendBuffer* filebuffer, int collection_type, int p0, int p1, int p2, asIScriptFunction* func );
+
+	void Net_SendFilePartToServer( );
+
+	void Net_SendFileInCollection( );
+	void Net_ReciveFileInCollection( );
 
     void Net_OnLoginSuccess();
     void Net_OnAddCritter( bool is_npc );
@@ -218,10 +225,18 @@ public:
     void Net_OnCheckUID4();
     void Net_OnViewMap();
 
-	void Net_SendFileInCollection( );
-	void Net_ReciveFileInCollection( );
+    void Net_OnGetNextFilePart( );
+
+    void Net_OnServerFinishFileDownload( );
+
+    void Net_OnAllowSendFileToServer( );
+	void Net_OnNextFilePartReqestT( );
 
     void Net_OnLookData();
+
+    void Net_OnPrepareSendFileToServer( );
+
+	void Net_OnNextFilePartReqest( );
 
     void OnText( const char* str, uint crid, int how_say, ushort intellect );
     void OnMapText( const char* str, ushort hx, ushort hy, uint color, ushort intellect );

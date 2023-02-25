@@ -94,28 +94,38 @@ private:
 
 struct FileSendBuffer
 {
+private:
+	size_t realsize;
     int refcounter;
 
-    size_t realsize;
+public:
     char* buffer;
 
-    size_t size;
+    size_t filesize;
+	int type;
+    std::string MD5;
 
     struct State
     {
-        int current;
-
-        int packetcurrent;
-        int packetcount;
+        uint packetcurrent;
+        uint packetcount;
         size_t packetsize;
+		size_t bytework;
+		size_t size;
+
+		int params[ 3 ];
+		std::string path;
 
         State( )
         {
-            current = 0;
-
             packetcurrent = 0;
             packetcount = 0;
             packetsize = 0;
+			bytework = 0;
+			params[ 0 ] = 0;
+			params[ 1 ] = 0;
+			params[ 2 ] = 0;
+			path = "";
         }
 
         void CalculateInformation( size_t sizebuffer, size_t packet )
@@ -123,26 +133,110 @@ struct FileSendBuffer
             packetsize = packet;
             packetcurrent = 0;
             packetcount = sizebuffer / packet;
+			bytework = 0;
+			size = sizebuffer;
+			params[ 0 ] = 0;
+			params[ 1 ] = 0;
+			params[ 2 ] = 0;
+			path = "";
+        }
+
+        inline bool Validation( )
+        {
+            return size > bytework;
         }
 
         void Finish( )
         {
-            current = 0;
-
             packetcurrent = 0;
             packetcount = 0;
             packetsize = 0;
         }
-    } state;
+    };
 
-    FileSendBuffer( ): size( 0 ), realsize( 0 ), buffer( nullptr )
+private:
+#ifdef FONLINE_CLIENT
+    State _state;
+#endif
+#ifdef FONLINE_SERVER
+    std::map<uint, State*> _state;
+#endif
+public:
+
+    FileSendBuffer( ): filesize( 0 ), realsize( 0 ), buffer( nullptr ), type(0)
     {
+        MD5 = "";
         refcounter = 1;
     }
+#ifdef FONLINE_CLIENT
+    State* GetState( uint clientid )
+    {
+        return &_state;
+    }
+#endif
+#ifdef FONLINE_SERVER
+    State* GetState( uint clientid )
+    {
+        return _state[clientid];
+    }
+#endif
+
+    inline void CalculateInformation( size_t packet, uint clientid )
+    {
+        State* state = GetState( clientid );
+        if( state )
+            state->CalculateInformation( filesize, packet );
+    }
+
+    int PushToBout( BufferManager& bout, uint clientid )
+    {
+		int result = 0;
+        State* state = GetState( clientid );
+        if( state )
+        {
+            if( state->Validation() )
+            {
+				uint s = state->packetsize;
+				if( ( state->packetcurrent + 1 ) * state->packetsize > filesize )
+				{
+					s = filesize - ( state->packetcurrent * state->packetsize );
+					result = -1;
+				}
+				else result = 1;
+				bout.Push( &buffer[state->packetcurrent++ * state->packetsize], s );
+				state->bytework += s;
+            }
+			else result = -2;
+        }
+		return result;
+    }
+
+	int PopToBin( BufferManager& bin, uint clientid )
+	{
+		int result = 0;
+		State* state = GetState( clientid );
+		if( state )
+		{
+			if( state->Validation( ) )
+			{
+				uint s = state->packetsize;
+				if( ( state->packetcurrent + 1 ) * state->packetsize > filesize )
+				{
+					s = filesize - ( state->packetcurrent * state->packetsize );
+					result = -1;
+				}
+				else result = 1;
+				bin.Pop( &buffer[ state->packetcurrent++ * state->packetsize ], s );
+				state->bytework += s;
+			}
+			else result = -2;
+		}
+		return result;
+	}
 
     void Resize( size_t newsize )
     {
-        if( newsize != size )
+        if( newsize != filesize )
         {
             if( newsize > realsize )
             {
@@ -150,11 +244,12 @@ struct FileSendBuffer
                 {
                     delete[ realsize ] buffer;
                 }
-                realsize = newsize;
+                realsize = newsize + 1;
                 buffer = new char[ realsize ];
+				memzero( buffer, realsize );
             }
 
-            size = newsize;
+            filesize = newsize;
         }
     }
 
@@ -167,6 +262,71 @@ struct FileSendBuffer
     {
         refcounter--;
     }
+
+	inline int GetRefCount( )
+	{
+		return refcounter;
+	}
+
+#ifdef FONLINE_SERVER
+	static map< uint, FileSendBuffer*> lib;
+	static map< uint, FileSendBuffer*> DownloadLib;
+
+	static FileSendBuffer* FileSendBuffer::GetDownloadBuffer( string md5 )
+	{
+		auto r = DownloadLib.find( Str::GetHash( md5.c_str( ) ) );
+		if( r != DownloadLib.end( ) )
+			return r->second;
+		return nullptr;
+	}
+
+	static FileSendBuffer* FileSendBuffer::GetFileBuffer( string md5 )
+	{
+		auto r = lib.find( Str::GetHash( md5.c_str( ) ) );
+		if( r != lib.end( ) )
+			return r->second;
+		return nullptr;
+	}
+
+	static FileSendBuffer* FileSendBuffer::GetDownloadFileBuffer( uint clientid )
+	{
+		auto r = DownloadLib.find( clientid );
+		if( r != DownloadLib.end( ) )
+			return r->second;
+		return nullptr;
+	}
+
+	static FileSendBuffer* FileSendBuffer::CreateDownloadFileBuffer( string md5, uint clientid )
+	{
+		if( GetFileBuffer( md5 ) )
+			return nullptr;
+
+		auto result = new FileSendBuffer( );
+		result->MD5 = md5;
+		DownloadLib.insert( PAIR( clientid, result ) );
+		return result;
+	}
+	
+	bool FinishDownload( )
+	{
+		auto r = DownloadLib.find( Str::GetHash( MD5.c_str( ) ) );
+		if( r == DownloadLib.end( ) )
+			return false;
+
+		if( GetFileBuffer( MD5 ) )
+			return false;
+
+		lib.insert( PAIR( Str::GetHash( MD5.c_str() ), this ) );
+		return true;
+	}
+
+	void CreateState( uint clientid )
+	{
+		auto state = new State;
+		_state.insert( PAIR( clientid, state ) );
+	}
+#endif
+
 };
 
 #endif // __BUFFER_MANAGER__

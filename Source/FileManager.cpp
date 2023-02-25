@@ -234,48 +234,54 @@ bool FileManager::LoadFile( const char* fname, int path_type )
     char folder_path[ MAX_FOPATH ] = { 0 };
     char dat_path[ MAX_FOPATH ] = { 0 };
     bool only_folder = false;
-
-    if( path_type >= 0 && path_type < PATH_LIST_COUNT )
+    if( fname[ 1 ] != ':' )
     {
-        // Make data path
-        Str::Copy( dat_path, PathList[ path_type ] );
-        Str::Append( dat_path, fname );
-        FormatPath( dat_path );
-        #if defined ( FO_LINUX )
-        if( dat_path[ 0 ] == '.' && dat_path[ 1 ] == DIR_SLASH_C )
-            Str::CopyBack( dat_path ), Str::CopyBack( dat_path );
-        #endif
+        if( path_type >= 0 && path_type < PATH_LIST_COUNT )
+        {
+            // Make data path
+            Str::Copy( dat_path, PathList[ path_type ] );
+            Str::Append( dat_path, fname );
+            FormatPath( dat_path );
+#if defined ( FO_LINUX )
+            if( dat_path[ 0 ] == '.' && dat_path[ 1 ] == DIR_SLASH_C )
+                Str::CopyBack( dat_path ), Str::CopyBack( dat_path );
+#endif
 
-        // Make folder path
-        Str::Copy( folder_path, GetDataPath( path_type ) );
-        FormatPath( folder_path );
-        Str::Append( folder_path, dat_path );
+            // Make folder path
+            Str::Copy( folder_path, GetDataPath( path_type ) );
+            FormatPath( folder_path );
+            Str::Append( folder_path, dat_path );
 
-        // Check for full path
-        #if defined ( FO_WINDOWS )
-        if( dat_path[ 1 ] == ':' )
-            only_folder = true;                        // C:/folder/file.ext
-        #else // FO_LINUX
-        if( dat_path[ 0 ] == DIR_SLASH_C )
-            only_folder = true;                        // /folder/file.ext
-        #endif
-        if( dat_path[ 0 ] == '.' && dat_path[ 1 ] == '.' && dat_path[ 2 ] == DIR_SLASH_C )
-            only_folder = true;                        // ../folder/file.ext
+            // Check for full path
+#if defined ( FO_WINDOWS )
+            if( dat_path[ 1 ] == ':' )
+                only_folder = true;                        // C:/folder/file.ext
+#else // FO_LINUX
+            if( dat_path[ 0 ] == DIR_SLASH_C )
+                only_folder = true;                        // /folder/file.ext
+#endif
+            if( dat_path[ 0 ] == '.' && dat_path[ 1 ] == '.' && dat_path[ 2 ] == DIR_SLASH_C )
+                only_folder = true;                        // ../folder/file.ext
 
-        // Check for empty
-        if( !dat_path[ 0 ] || !folder_path[ 0 ] )
+            // Check for empty
+            if( !dat_path[ 0 ] || !folder_path[ 0 ] )
+                return false;
+        }
+        else if( path_type == -1 )
+        {
+            Str::Copy( folder_path, fname );
+            FormatPath( folder_path );
+            only_folder = true;
+        }
+        else
+        {
+            WriteLogF( _FUNC_, " - Invalid path<%d>.\n", path_type );
             return false;
-    }
-    else if( path_type == -1 )
-    {
-        Str::Copy( folder_path, fname );
-        FormatPath( folder_path );
-        only_folder = true;
+        }
     }
     else
     {
-        WriteLogF( _FUNC_, " - Invalid path<%d>.\n", path_type );
-        return false;
+        Str::Copy( folder_path, fname );
     }
 
     void* file = FileOpen( folder_path, false );

@@ -2453,7 +2453,6 @@ void FOServer::Process_LogIn( ClientPtr& cl )
     cl->Send_LoadMap( NULL );
     cl->Send_LookData();
 }
-
 void FOServer::Process_SingleplayerSaveLoad( Client* cl )
 {
     if( !Singleplayer )
@@ -4420,6 +4419,107 @@ void FOServer::Process_KarmaVoting( Client* cl )
         Script::SetArgBool( is_up );
         Script::RunPrepared();
     }
+}
+
+void FOServer::Process_PrepareSendFileToServer( Client* cl )
+{
+    int collection_type;
+    int p0, p1, p2;
+	uint msg_len;
+    size_t realsize, sizemd5;
+    string md5 = "";
+
+	cl->Bin >> msg_len;
+    cl->Bin >> collection_type;
+    cl->Bin >> p0;
+    cl->Bin >> p1;
+    cl->Bin >> p2;
+    cl->Bin >> realsize;
+    cl->Bin >> sizemd5;
+
+
+    if( sizemd5 )
+    {
+        char* md5chars = new char[ sizemd5 + 1 ];
+		md5chars[ sizemd5 ] = 0;
+        cl->Bin.Pop( md5chars, sizemd5 );
+        md5 = md5chars;
+        delete[ sizemd5 + 1 ] md5chars;
+    }
+
+	CHECK_IN_BUFF_ERROR( cl );
+
+    bool isallow = false;
+    if( Script::PrepareContext( ServerFunctions.FileCollectionDownloadReqest, _FUNC_, cl->GetInfo( ) ) )
+    {
+         // bool %s( Critter& critter, int type, uint fileid, int p0, int p1, int p2 )
+        Script::SetArgObject( cl );
+        Script::SetArgUInt( collection_type );
+        Script::SetArgUInt( p0 );
+        Script::SetArgUInt( p1 );
+        Script::SetArgUInt( p2 );
+
+        if( Script::RunPrepared( ) )
+        {
+            isallow = Script::GetReturnedBool( );
+        }
+    }
+
+	uint partsize = 1024;
+    if( isallow )
+    {
+		auto file = FileSendBuffer::GetFileBuffer( md5 );
+		if( file )
+		{
+			isallow = false;
+		}
+		else
+		{
+			file = FileSendBuffer::GetDownloadFileBuffer( cl->GetId( ) );
+			if( file )
+			{
+				isallow = false;
+			}
+			else
+			{
+				file = FileSendBuffer::CreateDownloadFileBuffer( md5, cl->GetId( ) );
+				file->Resize( realsize );
+				file->CreateState( cl->GetId( ) );
+				file->CalculateInformation( partsize, cl->GetId( ) );
+			}
+		}
+    }
+
+    BOUT_BEGIN( cl );
+    cl->Bout << ( uint )NETMSG_ALLOW_SEND_FILE_TO_SERVER;
+    cl->Bout << isallow;
+	cl->Bout << partsize;
+    BOUT_END( cl );
+}
+
+void FOServer::Process_ReciveFilePart( Client * cl )
+{
+	auto file = FileSendBuffer::GetDownloadFileBuffer( cl->GetId( ) );
+	uint msg_len;
+	cl->Bin >> msg_len;
+	int result = file->PopToBin( cl->Bin, cl->GetId( ) );
+	CHECK_IN_BUFF_ERROR( cl );
+
+	if( result < 0 )
+	{
+		file->FinishDownload( );
+
+		FILE* f;
+		fopen_s( &f, Str::FormatBuf( "data//avatars//%s.png", file->MD5.c_str() ), "wb" );
+		fwrite( file->buffer, 1, file->GetState( cl->GetId( ) )->bytework, f );
+		fclose( f );
+	}
+	else
+	{
+		BOUT_BEGIN( cl );
+		cl->Bout << ( uint )NETMSG_NEXT_FILE_PART_REQEST;
+		BOUT_END( cl );
+	}
 }
 
 void FOServer::Process_GiveGlobalInfo( Client* cl )

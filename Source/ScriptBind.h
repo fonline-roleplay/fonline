@@ -876,6 +876,7 @@ BIND_ASSERT( engine->RegisterGlobalFunction( "CraftItem@ GetCraftItem(uint num)"
 #endif
 
 #ifdef BIND_CLIENT
+
 BIND_ASSERT( engine->RegisterInterface( "FOWindowEventData" ) );
 
 BIND_ASSERT( engine->RegisterEnum( "FOWindowEvent" ) );
@@ -1127,7 +1128,7 @@ BIND_ASSERT( engine->RegisterGlobalFunction( "void OpenWebLink(string& text)", a
 BIND_ASSERT( engine->RegisterGlobalFunction( "void ChosenRefreshMap()", asFUNCTION( BIND_CLASS Global_ChosenRefreshMap ), asCALL_CDECL ) );
 //===================================================================
 
-BIND_ASSERT( engine->RegisterGlobalFunction( "string@ WindowsExplorer_OpenFileName( string& filters )", asFUNCTION( BIND_CLASS Global_WindowsExplorer_OpenFileName ), asCALL_CDECL ) );
+BIND_ASSERT( engine->RegisterGlobalFunction( "string@+ WindowsExplorer_OpenFile( string& filters )", asFUNCTION( BIND_CLASS Global_WindowsExplorer_OpenFileName ), asCALL_CDECL ) );
 
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __ConsoleActive", &BIND_CLASS ConsoleActive ) );
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __GmapActive", &BIND_CLASS GmapActive ) );

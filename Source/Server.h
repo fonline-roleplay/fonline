@@ -83,6 +83,9 @@ public:
     static void Process_RunServerScript( Client* cl );
     static void Process_KarmaVoting( Client* cl );
 
+    static void Process_PrepareSendFileToServer( Client* cl );
+	static void Process_ReciveFilePart( Client* cl );
+
     static void Send_MapData( Client* cl, ProtoMap* pmap, uchar send_info );
     static void Send_MsgData( Client* cl, uint lang, ushort num_msg, FOMsg& data_msg );
     static void Send_ProtoItemData( Client* cl, uchar type, ProtoItemVec& data, uint data_hash );

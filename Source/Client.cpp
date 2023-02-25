@@ -10,6 +10,9 @@
 #include "imgui.h"
 #include "ImGuiOverlay.h"
 #include "LookData.h"
+
+#include "md5.h"
+
 // Check buffer for error
 #define CHECK_IN_BUFF_ERROR                          \
     if( Bin.IsError() )                              \
@@ -56,6 +59,7 @@ FOClient::FOClient(): Active( false )
     CurModeLast = 0;
 
     CurrentFileSend = nullptr;
+    CurrentFileSendCellback = nullptr;
 
     GmapCar.Car = NULL;
     Animations.resize( 10000 );
@@ -526,6 +530,8 @@ bool FOClient::Init()
     // Disable dumps if multiple window detected
     if( MulWndArray[ 11 ] )
         CatchExceptions( NULL, 0 );
+
+	InitMD5( );
 
     return true;
 }
@@ -2933,30 +2939,6 @@ void FOClient::ParseSocket()
     {
         NetProcess();
 
-        if( CurrentFileSend )
-        {
-            switch( CurrentFileSend->state.current )
-            {
-            case 0: // Begin - Send a request
-                CurrentFileSend->state.current++;
-                break;
-
-            case 1: // Wait answer
-                break;
-
-            case 2: // Send
-                break;
-
-            case 3: // Finish
-                CurrentFileSend->Release( );
-                CurrentFileSend = nullptr;
-                break;
-
-            default: break;
-
-            }
-        }
-
         if( Bout.IsEmpty( ) )
         {
             if( GameOpt.HelpInfo && !PingTick && Timer::FastTick( ) >= PingCallTick )
@@ -3303,6 +3285,12 @@ void FOClient::NetProcess()
         case NETMSG_VIEW_MAP:
             Net_OnViewMap();
             break;
+        case NETMSG_ALLOW_SEND_FILE_TO_SERVER:
+            Net_OnAllowSendFileToServer( );
+            break;
+        case NETMSG_NEXT_FILE_PART_REQEST:
+            Net_OnNextFilePartReqestT( );
+            break;
 
         case NETMSG_LOADMAP:
             Net_OnLoadMap();
@@ -3381,6 +3369,10 @@ void FOClient::NetProcess()
 
         case NETMSG_SEND_LOOK_DATA:
             Net_OnLookData();
+            break;
+
+        case NETMSG_PREPARE_SEND_FILE_TO_SERVER:
+            Net_OnPrepareSendFileToServer( );
             break;
 
         default:
@@ -3972,13 +3964,31 @@ void FOClient::Net_SendRefereshMe()
     WaitPing();
 }
 
-void FOClient::Net_SendFileToServer( FileSendBuffer* filebuffer )
-{
-    if( CurrentFileSend )
+void FOClient::Net_SendFileToServer( FileSendBuffer* filebuffer, int collection_type, int p0, int p1, int p2, asIScriptFunction* func )
+{	
+    if( CurrentFileSend || !filebuffer )
         return;
 
     filebuffer->AddRef( );
     CurrentFileSend = filebuffer;
+    CurrentFileSendCellback = func;
+    if( CurrentFileSendCellback )
+        CurrentFileSendCellback->AddRef( );
+
+    uint msg_len = sizeof( uint ) + sizeof( msg_len ) + sizeof( collection_type ) + sizeof( p0 ) + sizeof( p1 ) + sizeof( p2 )
+           + sizeof( uint ) + sizeof( uint ) + filebuffer->MD5.size( );
+
+    Bout << NETMSG_PREPARE_SEND_FILE_TO_SERVER;
+    Bout << msg_len;
+    Bout << collection_type;
+    Bout << p0; 
+    Bout << p1;
+    Bout << p2;
+   
+    Bout << filebuffer->filesize;
+    Bout << filebuffer->MD5.size();
+    if( !filebuffer->MD5.empty() )
+        Bout.Push( filebuffer->MD5.c_str(), filebuffer->MD5.size() );
 }
 
 void FOClient::Net_OnLoginSuccess()
@@ -4246,6 +4256,14 @@ void FOClient::Net_OnLookData()
     Bin.Pop((char*)MapLookData, OFFSETOF(LookData, dir));
     CHECK_IN_BUFF_ERROR;
     ChosenLookBorder.IsRebuild = true;
+}
+
+void FOClient::Net_OnPrepareSendFileToServer( )
+{
+}
+
+void FOClient::Net_OnNextFilePartReqest( )
+{
 }
 
 void FOClient::OnText( const char* str, uint crid, int how_say, ushort intellect )
@@ -7310,6 +7328,103 @@ void FOClient::Net_OnCheckUID4()
         Net_SendPing( PING_UID_FAIL );
 }
 
+void FOClient::Net_OnAllowSendFileToServer( )
+{
+	uint partsize = 1024;
+    bool isallow;
+    Bin >> isallow;
+	Bin >> partsize;
+
+	auto state = CurrentFileSend->GetState( Chosen->Id );
+
+    if( isallow )
+    {
+		CurrentFileSend->CalculateInformation( partsize, Chosen->Id );
+	    Net_SendFilePartToServer( );
+    }
+    else
+    {
+        if( CurrentFileSendCellback )
+        {
+            // int result, uint fileid, string& filePath, int type, int p0, int p1, int p2            
+            if( Script::PrepareContext( Script::BindByFunction( CurrentFileSendCellback, true ), _FUNC_, "Net_OnAllowSendFileToServer" ) )
+            {
+				ScriptString* str = new ScriptString( state->path );
+
+				Script::SetArgUInt( -1 );
+				Script::SetArgUInt( 0 );
+				Script::SetArgObject( str );
+				Script::SetArgUInt( CurrentFileSend->type );
+				Script::SetArgUInt( state->params[ 0 ] );
+				Script::SetArgUInt( state->params[ 1 ] );
+				Script::SetArgUInt( state->params[ 2 ] );
+
+				str->Release( );
+            }            
+
+            CurrentFileSendCellback->Release( );
+            CurrentFileSendCellback = nullptr;
+        }
+
+        CurrentFileSend->Release( );
+        CurrentFileSend = nullptr;
+    }
+}
+
+void FOClient::Net_OnNextFilePartReqestT( )
+{
+	Net_SendFilePartToServer( );
+}
+
+void FOClient::Net_SendFilePartToServer( )
+{
+	auto state = CurrentFileSend->GetState( Chosen->Id );
+	uint s = state->packetsize;
+	if( ( state->packetcurrent + 1 ) * state->packetsize > CurrentFileSend->filesize )
+	{
+		s = CurrentFileSend->filesize - ( state->packetcurrent * state->packetsize );
+	}
+
+    uint msg_len = sizeof( uint ) + sizeof( msg_len ) + s;
+
+    Bout << NETMSG_SEND_FILE_PART_TO_SERVER;
+    Bout << msg_len;
+
+	int result = CurrentFileSend->PushToBout( Bout, Chosen->Id );
+	if( result < 0 )
+	{
+		FILE* f;
+		fopen_s( &f, Str::FormatBuf( "data//avatars//%s.png", CurrentFileSend->MD5.c_str( ) ), "wb" );
+		fwrite( CurrentFileSend->buffer, 1, state->bytework, f );
+		fclose( f );
+
+		if( CurrentFileSendCellback )
+		{
+			// int result, uint fileid, string& filePath, int type, int p0, int p1, int p2    
+			if( Script::PrepareContext( Script::BindByFunction( CurrentFileSendCellback, true ), _FUNC_, "Net_SendFilePartToServer" ) )
+			{
+				ScriptString* str = new ScriptString( Str::FormatBuf( "data//avatars//%s.png", CurrentFileSend->MD5.c_str( ) ) );
+
+				Script::SetArgUInt( 1 );
+				Script::SetArgUInt( 0 );
+				Script::SetArgObject( str );
+				Script::SetArgUInt( CurrentFileSend->type );
+				Script::SetArgUInt( state->params[ 0 ] );
+				Script::SetArgUInt( state->params[ 1 ] );
+				Script::SetArgUInt( state->params[ 2 ] );
+
+				str->Release( );
+			}
+
+			CurrentFileSendCellback->Release( );
+			CurrentFileSendCellback = nullptr;
+		}
+
+		CurrentFileSend->Release( );
+		CurrentFileSend = nullptr;
+	}
+}
+
 void FOClient::Net_OnViewMap()
 {
     ushort hx, hy;
@@ -7335,6 +7450,15 @@ void FOClient::Net_OnViewMap()
         TViewGmapLocId = loc_id;
         TViewGmapLocEntrance = loc_ent;
     }
+}
+
+void FOClient::Net_OnGetNextFilePart( )
+{
+    Net_SendFilePartToServer( );
+}
+
+void FOClient::Net_OnServerFinishFileDownload( )
+{
 }
 
 void FOClient::Net_OnCraftAsk()
@@ -9797,6 +9921,17 @@ uint FOClient::AnimLoad( const char* fname, int path_type, int res_type )
     Str::Copy( full_name, FileManager::GetPath( path_type ) );
     Str::Append( full_name, fname );
 
+    uint hash = Str::GetHash( full_name );
+    if( !Str::GetName( hash ) )
+    {
+        void* file = FileOpen( full_name, false );
+        if( !file )
+            return 0;
+
+        FileClose( file );
+        Str::AddNameHash( full_name );
+    }
+
     AnyFrames* anim = ResMngr.GetAnim( Str::GetHash( full_name ), 0, res_type );
     if( !anim )
         return 0;
@@ -11524,21 +11659,33 @@ void operator>>( std::ifstream& stream, FileSendBuffer& buff )
 
 bool FOClient::SScriptFunc::Global_AddFileToServerCollection( ScriptString& fileName, int collection_type, int p0, int p1, int p2, asIScriptFunction* func )
 {
-    static FileSendBuffer buffer;
-    if( buffer.refcounter > 1 )
-        return false;
+    static FileSendBuffer buffer = FileSendBuffer();
+	if( buffer.GetRefCount( ) > 1 )
+	{
+		return false;
+	}
 
-    std::ifstream file( fileName.c_str( ) );
-    if( !file.is_open( ) )
-        return false;
+	FILE* file = nullptr;
+	if( fopen_s( &file, fileName.c_str( ), "rb" ) )
+	{
+		return false;
+	}
 
-    file.seekg( ios_base::end );
-    int size = ( int )file.tellg( );
-    file.seekg( ios_base::beg );
+	fseek( file, 0, SEEK_END );
+	int size = ftell( file );
+	fseek( file, 0, SEEK_SET );
     buffer.Resize( size );
-    file >> buffer;
-    file.close( );
+	fread( buffer.buffer, 1, size, file );
+	fclose( file );
 
+    TMD5   MD5;
+    DWORD  dwSize;
+    LPVOID pFile = MapFile_ReadOnly( TEXT( fileName.c_str( ) ), dwSize );
+    MD5 = GetMD5( PUCHAR( pFile ), dwSize );
+    UnmapViewOfFile( pFile );
+    buffer.MD5 = MD5.hash;
+
+    Self->Net_SendFileToServer( &buffer, collection_type, p0, p1, p2, func );
     return true;
 }
 

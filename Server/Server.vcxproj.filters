@@ -335,6 +335,9 @@
     <ClCompile Include="..\Source\CollectionFile.cpp">
       <Filter>Server</Filter>
     </ClCompile>
+	<ClCompile Include="..\Source\md5.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\Zlib\crc32.h">
@@ -688,6 +691,9 @@
     <ClInclude Include="..\Source\CollectionFile.h">
       <Filter>Server</Filter>
     </ClInclude>
+	<ClCompile Include="..\Source\md5.h">
+      <Filter>Server</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\Source\AngelScript\as_callfunc_x64_msvc.asm">

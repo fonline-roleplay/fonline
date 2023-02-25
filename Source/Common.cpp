@@ -9,6 +9,7 @@
 #include "IniParser.h"
 #include "Version.h"
 #include <stdarg.h>
+#include "md5.h"
 
 #pragma MESSAGE("Add TARGET_HEX.")
 
