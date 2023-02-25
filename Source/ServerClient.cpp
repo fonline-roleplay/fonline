@@ -680,14 +680,14 @@ bool FOServer::Act_Attack( Critter* cr, uchar rate_weap, uint target_id )
     if( event_result )
     {
         // cr->SendAA_Action(ACTION_USE_WEAPON,rate_weap,weap);
-        cr->SubAp( ap_cost );
+        //cr->SubAp( ap_cost );
         if( map->IsTurnBasedOn && !cr->GetAllAp() )
             map->EndCritterTurn();
         return true;
     }
 
     // Ap, Turn based
-    cr->SubAp( ap_cost );
+   // cr->SubAp( ap_cost );
     if( map->IsTurnBasedOn && !cr->GetAllAp() )
         map->EndCritterTurn();
 
@@ -808,7 +808,8 @@ bool FOServer::Act_Use( Critter* cr, uint item_id, int skill, int target_type, u
         WriteLogF( _FUNC_, " - Not enough AP, critter<%s>.\n", cr->GetInfo() );
         return false;
     }
-    cr->SubAp( ap_cost );
+
+    //cr->SubAp( ap_cost );
 
     if( item_id )
     {
