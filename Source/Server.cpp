@@ -362,6 +362,13 @@ void FOServer::RemoveClient( Client* cl )
             DeleteClientFile( cl->Name );
         }
 
+		auto file = FileSendBuffer::GetDownloadFileBuffer( id );
+		if( file )
+		{
+			file->FinishDownload( id, false );
+			file->Release( );
+			file = nullptr;
+		}
         Job::DeferredRelease( cl );
     }
     else

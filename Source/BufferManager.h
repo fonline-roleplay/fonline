@@ -223,12 +223,34 @@ public:
         refcounter++;
     }
 
+	void Drop( )
+	{
+		memzero( buffer, realsize );
+		filesize = 0;
+#ifdef FONLINE_CLIENT
+		_state.Drop( );
+#endif
+		type = 0;
+		MD5 = "";
+	}
+
     void Release( )
     {
-        refcounter--;
+		if( --refcounter == 0 )
+		{
+			Drop( );
+			if( buffer )
+			{
+				delete[ realsize ] buffer;
+				buffer = nullptr;
+			}
+			realsize = 0;
+			buffer = nullptr;
+			delete this;
+		}
     }
 
-	inline int GetRefCount( )
+	inline int GetRefCounter( )
 	{
 		return refcounter;
 	}
@@ -272,16 +294,29 @@ public:
 		return result;
 	}
 	
-	bool FinishDownload( )
+	bool FinishDownload( uint clientid, bool isSuccess = true )
 	{
-		auto r = DownloadLib.find( Str::GetHash( MD5.c_str( ) ) );
-		if( r == DownloadLib.end( ) )
+		auto it = DownloadLib.find( clientid );
+		if( it == DownloadLib.end( ) )
 			return false;
 
-		if( GetFileBuffer( MD5 ) )
-			return false;
+		DownloadLib.erase( it );
 
-		lib.insert( PAIR( Str::GetHash( MD5.c_str() ), this ) );
+		auto stateit = _state.find( clientid );
+		if( stateit != _state.end( ) )
+		{
+			stateit->second->Drop( );
+			delete stateit->second;
+			_state.erase( stateit );
+		}
+		if( isSuccess )
+		{
+			if( GetFileBuffer( MD5 ) )
+				return false;
+
+			lib.insert( PAIR( Str::GetHash( MD5.c_str( ) ), this ) );
+			AddRef( );
+		}
 		return true;
 	}
 

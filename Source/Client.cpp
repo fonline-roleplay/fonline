@@ -3972,8 +3972,8 @@ void FOClient::Net_SendFileToServer( FileSendBuffer* filebuffer, int collection_
     if( CurrentFileSend || !filebuffer )
         return;
 
-    filebuffer->AddRef( );
     CurrentFileSend = filebuffer;
+	CurrentFileSend->AddRef( );
     CurrentFileSendCellback = func;
     if( CurrentFileSendCellback )
         CurrentFileSendCellback->AddRef( );
@@ -7342,7 +7342,6 @@ void FOClient::Net_OnNextFilePartReqestT( )
 {
 	auto state = CurrentFileSend->GetState( Chosen->Id );
 	Bin >> state->packetsize;
-
     if( state->packetsize > 0 )
     {
 	    Net_SendFilePartToServer( );
@@ -7364,6 +7363,10 @@ void FOClient::Net_OnNextFilePartReqestT( )
 				Script::SetArgUInt( state->params[ 1 ] );
 				Script::SetArgUInt( state->params[ 2 ] );
 
+				if( Script::RunPrepared( ) )
+				{
+
+				}
 				str->Release( );
             }            
 
@@ -7387,33 +7390,39 @@ void FOClient::Net_SendFilePartToServer( )
 
     uint msg_len = sizeof( uint ) + sizeof( msg_len ) + s;
 
-	Self->AddMess( FOMB_GAME, Str::FormatBuf( "%i %i %i %i %i", CurrentFileSend->filesize, msg_len, s, CurrentFileSend->filesize - ( s + state->bytework ), state->bytework ) );
-	WriteLog( "%i %i %i %i %i\n", CurrentFileSend->filesize, msg_len, s, CurrentFileSend->filesize - ( s + state->bytework ), state->bytework );
     Bout << NETMSG_SEND_FILE_PART_TO_SERVER;
     Bout << msg_len;
 
 	int result = CurrentFileSend->PushToBout( Bout, Chosen->Id );
 	if( result < 0 )
 	{
-		Self->AddMess( FOMB_GAME, "finish" );
-		WriteLog( "finish\n" );
-		FileManager::GetPath( 0 );
+		char lpFilename[ 255 ];
+		memzero( lpFilename, 255 );
+		GetModuleFileNameA( NULL, lpFilename, 255 );
+		uint index = 0;
+		uint lastIndex = 0;
+		while( lpFilename[ index ] )
+		{
+			if( lpFilename[ index ] == '/' || lpFilename[ index ] == '\\' )
+				lastIndex = index + 1;
+			index++;
+		}
+		lpFilename[ lastIndex ] = 0;
+
 		FILE* fr, *fw;
-		string path = Str::FormatBuf( "%s.png", CurrentFileSend->MD5.c_str( ) );
+		string path = Str::FormatBuf( "%s" DIR_SLASH_S "data" DIR_SLASH_S "avatars" DIR_SLASH_S "%s.png", lpFilename, CurrentFileSend->MD5.c_str( ) );
 		auto r = fopen_s( &fr, path.c_str(), "rb" );
 		if( r != 0 )
 		{
-			WriteLog( "finish fr %s\n", strerror( r ) );
 			r = fopen_s( &fw, path.c_str( ), "wb" );
 			if( r == 0 )
 			{
-				WriteLog( "finish fw %s\n", strerror( r ) );
 				fwrite( CurrentFileSend->buffer, 1, state->bytework, fw );
 				fclose( fw );
 			}
 		}
 		else fclose( fr );
-		WriteLog( "finish2 %s\n", strerror( r ) );
+
 		if( CurrentFileSendCellback )
 		{
 			// int result, uint fileid, string& filePath, int type, int p0, int p1, int p2    
@@ -7429,16 +7438,19 @@ void FOClient::Net_SendFilePartToServer( )
 				Script::SetArgUInt( state->params[ 1 ] );
 				Script::SetArgUInt( state->params[ 2 ] );
 
+				if( Script::RunPrepared( ) )
+				{
+
+				}
 				str->Release( );
 			}
 
 			CurrentFileSendCellback->Release( );
 			CurrentFileSendCellback = nullptr;
 		}
-		WriteLog( "finish3\n" );
+
 		CurrentFileSend->Release( );
 		CurrentFileSend = nullptr;
-		WriteLog( "finish4\n" );
 	}
 }
 
@@ -11665,17 +11677,13 @@ void operator>>( std::ifstream& stream, FileSendBuffer& buff )
 
 bool FOClient::SScriptFunc::Global_AddFileToServerCollection( ScriptString& fileName, int collection_type, int p0, int p1, int p2, asIScriptFunction* func )
 {
-    static FileSendBuffer buffer = FileSendBuffer();
-	if( buffer.GetRefCount( ) > 1 )
-	{
-		return false;
-	}
-
 	FILE* file = nullptr;
 	if( fopen_s( &file, fileName.c_str( ), "rb" ) )
-	{
 		return false;
-	}
+
+	static FileSendBuffer buffer = FileSendBuffer( );
+	if( buffer.GetRefCounter( ) > 1 )
+		return false;
 
 	fseek( file, 0, SEEK_END );
 	int size = ftell( file );
@@ -11692,6 +11700,8 @@ bool FOClient::SScriptFunc::Global_AddFileToServerCollection( ScriptString& file
     buffer.MD5 = MD5.hash;
 
     Self->Net_SendFileToServer( &buffer, collection_type, p0, p1, p2, func );
+	//buffer.Release( );
+	//buffer = nullptr;
     return true;
 }
 

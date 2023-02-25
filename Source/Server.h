@@ -911,7 +911,7 @@ public:
         static uint          Global_GetAllLocations( ushort pid, CScriptArray* locations );
         static uint          Global_GetScriptId( ScriptString& script_name, ScriptString& func_decl );
         static ScriptString* Global_GetScriptName( uint script_id );
-        static CScriptArray*  Global_GetItemDataMask( int mask_type );
+        static CScriptArray* Global_GetItemDataMask( int mask_type );
         static bool          Global_SetItemDataMask( int mask_type, CScriptArray& mask );
         static uint          Global_GetTick() { return Timer::FastTick(); }
         static void          Global_GetTime( ushort& year, ushort& month, ushort& day, ushort& day_of_week, ushort& hour, ushort& minute, ushort& second, ushort& milliseconds );
@@ -923,6 +923,7 @@ public:
         static uint          Global_GetAngelScriptProperty( int property );
         static bool          Global_SetAngelScriptProperty( int property, uint value );
         static uint          Global_GetStrHash( ScriptString* str );
+		static ScriptString* Global_GetHashStr( uint hash );
         static bool          Global_LoadDataFile( ScriptString& dat_name );
         static int           Global_GetConstantValue( int const_collection, ScriptString* name );
         static ScriptString* Global_GetConstantName( int const_collection, int value );

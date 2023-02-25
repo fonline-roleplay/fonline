@@ -4514,19 +4514,17 @@ void FOServer::Process_ReciveFilePart( Client * cl )
 			s = file->filesize - state->bytework;
 	}
 
-	WriteLog( "%i %i %i %i %i\n", file->filesize, msg_len, s, file->filesize - ( s + state->bytework ), state->bytework );
-
 	int result = file->PopToBin( cl->Bin, cl->GetId( ) );
 	CHECK_IN_BUFF_ERROR( cl );
 
 	if( result < 0 )
 	{
-		file->FinishDownload( );
-		WriteLog( "Finish\n" );
 		FILE* f;
-		fopen_s( &f, Str::FormatBuf( "data/avatars/%s.png", file->MD5.c_str() ), "wb" );
+		fopen_s( &f, Str::FormatBuf( "data\\avatars\\%s.png", file->MD5.c_str() ), "wb" );
 		fwrite( file->buffer, 1, file->GetState( cl->GetId( ) )->bytework, f );
 		fclose( f );
+		file->FinishDownload( cl->GetId( ) );
+		file->Release( );
 	}
 	else
 	{

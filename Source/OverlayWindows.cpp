@@ -181,7 +181,24 @@ string WindowsExplorer_OpenFileName( const char* filter )
 	ofn.lpstrDefExt = "";
 	ofn.lpstrInitialDir = ".";
 
+	string result = "";
 	if( GetOpenFileName( &ofn ) )
-		return fileName;
-	return "";
+	{
+		result = fileName;
+	}
+
+	char lpFilename[ 255 ];
+	memzero( lpFilename, 255 );
+	GetModuleFileNameA( NULL, lpFilename, 255 );
+	uint index = 0;
+	uint lastIndex = 0;
+	while( lpFilename[ index ] )
+	{
+		if( lpFilename[ index ] == '/' || lpFilename[ index ] == '\\' )
+			lastIndex = index + 1;
+		index++;
+	}
+	lpFilename[ lastIndex ] = 0;
+	SetCurrentDirectoryA( lpFilename );
+	return result;
 }

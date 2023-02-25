@@ -6098,6 +6098,15 @@ uint FOServer::SScriptFunc::Global_GetStrHash( ScriptString* str )
     return 0;
 }
 
+ScriptString* FOServer::SScriptFunc::Global_GetHashStr( uint hash )
+{
+	if( hash )
+	{
+		Str::GetName( hash );
+	}
+	return nullptr;
+}
+
 bool FOServer::SScriptFunc::Global_LoadDataFile( ScriptString& dat_name )
 {
     if( FileManager::LoadDataFile( dat_name.c_str() ) )

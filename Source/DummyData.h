@@ -1213,6 +1213,7 @@ struct BindClass
     static void Global_GetAngelScriptProperty() {}
     static void Global_SetAngelScriptProperty() {}
     static void Global_GetStrHash()             {}
+	static void Global_GetHashStr()             {}
     static void Global_LoadDataFile()           {}
     static void Global_GetConstantValue()       {}
     static void Global_GetConstantName()        {}
