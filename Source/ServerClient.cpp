@@ -4438,7 +4438,6 @@ void FOServer::Process_PrepareSendFileToServer( Client* cl )
     cl->Bin >> realsize;
     cl->Bin >> sizemd5;
 
-
     if( sizemd5 )
     {
         char* md5chars = new char[ sizemd5 + 1 ];
@@ -4450,10 +4449,10 @@ void FOServer::Process_PrepareSendFileToServer( Client* cl )
 
 	CHECK_IN_BUFF_ERROR( cl );
 
-    bool isallow = false;
+	uint partsize = 1024;
     if( Script::PrepareContext( ServerFunctions.FileCollectionDownloadReqest, _FUNC_, cl->GetInfo( ) ) )
     {
-         // bool %s( Critter& critter, int type, uint fileid, int p0, int p1, int p2 )
+         // uint %s( Critter& critter, int type, uint fileid, int p0, int p1, int p2 )
         Script::SetArgObject( cl );
         Script::SetArgUInt( collection_type );
         Script::SetArgUInt( p0 );
@@ -4462,38 +4461,41 @@ void FOServer::Process_PrepareSendFileToServer( Client* cl )
 
         if( Script::RunPrepared( ) )
         {
-            isallow = Script::GetReturnedBool( );
+			partsize = Script::GetReturnedUInt( );
         }
     }
 
-	uint partsize = 1024;
-    if( isallow )
+    if( partsize )
     {
 		auto file = FileSendBuffer::GetFileBuffer( md5 );
 		if( file )
 		{
-			isallow = false;
+			partsize = 0;
 		}
 		else
 		{
 			file = FileSendBuffer::GetDownloadFileBuffer( cl->GetId( ) );
 			if( file )
 			{
-				isallow = false;
+				partsize = 0;
 			}
 			else
 			{
 				file = FileSendBuffer::CreateDownloadFileBuffer( md5, cl->GetId( ) );
 				file->Resize( realsize );
-				file->CreateState( cl->GetId( ) );
-				file->CalculateInformation( partsize, cl->GetId( ) );
+				file->type = collection_type;
+
+				auto state =file->CreateState( cl->GetId( ) );
+				state->params[ 0 ] = p0;
+				state->params[ 1 ] = p1;
+				state->params[ 2 ] = p2;
+				state->packetsize = partsize;
 			}
 		}
     }
 
     BOUT_BEGIN( cl );
-    cl->Bout << ( uint )NETMSG_ALLOW_SEND_FILE_TO_SERVER;
-    cl->Bout << isallow;
+    cl->Bout << ( uint )NETMSG_NEXT_FILE_PART_REQEST;
 	cl->Bout << partsize;
     BOUT_END( cl );
 }
@@ -4503,15 +4505,26 @@ void FOServer::Process_ReciveFilePart( Client * cl )
 	auto file = FileSendBuffer::GetDownloadFileBuffer( cl->GetId( ) );
 	uint msg_len;
 	cl->Bin >> msg_len;
+
+	auto state = file->GetState( cl->GetId() );
+	uint s = state->packetsize;
+	if( state )
+	{
+		if( ( s + state->bytework ) > file->filesize )
+			s = file->filesize - state->bytework;
+	}
+
+	WriteLog( "%i %i %i %i %i\n", file->filesize, msg_len, s, file->filesize - ( s + state->bytework ), state->bytework );
+
 	int result = file->PopToBin( cl->Bin, cl->GetId( ) );
 	CHECK_IN_BUFF_ERROR( cl );
 
 	if( result < 0 )
 	{
 		file->FinishDownload( );
-
+		WriteLog( "Finish\n" );
 		FILE* f;
-		fopen_s( &f, Str::FormatBuf( "data//avatars//%s.png", file->MD5.c_str() ), "wb" );
+		fopen_s( &f, Str::FormatBuf( "data/avatars/%s.png", file->MD5.c_str() ), "wb" );
 		fwrite( file->buffer, 1, file->GetState( cl->GetId( ) )->bytework, f );
 		fclose( f );
 	}
@@ -4519,6 +4532,7 @@ void FOServer::Process_ReciveFilePart( Client * cl )
 	{
 		BOUT_BEGIN( cl );
 		cl->Bout << ( uint )NETMSG_NEXT_FILE_PART_REQEST;
+		cl->Bout << file->GetState( cl->GetId() )->packetsize;
 		BOUT_END( cl );
 	}
 }

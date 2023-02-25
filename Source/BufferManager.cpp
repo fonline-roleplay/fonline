@@ -534,8 +534,6 @@ bool BufferManager::NeedProcess()
         return ( NETMSG_SCORES_SIZE + bufReadPos <= bufEndPos );
     case NETMSG_SEND_LOOK_DATA:
         return (NETMSG_SEND_LOOK_DATA_SIZE + bufReadPos <= bufEndPos);
-    case NETMSG_ALLOW_SEND_FILE_TO_SERVER:
-        return (NETMSG_ALLOW_SEND_FILE_TO_SERVER_SIZE + bufReadPos <= bufEndPos);
 	case NETMSG_NEXT_FILE_PART_REQEST:
 		return ( NETMSG_NEXT_FILE_PART_REQEST_SIZE + bufReadPos <= bufEndPos );
 	default:
@@ -820,8 +818,6 @@ void BufferManager::SkipMsg( uint msg )
     case NETMSG_SEND_LOOK_DATA:
         size = NETMSG_SEND_LOOK_DATA_SIZE;
         break;
-    case NETMSG_ALLOW_SEND_FILE_TO_SERVER:
-        size = NETMSG_ALLOW_SEND_FILE_TO_SERVER_SIZE;
     case NETMSG_NEXT_FILE_PART_REQEST:
         size = NETMSG_NEXT_FILE_PART_REQEST_SIZE;
         break;
@@ -1009,7 +1005,6 @@ bool BufferManager::IsValidMsg( uint msg )
 	case NETMSG_SEND_FILE_IN_COLLECTION:
     case NETMSG_SEND_LOOK_DATA:
     case NETMSG_PREPARE_SEND_FILE_TO_SERVER:
-    case NETMSG_ALLOW_SEND_FILE_TO_SERVER:
 	case NETMSG_SEND_FILE_PART_TO_SERVER:
 	case NETMSG_NEXT_FILE_PART_REQEST:
         return true;

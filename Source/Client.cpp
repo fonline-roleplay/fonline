@@ -13,6 +13,12 @@
 
 #include "md5.h"
 
+#define SCRIPT_ERROR( error )          do { ScriptLastError = error; Script::LogError( _FUNC_, error ); } while( 0 )
+#define SCRIPT_ERROR_RX( error, x )    do { ScriptLastError = error; Script::LogError( _FUNC_, error ); return x; } while( 0 )
+#define SCRIPT_ERROR_R( error )        do { ScriptLastError = error; Script::LogError( _FUNC_, error ); return; } while( 0 )
+#define SCRIPT_ERROR_R0( error )       do { ScriptLastError = error; Script::LogError( _FUNC_, error ); return 0; } while( 0 )
+static string ScriptLastError;
+
 // Check buffer for error
 #define CHECK_IN_BUFF_ERROR                          \
     if( Bin.IsError() )                              \
@@ -3285,9 +3291,6 @@ void FOClient::NetProcess()
         case NETMSG_VIEW_MAP:
             Net_OnViewMap();
             break;
-        case NETMSG_ALLOW_SEND_FILE_TO_SERVER:
-            Net_OnAllowSendFileToServer( );
-            break;
         case NETMSG_NEXT_FILE_PART_REQEST:
             Net_OnNextFilePartReqestT( );
             break;
@@ -3974,9 +3977,16 @@ void FOClient::Net_SendFileToServer( FileSendBuffer* filebuffer, int collection_
     CurrentFileSendCellback = func;
     if( CurrentFileSendCellback )
         CurrentFileSendCellback->AddRef( );
+	auto state = CurrentFileSend->GetState( Chosen->Id );
+    
+	state->Drop( );
+	CurrentFileSend->type = collection_type;
+	state->params[ 0 ] = p0;
+	state->params[ 1 ] = p1;
+	state->params[ 2 ] = p2;
 
-    uint msg_len = sizeof( uint ) + sizeof( msg_len ) + sizeof( collection_type ) + sizeof( p0 ) + sizeof( p1 ) + sizeof( p2 )
-           + sizeof( uint ) + sizeof( uint ) + filebuffer->MD5.size( );
+	uint msg_len = sizeof( uint ) + sizeof( msg_len ) + sizeof( collection_type ) + sizeof( p0 ) + sizeof( p1 ) + sizeof( p2 )
+           + sizeof( uint ) + sizeof( uint ) + CurrentFileSend->MD5.size( );
 
     Bout << NETMSG_PREPARE_SEND_FILE_TO_SERVER;
     Bout << msg_len;
@@ -3985,10 +3995,10 @@ void FOClient::Net_SendFileToServer( FileSendBuffer* filebuffer, int collection_
     Bout << p1;
     Bout << p2;
    
-    Bout << filebuffer->filesize;
-    Bout << filebuffer->MD5.size();
-    if( !filebuffer->MD5.empty() )
-        Bout.Push( filebuffer->MD5.c_str(), filebuffer->MD5.size() );
+    Bout << CurrentFileSend->filesize;
+    Bout << CurrentFileSend->MD5.size();
+    if( !CurrentFileSend->MD5.empty() )
+        Bout.Push( CurrentFileSend->MD5.c_str(), CurrentFileSend->MD5.size() );
 }
 
 void FOClient::Net_OnLoginSuccess()
@@ -7328,18 +7338,13 @@ void FOClient::Net_OnCheckUID4()
         Net_SendPing( PING_UID_FAIL );
 }
 
-void FOClient::Net_OnAllowSendFileToServer( )
+void FOClient::Net_OnNextFilePartReqestT( )
 {
-	uint partsize = 1024;
-    bool isallow;
-    Bin >> isallow;
-	Bin >> partsize;
-
 	auto state = CurrentFileSend->GetState( Chosen->Id );
+	Bin >> state->packetsize;
 
-    if( isallow )
+    if( state->packetsize > 0 )
     {
-		CurrentFileSend->CalculateInformation( partsize, Chosen->Id );
 	    Net_SendFilePartToServer( );
     }
     else
@@ -7371,39 +7376,50 @@ void FOClient::Net_OnAllowSendFileToServer( )
     }
 }
 
-void FOClient::Net_OnNextFilePartReqestT( )
-{
-	Net_SendFilePartToServer( );
-}
-
 void FOClient::Net_SendFilePartToServer( )
 {
 	auto state = CurrentFileSend->GetState( Chosen->Id );
 	uint s = state->packetsize;
-	if( ( state->packetcurrent + 1 ) * state->packetsize > CurrentFileSend->filesize )
+	if( state->bytework + state->packetsize > CurrentFileSend->filesize )
 	{
-		s = CurrentFileSend->filesize - ( state->packetcurrent * state->packetsize );
+		s = CurrentFileSend->filesize - state->bytework;
 	}
 
     uint msg_len = sizeof( uint ) + sizeof( msg_len ) + s;
 
+	Self->AddMess( FOMB_GAME, Str::FormatBuf( "%i %i %i %i %i", CurrentFileSend->filesize, msg_len, s, CurrentFileSend->filesize - ( s + state->bytework ), state->bytework ) );
+	WriteLog( "%i %i %i %i %i\n", CurrentFileSend->filesize, msg_len, s, CurrentFileSend->filesize - ( s + state->bytework ), state->bytework );
     Bout << NETMSG_SEND_FILE_PART_TO_SERVER;
     Bout << msg_len;
 
 	int result = CurrentFileSend->PushToBout( Bout, Chosen->Id );
 	if( result < 0 )
 	{
-		FILE* f;
-		fopen_s( &f, Str::FormatBuf( "data//avatars//%s.png", CurrentFileSend->MD5.c_str( ) ), "wb" );
-		fwrite( CurrentFileSend->buffer, 1, state->bytework, f );
-		fclose( f );
-
+		Self->AddMess( FOMB_GAME, "finish" );
+		WriteLog( "finish\n" );
+		FileManager::GetPath( 0 );
+		FILE* fr, *fw;
+		string path = Str::FormatBuf( "%s.png", CurrentFileSend->MD5.c_str( ) );
+		auto r = fopen_s( &fr, path.c_str(), "rb" );
+		if( r != 0 )
+		{
+			WriteLog( "finish fr %s\n", strerror( r ) );
+			r = fopen_s( &fw, path.c_str( ), "wb" );
+			if( r == 0 )
+			{
+				WriteLog( "finish fw %s\n", strerror( r ) );
+				fwrite( CurrentFileSend->buffer, 1, state->bytework, fw );
+				fclose( fw );
+			}
+		}
+		else fclose( fr );
+		WriteLog( "finish2 %s\n", strerror( r ) );
 		if( CurrentFileSendCellback )
 		{
 			// int result, uint fileid, string& filePath, int type, int p0, int p1, int p2    
 			if( Script::PrepareContext( Script::BindByFunction( CurrentFileSendCellback, true ), _FUNC_, "Net_SendFilePartToServer" ) )
 			{
-				ScriptString* str = new ScriptString( Str::FormatBuf( "data//avatars//%s.png", CurrentFileSend->MD5.c_str( ) ) );
+				ScriptString* str = new ScriptString( path.c_str( ) );
 
 				Script::SetArgUInt( 1 );
 				Script::SetArgUInt( 0 );
@@ -7419,9 +7435,10 @@ void FOClient::Net_SendFilePartToServer( )
 			CurrentFileSendCellback->Release( );
 			CurrentFileSendCellback = nullptr;
 		}
-
+		WriteLog( "finish3\n" );
 		CurrentFileSend->Release( );
 		CurrentFileSend = nullptr;
+		WriteLog( "finish4\n" );
 	}
 }
 
@@ -7450,11 +7467,6 @@ void FOClient::Net_OnViewMap()
         TViewGmapLocId = loc_id;
         TViewGmapLocEntrance = loc_ent;
     }
-}
-
-void FOClient::Net_OnGetNextFilePart( )
-{
-    Net_SendFilePartToServer( );
 }
 
 void FOClient::Net_OnServerFinishFileDownload( )
@@ -10307,12 +10319,6 @@ void SortCritterByDist( int hx, int hy, CritVec& critters )
     SortCritterHy_ = hy;
     std::sort( critters.begin(), critters.end(), SortCritterByDistPred );
 }
-
-#define SCRIPT_ERROR( error )          do { ScriptLastError = error; Script::LogError( _FUNC_, error ); } while( 0 )
-#define SCRIPT_ERROR_RX( error, x )    do { ScriptLastError = error; Script::LogError( _FUNC_, error ); return x; } while( 0 )
-#define SCRIPT_ERROR_R( error )        do { ScriptLastError = error; Script::LogError( _FUNC_, error ); return; } while( 0 )
-#define SCRIPT_ERROR_R0( error )       do { ScriptLastError = error; Script::LogError( _FUNC_, error ); return 0; } while( 0 )
-static string ScriptLastError;
 
 int* FOClient::SScriptFunc::DataRef_Index( CritterClPtr& cr, uint index )
 {

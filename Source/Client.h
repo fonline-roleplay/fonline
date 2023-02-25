@@ -225,11 +225,8 @@ public:
     void Net_OnCheckUID4();
     void Net_OnViewMap();
 
-    void Net_OnGetNextFilePart( );
-
     void Net_OnServerFinishFileDownload( );
 
-    void Net_OnAllowSendFileToServer( );
 	void Net_OnNextFilePartReqestT( );
 
     void Net_OnLookData();

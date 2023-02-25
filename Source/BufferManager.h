@@ -101,57 +101,37 @@ private:
 public:
     char* buffer;
 
-    size_t filesize;
+    size_t filesize; 
 	int type;
     std::string MD5;
 
-    struct State
+    struct State 
     {
-        uint packetcurrent;
-        uint packetcount;
         size_t packetsize;
 		size_t bytework;
-		size_t size;
 
 		int params[ 3 ];
 		std::string path;
 
-        State( )
-        {
-            packetcurrent = 0;
-            packetcount = 0;
-            packetsize = 0;
+		void Drop( )
+		{
+			packetsize = 0;
 			bytework = 0;
 			params[ 0 ] = 0;
 			params[ 1 ] = 0;
 			params[ 2 ] = 0;
 			path = "";
-        }
-
-        void CalculateInformation( size_t sizebuffer, size_t packet )
-        {
-            packetsize = packet;
-            packetcurrent = 0;
-            packetcount = sizebuffer / packet;
-			bytework = 0;
-			size = sizebuffer;
-			params[ 0 ] = 0;
-			params[ 1 ] = 0;
-			params[ 2 ] = 0;
-			path = "";
-        }
-
-        inline bool Validation( )
-        {
-            return size > bytework;
-        }
+		}
 
         void Finish( )
         {
-            packetcurrent = 0;
-            packetcount = 0;
             packetsize = 0;
         }
+
+		State( )
+		{
+			Drop( );
+		}
     };
 
 private:
@@ -181,55 +161,40 @@ public:
     }
 #endif
 
-    inline void CalculateInformation( size_t packet, uint clientid )
-    {
-        State* state = GetState( clientid );
-        if( state )
-            state->CalculateInformation( filesize, packet );
-    }
-
     int PushToBout( BufferManager& bout, uint clientid )
     {
 		int result = 0;
         State* state = GetState( clientid );
         if( state )
         {
-            if( state->Validation() )
-            {
-				uint s = state->packetsize;
-				if( ( state->packetcurrent + 1 ) * state->packetsize > filesize )
-				{
-					s = filesize - ( state->packetcurrent * state->packetsize );
-					result = -1;
-				}
-				else result = 1;
-				bout.Push( &buffer[state->packetcurrent++ * state->packetsize], s );
-				state->bytework += s;
-            }
-			else result = -2;
+            uint s = state->packetsize;
+			if( ( s + state->bytework ) > filesize )
+			{
+				s = filesize - state->bytework;
+				result = -1;
+			}
+			else result = 1;
+			bout.Push( &buffer[ state->bytework ], s );
+			state->bytework += s;
         }
 		return result;
     }
 
 	int PopToBin( BufferManager& bin, uint clientid )
-	{
+	{ 
 		int result = 0;
 		State* state = GetState( clientid );
 		if( state )
 		{
-			if( state->Validation( ) )
+			uint s = state->packetsize;
+			if( ( s + state->bytework ) > filesize )
 			{
-				uint s = state->packetsize;
-				if( ( state->packetcurrent + 1 ) * state->packetsize > filesize )
-				{
-					s = filesize - ( state->packetcurrent * state->packetsize );
-					result = -1;
-				}
-				else result = 1;
-				bin.Pop( &buffer[ state->packetcurrent++ * state->packetsize ], s );
-				state->bytework += s;
+				s = filesize - state->bytework;
+				result = -1;
 			}
-			else result = -2;
+			else result = 1;
+			bin.Pop( &buffer[ state->bytework ], s );
+			state->bytework += s;
 		}
 		return result;
 	}
@@ -320,10 +285,11 @@ public:
 		return true;
 	}
 
-	void CreateState( uint clientid )
+	State* CreateState( uint clientid )
 	{
 		auto state = new State;
 		_state.insert( PAIR( clientid, state ) );
+		return state;
 	}
 #endif
 
