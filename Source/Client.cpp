@@ -67,6 +67,13 @@ FOClient::FOClient(): Active( false )
     CurrentFileSend = nullptr;
     CurrentFileSendCellback = nullptr;
 
+	CurrentFileSendPercent = -1;
+
+	CurrentFileRecive = nullptr;
+	CurrentFileReciveCellback = nullptr;
+
+	CurrentFileRecivePercent = -1;
+
     GmapCar.Car = NULL;
     Animations.resize( 10000 );
 
@@ -3988,6 +3995,8 @@ void FOClient::Net_SendFileToServer( FileSendBuffer* filebuffer, int collection_
 	uint msg_len = sizeof( uint ) + sizeof( msg_len ) + sizeof( collection_type ) + sizeof( p0 ) + sizeof( p1 ) + sizeof( p2 )
            + sizeof( uint ) + sizeof( uint ) + CurrentFileSend->MD5.size( );
 
+	CurrentFileSendPercent = 0;
+
     Bout << NETMSG_PREPARE_SEND_FILE_TO_SERVER;
     Bout << msg_len;
     Bout << collection_type;
@@ -7348,16 +7357,16 @@ void FOClient::Net_OnNextFilePartReqestT( )
     }
     else
     {
+		CurrentFileSendPercent = -2;
         if( CurrentFileSendCellback )
         {
-            // int result, uint fileid, string& filePath, int type, int p0, int p1, int p2            
+            // int result, uint hash, int type, int p0, int p1, int p2            
             if( Script::PrepareContext( Script::BindByFunction( CurrentFileSendCellback, true ), _FUNC_, "Net_OnAllowSendFileToServer" ) )
             {
 				ScriptString* str = new ScriptString( state->path );
 
 				Script::SetArgUInt( -1 );
 				Script::SetArgUInt( 0 );
-				Script::SetArgObject( str );
 				Script::SetArgUInt( CurrentFileSend->type );
 				Script::SetArgUInt( state->params[ 0 ] );
 				Script::SetArgUInt( state->params[ 1 ] );
@@ -7410,7 +7419,9 @@ void FOClient::Net_SendFilePartToServer( )
 		lpFilename[ lastIndex ] = 0;
 
 		FILE* fr, *fw;
+		string path_hash = Str::FormatBuf( "avatars" DIR_SLASH_S "%s.png", /*lpFilename,*/ CurrentFileSend->MD5.c_str( ) );
 		string path = Str::FormatBuf( "%s" DIR_SLASH_S "data" DIR_SLASH_S "avatars" DIR_SLASH_S "%s.png", lpFilename, CurrentFileSend->MD5.c_str( ) );
+		
 		auto r = fopen_s( &fr, path.c_str(), "rb" );
 		if( r != 0 )
 		{
@@ -7419,20 +7430,20 @@ void FOClient::Net_SendFilePartToServer( )
 			{
 				fwrite( CurrentFileSend->buffer, 1, state->bytework, fw );
 				fclose( fw );
+
+				Str::AddNameHash( path_hash.c_str() );
 			}
 		}
 		else fclose( fr );
 
 		if( CurrentFileSendCellback )
 		{
-			// int result, uint fileid, string& filePath, int type, int p0, int p1, int p2    
+			// int result, uint hash, int type, int p0, int p1, int p2    
 			if( Script::PrepareContext( Script::BindByFunction( CurrentFileSendCellback, true ), _FUNC_, "Net_SendFilePartToServer" ) )
 			{
-				ScriptString* str = new ScriptString( path.c_str( ) );
-
+				uint hash = Str::GetHash( path_hash.c_str( ) );
 				Script::SetArgUInt( 1 );
-				Script::SetArgUInt( 0 );
-				Script::SetArgObject( str );
+				Script::SetArgUInt( hash );
 				Script::SetArgUInt( CurrentFileSend->type );
 				Script::SetArgUInt( state->params[ 0 ] );
 				Script::SetArgUInt( state->params[ 1 ] );
@@ -7442,7 +7453,6 @@ void FOClient::Net_SendFilePartToServer( )
 				{
 
 				}
-				str->Release( );
 			}
 
 			CurrentFileSendCellback->Release( );
@@ -7451,6 +7461,12 @@ void FOClient::Net_SendFilePartToServer( )
 
 		CurrentFileSend->Release( );
 		CurrentFileSend = nullptr;
+
+		CurrentFileSendPercent = -1;
+	}
+	else
+	{
+		CurrentFileSendPercent = state->bytework / CurrentFileSend->filesize;
 	}
 }
 
@@ -11796,6 +11812,17 @@ uint FOClient::SScriptFunc::Global_GetStrHash( ScriptString* str )
     return 0;
 }
 
+ScriptString * FOClient::SScriptFunc::Global_GetHashStr( uint hash )
+{
+	if( hash )
+	{
+		const char* c = Str::GetName( hash );
+		if( c )
+			return new ScriptString( c );
+	}
+	return nullptr;
+}
+
 bool FOClient::SScriptFunc::Global_LoadDataFile( ScriptString& dat_name )
 {
     if( FileManager::LoadDataFile( dat_name.c_str() ) )
@@ -12589,6 +12616,8 @@ int&   FOClient::SScriptFunc::GmapGroupCurY = FOClient::GmapGroupCurY;
 int&   FOClient::SScriptFunc::GmapGroupToX = FOClient::GmapGroupToX;
 int&   FOClient::SScriptFunc::GmapGroupToY = FOClient::GmapGroupToY;
 float& FOClient::SScriptFunc::GmapGroupSpeed = FOClient::GmapGroupSpeed;
+int& FOClient::SScriptFunc::CurrentFileSendPercent = FOClient::CurrentFileSendPercent;
+int& FOClient::SScriptFunc::CurrentFileRecivePercent = FOClient::CurrentFileRecivePercent;
 
 void FOClient::VisualLookBorder::Clear( )
 {

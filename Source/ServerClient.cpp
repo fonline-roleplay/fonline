@@ -4452,9 +4452,12 @@ void FOServer::Process_PrepareSendFileToServer( Client* cl )
 	uint partsize = 1024;
     if( Script::PrepareContext( ServerFunctions.FileCollectionDownloadReqest, _FUNC_, cl->GetInfo( ) ) )
     {
-         // uint %s( Critter& critter, int type, uint fileid, int p0, int p1, int p2 )
+		ScriptString* md5ScriptString = new ScriptString( md5 );
+         // uint %s( Critter& critter, int type, const string&in md5, uint filesize, int p0, int p1, int p2 )
         Script::SetArgObject( cl );
         Script::SetArgUInt( collection_type );
+		Script::SetArgObject( md5ScriptString );
+		Script::SetArgUInt( realsize );
         Script::SetArgUInt( p0 );
         Script::SetArgUInt( p1 );
         Script::SetArgUInt( p2 );
@@ -4463,6 +4466,8 @@ void FOServer::Process_PrepareSendFileToServer( Client* cl )
         {
 			partsize = Script::GetReturnedUInt( );
         }
+
+		md5ScriptString->Release( );
     }
 
     if( partsize )
@@ -4520,11 +4525,13 @@ void FOServer::Process_ReciveFilePart( Client * cl )
 	if( result < 0 )
 	{
 		FILE* f;
-		fopen_s( &f, Str::FormatBuf( "data\\avatars\\%s.png", file->MD5.c_str() ), "wb" );
+		fopen_s( &f, Str::FormatBuf( "avatars\\%s.png", file->MD5.c_str() ), "wb" );
 		fwrite( file->buffer, 1, file->GetState( cl->GetId( ) )->bytework, f );
 		fclose( f );
 		file->FinishDownload( cl->GetId( ) );
 		file->Release( );
+		//WriteLog( "avatars\\%s.png - %i\n", file->MD5.c_str( ), Str::GetHash( Str::FormatBuf( "avatars\\%s.png", file->MD5.c_str( ) ) ) );
+		Str::AddNameHash( Str::FormatBuf( "avatars\\%s.png", file->MD5.c_str( ) ) );
 	}
 	else
 	{

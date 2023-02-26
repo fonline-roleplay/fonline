@@ -1050,6 +1050,7 @@ struct BindClass
     static int  GmapOffsetX, GmapOffsetY;
     static int  GmapGroupCurX, GmapGroupCurY, GmapGroupToX, GmapGroupToY;
     static int  GmapGroupSpeed;
+	static int CurrentFileSendPercent, CurrentFileRecivePercent;
     #endif
 
     #if defined ( BIND_CLIENT ) || defined ( BIND_SERVER )
@@ -1238,6 +1239,8 @@ int BindClass::GmapGroupCurY;
 int BindClass::GmapGroupToX;
 int BindClass::GmapGroupToY;
 int BindClass::GmapGroupSpeed;
+int BindClass::CurrentFileSendPercent;
+int BindClass::CurrentFileRecivePercent;
 #endif
 
 void Random() {}

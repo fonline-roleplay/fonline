@@ -6393,6 +6393,9 @@ int FOClient::GmapGroupCurX, FOClient::GmapGroupCurY, FOClient::GmapGroupToX, FO
 bool FOClient::GmapWait;
 float FOClient::GmapGroupSpeed;
 
+int FOClient::CurrentFileRecivePercent;
+int FOClient::CurrentFileSendPercent;
+
 #define GMAP_LOC_ALPHA    ( 60 )
 #define GMAP_MOVE_TICK    ( 50 )
 

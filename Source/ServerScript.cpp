@@ -187,9 +187,9 @@ bool FOServer::InitScriptSystem()
         { &ServerFunctions.PlayerAllowCommand, "player_allowcommand", "bool %s(Critter@,string@,uint8)" },
         { &ServerFunctions.CheckTrapLook, "check_trap_look", "bool %s(Map&,Critter&,Item&)" },
 		{ &ServerFunctions.MapInit, "map_init", "bool %s(Map&,bool)"  },
-		{ &ServerFunctions.FileCollectionDownload, "file_collection_download", "void %s( Critter& critter, int type, uint fileid, int p0, int p1, int p2 )"  },
-		{ &ServerFunctions.FileCollectionUpload, "file_collection_upload", "bool %s( Critter& critter, int type, uint fileid, int p0, int p1, int p2 )"  },
-		{ &ServerFunctions.FileCollectionDownloadReqest, "file_collection_download_reqest", "uint %s( Critter& critter, int type, uint fileid, int p0, int p1, int p2 )"  }
+		{ &ServerFunctions.FileCollectionDownload, "file_collection_download", "void %s( Critter&, int, const string&in, uint, int, int, int )"  },
+		{ &ServerFunctions.FileCollectionUpload, "file_collection_upload", "uint %s( Critter&, int, const string&in, uint, int, int, int )"  },
+		{ &ServerFunctions.FileCollectionDownloadReqest, "file_collection_download_reqest", "uint %s( Critter&, int, const string&in, uint, int, int, int )"  }
     };
     if( !Script::BindReservedFunctions( (char*) scripts_cfg.GetBuf(), "server", BindGameFunc, sizeof( BindGameFunc ) / sizeof( BindGameFunc[ 0 ] ) ) )
     {
@@ -6102,7 +6102,9 @@ ScriptString* FOServer::SScriptFunc::Global_GetHashStr( uint hash )
 {
 	if( hash )
 	{
-		Str::GetName( hash );
+		const char* c = Str::GetName( hash );
+		if( c )
+			return new ScriptString( c );
 	}
 	return nullptr;
 }

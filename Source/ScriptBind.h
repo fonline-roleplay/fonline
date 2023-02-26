@@ -1116,7 +1116,7 @@ BIND_ASSERT( engine->RegisterGlobalFunction( "void RefreshMap(bool onlyTiles, bo
 BIND_ASSERT( engine->RegisterGlobalFunction( "void MouseClick(int x, int y, int button, int cursor)", asFUNCTION( BIND_CLASS Global_MouseClick ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "void KeyboardPress(uint8 key1, uint8 key2)", asFUNCTION( BIND_CLASS Global_KeyboardPress ), asCALL_CDECL ) );
 
-BIND_ASSERT( engine->RegisterFuncdef( "void FileCollectionUploadFuncdef( int result, uint id, string& filePath, int type, int p0, int p1, int p2 )" ) );
+BIND_ASSERT( engine->RegisterFuncdef( "void FileCollectionUploadFuncdef( int result, uint filehash, int type, int p0, int p1, int p2 )" ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "bool AddFileToServerCollection( const string&in filePath, int type, int p0 = 0, int p1 = 0, int p2 = 0, FileCollectionUploadFuncdef@+ func = nullptr )", asFUNCTION( BIND_CLASS Global_AddFileToServerCollection ), asCALL_CDECL ) );
 
 BIND_ASSERT( engine->RegisterGlobalFunction( "FOWindow@+ get_MainWindow()", asFUNCTION( BIND_CLASS Global_GetMainWindows ), asCALL_CDECL ) );
@@ -1141,6 +1141,9 @@ BIND_ASSERT( engine->RegisterGlobalProperty( "int __GmapGroupCurY", &BIND_CLASS 
 BIND_ASSERT( engine->RegisterGlobalProperty( "int __GmapGroupToX", &BIND_CLASS GmapGroupToX ) );
 BIND_ASSERT( engine->RegisterGlobalProperty( "int __GmapGroupToY", &BIND_CLASS GmapGroupToY ) );
 BIND_ASSERT( engine->RegisterGlobalProperty( "float __GmapGroupSpeed", &BIND_CLASS GmapGroupSpeed ) );
+
+BIND_ASSERT( engine->RegisterGlobalProperty( "int __CurrentFileSendPercent", &BIND_CLASS CurrentFileSendPercent ) );
+BIND_ASSERT( engine->RegisterGlobalProperty( "int __CurrentFileRecivePercent", &BIND_CLASS CurrentFileRecivePercent ) );
 #endif
 
 #if defined ( BIND_CLIENT ) || defined ( BIND_SERVER )
@@ -1657,6 +1660,7 @@ BIND_ASSERT( engine->RegisterGlobalFunction( "uint GetTick()", asFUNCTION( BIND_
 BIND_ASSERT( engine->RegisterGlobalFunction( "uint GetAngelScriptProperty(int property)", asFUNCTION( BIND_CLASS Global_GetAngelScriptProperty ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "void SetAngelScriptProperty(int property, uint value)", asFUNCTION( BIND_CLASS Global_SetAngelScriptProperty ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "uint GetStrHash(string@+ str)", asFUNCTION( BIND_CLASS Global_GetStrHash ), asCALL_CDECL ) );
+BIND_ASSERT( engine->RegisterGlobalFunction( "string@+ GetHashStr( uint hash )", asFUNCTION( BIND_CLASS Global_GetHashStr ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "bool LoadDataFile(string& dataFileName)", asFUNCTION( BIND_CLASS Global_LoadDataFile ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "int GetConstantValue(int constCollection, string@+ name)", asFUNCTION( BIND_CLASS Global_GetConstantValue ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "string@ GetConstantName(int constCollection, int value)", asFUNCTION( BIND_CLASS Global_GetConstantName ), asCALL_CDECL ) );

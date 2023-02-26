@@ -85,6 +85,9 @@ public:
     FileSendBuffer* CurrentFileSend;
     asIScriptFunction* CurrentFileSendCellback;
 
+	FileSendBuffer* CurrentFileRecive;
+	asIScriptFunction* CurrentFileReciveCellback;
+
     char*         ComBuf;
     uint          ComLen;
     BufferManager Bin;
@@ -607,6 +610,7 @@ public:
         static uint          Global_GetAngelScriptProperty( int property );
         static bool          Global_SetAngelScriptProperty( int property, uint value );
         static uint          Global_GetStrHash( ScriptString* str );
+        static ScriptString* Global_GetHashStr( uint hash );
         static bool          Global_LoadDataFile( ScriptString& dat_name );
         static int           Global_GetConstantValue( int const_collection, ScriptString* name );
         static ScriptString* Global_GetConstantName( int const_collection, int value );
@@ -687,6 +691,8 @@ public:
         static int&          GmapOffsetX, & GmapOffsetY;
         static int&          GmapGroupCurX, & GmapGroupCurY, & GmapGroupToX, & GmapGroupToY;
         static float&        GmapGroupSpeed;
+		static int&          CurrentFileRecivePercent;
+		static int&          CurrentFileSendPercent;
     } ScriptFunc;
 
     static bool SpritesCanDraw;
@@ -1060,6 +1066,9 @@ public:
     static int   GmapGroupCurX, GmapGroupCurY, GmapGroupToX, GmapGroupToY;
     static bool  GmapWait;
     static float GmapGroupSpeed;
+
+	static int CurrentFileSendPercent;
+	static int CurrentFileRecivePercent;
 
     // Cars
     struct
