@@ -7466,7 +7466,7 @@ void FOClient::Net_SendFilePartToServer( )
 	}
 	else
 	{
-		CurrentFileSendPercent = state->bytework / CurrentFileSend->filesize;
+		CurrentFileSendPercent = ( double )( ((double)state->bytework) / CurrentFileSend->filesize ) * 100;
 	}
 }
 
