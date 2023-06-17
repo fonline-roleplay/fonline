@@ -549,6 +549,7 @@
     <ClInclude Include="..\Source\imstb_textedit.h" />
     <ClInclude Include="..\Source\imstb_truetype.h" />
     <ClInclude Include="..\Source\LookData.h" />
+    <ClInclude Include="..\Source\md5.h" />
     <ClInclude Include="..\Source\OverlayWindows.h" />
     <ClInclude Include="..\Source\OverlayWindowsD3D.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -745,6 +746,7 @@
     <ClCompile Include="..\Source\imgui_tables.cpp" />
     <ClCompile Include="..\Source\imgui_widgets.cpp" />
     <ClCompile Include="..\Source\LookData.cpp" />
+    <ClCompile Include="..\Source\md5.cpp" />
     <ClCompile Include="..\Source\OverlayWindows.cpp" />
     <ClCompile Include="..\Source\OverlayWindowsD3D.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
