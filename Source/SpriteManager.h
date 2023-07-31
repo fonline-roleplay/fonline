@@ -345,6 +345,7 @@ public:
     Animation3d* LoadPure3dAnimation( const char* fname, int path_type );
     void         FreePure3dAnimation( Animation3d* anim3d );
 
+	bool CheckAnimationOther(const char* fname, int path_type);
 private:
     SprInfoVec sprData;
     #ifdef FO_D3D

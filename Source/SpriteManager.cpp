@@ -3492,14 +3492,18 @@ AnyFrames* SpriteManager::LoadAnimationOther( const char* fname, int path_type )
 {
     // Load file
     FileManager fm;
-    if( !fm.LoadFile( fname, path_type ) )
-        return NULL;
-
+	if (!fm.LoadFile(fname, path_type))
+	{
+		WriteLogF(__FUNCTION__, " - Error 4 <%s> \n", fname);
+		return NULL;
+	}
     // Detect type
     ILenum file_type = ilTypeFromExt( fname );
-    if( file_type == IL_TYPE_UNKNOWN )
-        return NULL;
-
+	if (file_type == IL_TYPE_UNKNOWN)
+	{
+		WriteLogF(__FUNCTION__, " - Error 3 <%s> \n", fname);
+		return NULL;
+	}
     // Load image from memory
     ILuint img = 0;
     ilGenImages( 1, &img );
@@ -3510,6 +3514,7 @@ AnyFrames* SpriteManager::LoadAnimationOther( const char* fname, int path_type )
     ilDisable( IL_ORIGIN_SET );
     if( !success )
     {
+		WriteLogF(__FUNCTION__, " - Error 2 <%s> \n", fname);
         ilDeleteImage( img );
         return NULL;
     }
@@ -3525,6 +3530,7 @@ AnyFrames* SpriteManager::LoadAnimationOther( const char* fname, int path_type )
     {
         if( !ilConvertImage( IL_BGRA, IL_UNSIGNED_BYTE ) )
         {
+			WriteLogF(__FUNCTION__, " - Error 1 <%s> \n", fname);
             ilDeleteImage( img );
             return NULL;
         }
@@ -3563,6 +3569,52 @@ AnyFrames* SpriteManager::LoadAnimationOther( const char* fname, int path_type )
         return NULL;
     anim->Ind[ 0 ] = result;
     return anim;
+}
+
+bool SpriteManager::CheckAnimationOther(const char * fname, int path_type)
+{
+	FileManager fm;
+	if (!fm.LoadFile(fname, path_type))
+	{
+		return false;
+	}
+	// Detect type
+	ILenum file_type = ilTypeFromExt(fname);
+	if (file_type == IL_TYPE_UNKNOWN)
+	{
+		return false;
+	}
+	// Load image from memory
+	ILuint img = 0;
+	ilGenImages(1, &img);
+	ilBindImage(img);
+	ilEnable(IL_ORIGIN_SET);
+	ilOriginFunc(IL_ORIGIN_UPPER_LEFT);
+	ILboolean success = ilLoadL(file_type, fm.GetBuf(), fm.GetFsize());
+	ilDisable(IL_ORIGIN_SET);
+	if (!success)
+	{
+		ilDeleteImage(img);
+		return false;
+	}
+
+	// Get image data
+	int  format = ilGetInteger(IL_IMAGE_FORMAT);
+	int  type = ilGetInteger(IL_IMAGE_TYPE);
+
+	// Convert data
+	if (format != IL_BGRA || type != IL_UNSIGNED_BYTE)
+	{
+		if (!ilConvertImage(IL_BGRA, IL_UNSIGNED_BYTE))
+		{
+			ilDeleteImage(img);
+			return false;
+		}
+	}
+
+	ilDeleteImage(img);
+
+	return true;
 }
 
 uint SpriteManager::Render3dSprite( Animation3d* anim3d, int dir, int time_proc )

@@ -12097,6 +12097,13 @@ uint FOClient::SScriptFunc::Global_LoadSprite( ScriptString& spr_name, int path_
     return Self->AnimLoad( spr_name.c_str(), path_index, RES_SCRIPT );
 }
 
+bool FOClient::SScriptFunc::Global_ValidationImage(ScriptString & spr_name, int path_index)
+{
+	if (path_index >= PATH_LIST_COUNT)
+		SCRIPT_ERROR_R0("Invalid path index arg.");
+	return SprMngr.CheckAnimationOther( spr_name.c_str(), path_index );
+}
+
 uint FOClient::SScriptFunc::Global_LoadSpriteHash( uint name_hash, uchar dir )
 {
     return Self->AnimLoad( name_hash, dir, RES_SCRIPT );

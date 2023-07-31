@@ -1178,6 +1178,7 @@ struct BindClass
     static void Global_GetIfaceIniStr()     {}
     static void Global_LoadSprite()         {}
     static void Global_LoadSpriteHash()     {}
+	static void Global_ValidationImage() {}
     static void Global_GetSpriteWidth()     {}
     static void Global_GetSpriteHeight()    {}
     static void Global_GetSpriteCount()     {}

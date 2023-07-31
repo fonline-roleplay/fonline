@@ -634,6 +634,7 @@ public:
         static int           Global_RunAllFunctions( ScriptString& func_name );
 
         static uint Global_LoadSprite( ScriptString& spr_name, int path_index );
+		static bool Global_ValidationImage(ScriptString& spr_name, int path_index);
         static uint Global_LoadSpriteHash( uint name_hash, uchar dir );
         static int  Global_GetSpriteWidth( uint spr_id, int spr_index );
         static int  Global_GetSpriteHeight( uint spr_id, int spr_index );
