@@ -3301,7 +3301,12 @@ void FOClient::NetProcess()
         case NETMSG_NEXT_FILE_PART_REQEST:
             Net_OnNextFilePartReqestT( );
             break;
-
+		case NETMSG_SEND_FILE_PART_TO_CLIENT:
+			Net_OnFilePartToClient();
+			break;
+		case NETMSG_PREPARE_SEND_FILE_TO_CLIENT:
+			Net_OnPrepareSendFileToClient();
+			break;
         case NETMSG_LOADMAP:
             Net_OnLoadMap();
             break;
@@ -3993,7 +3998,7 @@ void FOClient::Net_SendFileToServer( FileSendBuffer* filebuffer, int collection_
 	state->params[ 2 ] = p2;
 
 	uint msg_len = sizeof( uint ) + sizeof( msg_len ) + sizeof( collection_type ) + sizeof( p0 ) + sizeof( p1 ) + sizeof( p2 )
-           + sizeof( uint ) + sizeof( uint ) + CurrentFileSend->MD5.size( );
+           + sizeof( uint ) + sizeof( uint ) + CurrentFileSend->MD5.size( ) + sizeof(uint) + CurrentFileSend->Extension.size();
 
 	CurrentFileSendPercent = 0;
 
@@ -4008,6 +4013,10 @@ void FOClient::Net_SendFileToServer( FileSendBuffer* filebuffer, int collection_
     Bout << CurrentFileSend->MD5.size();
     if( !CurrentFileSend->MD5.empty() )
         Bout.Push( CurrentFileSend->MD5.c_str(), CurrentFileSend->MD5.size() );
+	Bout << CurrentFileSend->Extension.size();
+
+	if (!CurrentFileSend->Extension.empty())
+		Bout.Push(CurrentFileSend->Extension.c_str(), CurrentFileSend->Extension.size());
 }
 
 void FOClient::Net_OnLoginSuccess()
@@ -7351,6 +7360,8 @@ void FOClient::Net_OnNextFilePartReqestT( )
 {
 	auto state = CurrentFileSend->GetState( Chosen->Id );
 	Bin >> state->packetsize;
+	CHECK_IN_BUFF_ERROR;
+
     if( state->packetsize > 0 )
     {
 	    Net_SendFilePartToServer( );
@@ -7388,6 +7399,121 @@ void FOClient::Net_OnNextFilePartReqestT( )
     }
 }
 
+void FOClient::Net_OnFilePartToClient()
+{
+	auto file = FileSendBuffer::GetDownloadFileBuffer(Chosen->Id);
+	uint msg_len;
+	Bin >> msg_len;
+	int result = file->PopToBin(Bin, Chosen->Id);
+	CHECK_IN_BUFF_ERROR;
+
+	if (result < 0)
+	{
+
+		FILE* f;
+		fopen_s(&f, Str::FormatBuf("data\\avatars\\%s.%s", file->MD5.c_str(), file->Extension.c_str()), "wb");
+		fwrite(file->buffer, 1, file->GetState(Chosen->Id)->bytework, f);
+		fclose(f);
+
+		file->FinishDownload(Chosen->Id);
+		file->Release();;
+		Str::AddNameHash(Str::FormatBuf("avatars\\%s.%s", file->MD5.c_str(), file->Extension.c_str()));
+		
+		if (Script::PrepareContext(ClientFunctions.FileCollectionDownload, _FUNC_, "FileCollectionDownload"))
+		{
+			Script::SetArgUInt(file->type);
+			Script::SetArgUInt(Str::GetHash(Str::FormatBuf("avatars\\%s.%s", file->MD5.c_str(), file->Extension.c_str())));
+
+			if (!Script::RunPrepared())
+			{
+
+			}
+		}
+		
+		file->FinishDownload(Chosen->Id);
+		file->Release();
+	}
+	else
+	{
+		Bout << (uint)NETMSG_NEXT_FILE_PART_CLIENT_REQEST;
+		Bout << file->GetState(Chosen->Id)->packetsize;
+	}
+}
+
+void FOClient::Net_OnPrepareSendFileToClient()
+{
+	int collection_type;
+	int p0, p1, p2;
+	uint msg_len;
+	size_t realsize, sizemd5, sizeextension;
+	string md5 = "", extension = "";
+
+	Bin >> msg_len;
+	Bin >> collection_type;
+	Bin >> p0;
+	Bin >> p1;
+	Bin >> p2;
+	Bin >> realsize;
+	Bin >> sizemd5;
+
+	if (sizemd5)
+	{
+		char* md5chars = new char[sizemd5 + 1];
+		md5chars[sizemd5] = 0;
+		Bin.Pop(md5chars, sizemd5);
+		md5 = md5chars;
+		delete[sizemd5 + 1] md5chars;
+	}
+
+	Bin >> sizeextension;
+
+	if (sizeextension)
+	{
+		char* extensionchars = new char[sizeextension + 1];
+		extensionchars[sizeextension] = 0;
+		Bin.Pop(extensionchars, sizeextension);
+		extension = extensionchars;
+		delete[sizeextension + 1] extensionchars;
+	}
+
+	CHECK_IN_BUFF_ERROR;
+
+	uint partsize = 1024;
+
+	if (partsize)
+	{
+		auto file = FileSendBuffer::GetFileBuffer(md5);
+		if (file)
+		{
+			partsize = 0;
+		}
+		else
+		{
+			file = FileSendBuffer::GetDownloadFileBuffer(Chosen->Id);
+			if (file)
+			{
+				partsize = 0;
+			}
+			else
+			{
+				file = FileSendBuffer::CreateDownloadFileBuffer(md5, Chosen->Id);
+				file->Resize(realsize);
+				file->type = collection_type;
+				file->Extension = extension;
+
+				auto state = file->CreateState(0);
+				state->params[0] = p0;
+				state->params[1] = p1;
+				state->params[2] = p2;
+				state->packetsize = partsize;
+			}
+		}
+	}
+
+	Bout << (uint)NETMSG_NEXT_FILE_PART_CLIENT_REQEST;
+	Bout << partsize;
+}
+
 void FOClient::Net_SendFilePartToServer( )
 {
 	auto state = CurrentFileSend->GetState( Chosen->Id );
@@ -7419,8 +7545,8 @@ void FOClient::Net_SendFilePartToServer( )
 		lpFilename[ lastIndex ] = 0;
 
 		FILE* fr, *fw;
-		string path_hash = Str::FormatBuf( "avatars" DIR_SLASH_S "%s.png", /*lpFilename,*/ CurrentFileSend->MD5.c_str( ) );
-		string path = Str::FormatBuf( "%s" DIR_SLASH_S "data" DIR_SLASH_S "avatars" DIR_SLASH_S "%s.png", lpFilename, CurrentFileSend->MD5.c_str( ) );
+		string path_hash = Str::FormatBuf( "avatars" DIR_SLASH_S "%s.%s", /*lpFilename,*/ CurrentFileSend->MD5.c_str( ), CurrentFileSend->Extension.c_str());
+		string path = Str::FormatBuf( "%s" DIR_SLASH_S "data" DIR_SLASH_S "avatars" DIR_SLASH_S "%s.%s", lpFilename, CurrentFileSend->MD5.c_str( ), CurrentFileSend->Extension.c_str());
 		
 		auto r = fopen_s( &fr, path.c_str(), "rb" );
 		if( r != 0 )
@@ -7466,7 +7592,7 @@ void FOClient::Net_SendFilePartToServer( )
 	}
 	else
 	{
-		CurrentFileSendPercent = ( double )( ((double)state->bytework) / CurrentFileSend->filesize ) * 100;
+		CurrentFileSendPercent = ( int )(( ((double)state->bytework) / CurrentFileSend->filesize ) * 100 );
 	}
 }
 
@@ -11714,6 +11840,7 @@ bool FOClient::SScriptFunc::Global_AddFileToServerCollection( ScriptString& file
     MD5 = GetMD5( PUCHAR( pFile ), dwSize );
     UnmapViewOfFile( pFile );
     buffer.MD5 = MD5.hash;
+	buffer.Extension = FileManager::GetExtension(fileName.c_str());
 
     Self->Net_SendFileToServer( &buffer, collection_type, p0, p1, p2, func );
 	//buffer.Release( );

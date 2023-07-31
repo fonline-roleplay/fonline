@@ -76,6 +76,8 @@ public:
     BufferManager& operator>>( char& i );
     BufferManager& operator<<( bool i );
     BufferManager& operator>>( bool& i );
+	BufferManager& operator>>( string& i);
+	BufferManager& operator<<(string& i);
 
 private:
     inline uint EncryptKey( int move )
@@ -104,6 +106,7 @@ public:
     size_t filesize; 
 	int type;
     std::string MD5;
+	std::string Extension;
 
     struct State 
     {
@@ -146,6 +149,7 @@ public:
     FileSendBuffer( ): filesize( 0 ), realsize( 0 ), buffer( nullptr ), type(0)
     {
         MD5 = "";
+		Extension = "";
         refcounter = 1;
     }
 #ifdef FONLINE_CLIENT
@@ -157,7 +161,12 @@ public:
 #ifdef FONLINE_SERVER
     State* GetState( uint clientid )
     {
-        return _state[clientid];
+		auto stateit = _state.find(clientid);
+		if (stateit == _state.end())
+		{
+			return nullptr;
+		}
+        return stateit->second;
     }
 #endif
 
@@ -166,7 +175,7 @@ public:
 		int result = 0;
         State* state = GetState( clientid );
         if( state )
-        {
+        { 
             uint s = state->packetsize;
 			if( ( s + state->bytework ) > filesize )
 			{
@@ -232,6 +241,7 @@ public:
 #endif
 		type = 0;
 		MD5 = "";
+		Extension = "";
 	}
 
     void Release( )
@@ -255,9 +265,9 @@ public:
 		return refcounter;
 	}
 
-#ifdef FONLINE_SERVER
 	static map< uint, FileSendBuffer*> lib;
 	static map< uint, FileSendBuffer*> DownloadLib;
+	static map< uint, FileSendBuffer*> UploadLib;
 
 	static FileSendBuffer* FileSendBuffer::GetDownloadBuffer( string md5 )
 	{
@@ -283,6 +293,31 @@ public:
 		return nullptr;
 	}
 
+	static FileSendBuffer* FileSendBuffer::GetUploadFileBuffer(uint clientid)
+	{
+		auto r = UploadLib.find(clientid);
+		if (r != UploadLib.end())
+			return r->second;
+		return nullptr;
+	}
+
+	void ReserveForUpload(uint clientid)
+	{
+		FreeUpload(clientid);
+		UploadLib.insert(PAIR(clientid, this));
+		AddRef();
+	}
+
+	void FreeUpload(uint clientid)
+	{
+		auto r = UploadLib.find(clientid);
+		if (r != UploadLib.end())
+		{
+			UploadLib.erase(r);
+			Release();
+		}
+	}
+
 	static FileSendBuffer* FileSendBuffer::CreateDownloadFileBuffer( string md5, uint clientid )
 	{
 		if( GetFileBuffer( md5 ) )
@@ -302,6 +337,10 @@ public:
 
 		DownloadLib.erase( it );
 
+#ifdef FONLINE_CLIENT
+		_state.Drop();
+#endif
+#ifdef FONLINE_SERVER
 		auto stateit = _state.find( clientid );
 		if( stateit != _state.end( ) )
 		{
@@ -309,6 +348,7 @@ public:
 			delete stateit->second;
 			_state.erase( stateit );
 		}
+#endif
 		if( isSuccess )
 		{
 			if( GetFileBuffer( MD5 ) )
@@ -322,11 +362,15 @@ public:
 
 	State* CreateState( uint clientid )
 	{
-		auto state = new State;
-		_state.insert( PAIR( clientid, state ) );
-		return state;
-	}
+#ifdef FONLINE_CLIENT
+		return &_state;
 #endif
+#ifdef FONLINE_SERVER
+		auto state = new State;
+		_state.insert(PAIR(clientid, state));
+		return state;
+#endif
+	}
 
 };
 

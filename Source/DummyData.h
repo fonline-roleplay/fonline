@@ -767,6 +767,7 @@ struct BindClass
     static void Crit_EventGlobalInvite()         {}
     static void Crit_EventTurnBasedProcess()     {}
     static void Crit_EventSmthTurnBasedProcess() {}
+	static void Crit_SendCollectionFile()		 {}
 
     static void Global_GetGlobalVar() {}
     static void Global_GetLocalVar()  {}

@@ -6,6 +6,8 @@
 #include "LookData.h"
 #include "CollectionFile.h"
 
+#include "md5.h"
+
 // Global_LoadImage
 #include "PNG/png.h"
 #ifdef FO_WINDOWS
@@ -187,9 +189,9 @@ bool FOServer::InitScriptSystem()
         { &ServerFunctions.PlayerAllowCommand, "player_allowcommand", "bool %s(Critter@,string@,uint8)" },
         { &ServerFunctions.CheckTrapLook, "check_trap_look", "bool %s(Map&,Critter&,Item&)" },
 		{ &ServerFunctions.MapInit, "map_init", "bool %s(Map&,bool)"  },
-		{ &ServerFunctions.FileCollectionDownload, "file_collection_download", "void %s( Critter&, int, const string&in, uint, int, int, int )"  },
-		{ &ServerFunctions.FileCollectionUpload, "file_collection_upload", "uint %s( Critter&, int, const string&in, uint, int, int, int )"  },
-		{ &ServerFunctions.FileCollectionDownloadReqest, "file_collection_download_reqest", "uint %s( Critter&, int, const string&in, uint, int, int, int )"  }
+		{ &ServerFunctions.FileCollectionDownload, "file_collection_download", "void %s( Critter&, int, const string&in, const string&in, uint, int, int, int )"  },
+		{ &ServerFunctions.FileCollectionUpload, "file_collection_upload", "int %s( Critter&, int, const string&in, const string&in, uint, int, int, int )"  },
+		{ &ServerFunctions.FileCollectionDownloadReqest, "file_collection_download_reqest", "int %s( Critter&, int, const string&in, const string&in, uint, int, int, int )"  }
     };
     if( !Script::BindReservedFunctions( (char*) scripts_cfg.GetBuf(), "server", BindGameFunc, sizeof( BindGameFunc ) / sizeof( BindGameFunc[ 0 ] ) ) )
     {
@@ -3621,6 +3623,46 @@ void FOServer::SScriptFunc::Crit_EventSmthTurnBasedProcess( Critter* cr, Critter
     if( map->IsNotValid )
         SCRIPT_ERROR_R( "Map nullptr." );
     cr->EventSmthTurnBasedProcess( from_cr, map, begin_turn );
+}
+
+void FOServer::SScriptFunc::Crit_SendCollectionFile(Critter * cr, uint hash, int type, int p0, int p1, int p2, asIScriptFunction* func )
+{
+	if (cr->IsNotValid)
+		SCRIPT_ERROR_R("This nullptr.");
+
+	if( !hash )
+		SCRIPT_ERROR_R("Zero hash.");
+
+	const char* fileName = Str::GetName(hash);
+	if( !fileName)
+		SCRIPT_ERROR_R("Hash name nullptr.");
+
+	WriteLog("hash <%s>\n", fileName);
+
+	FILE* file = nullptr;
+	if (fopen_s(&file, fileName, "rb"))
+		SCRIPT_ERROR_R("File open feil.");
+
+	FileSendBuffer* buffer = new FileSendBuffer();
+	if (buffer->GetRefCounter() > 1)
+		SCRIPT_ERROR_R("(buffer.GetRefCounter() > 1)");
+
+	fseek(file, 0, SEEK_END);
+	int size = ftell(file);
+	fseek(file, 0, SEEK_SET);
+	buffer->Resize(size);
+	fread(buffer->buffer, 1, size, file);
+	fclose(file);
+
+	TMD5   MD5;
+	DWORD  dwSize;
+	LPVOID pFile = MapFile_ReadOnly(TEXT(fileName), dwSize);
+	MD5 = GetMD5(PUCHAR(pFile), dwSize);
+	UnmapViewOfFile(pFile);
+	buffer->MD5 = MD5.hash;
+	buffer->Extension = FileManager::GetExtension(fileName);
+
+	cr->Send_CollectionFile(buffer, type, p0, p1, p2);
 }
 
 GameVar* FOServer::SScriptFunc::Global_GetGlobalVar( ushort tvar_id )

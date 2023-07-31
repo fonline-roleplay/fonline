@@ -231,6 +231,8 @@ public:
     void Net_OnServerFinishFileDownload( );
 
 	void Net_OnNextFilePartReqestT( );
+	void Net_OnPrepareSendFileToClient();
+	void Net_OnFilePartToClient();
 
     void Net_OnLookData();
 

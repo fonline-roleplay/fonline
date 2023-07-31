@@ -3944,12 +3944,11 @@ void FOServer::Process_CraftAsk( Client* cl )
     }
     CHECK_IN_BUFF_ERROR( cl );
 
-    uint msg = NETMSG_CRAFT_ASK;
     count = (ushort) numbers.size();
-    msg_len = sizeof( msg ) + sizeof( msg_len ) + sizeof( count ) + sizeof( uint ) * count;
+    msg_len = sizeof( uint ) + sizeof( msg_len ) + sizeof( count ) + sizeof( uint ) * count;
 
     BOUT_BEGIN( cl );
-    cl->Bout << msg;
+    cl->Bout << (uint) NETMSG_CRAFT_ASK;
     cl->Bout << msg_len;
     cl->Bout << count;
     for( uint i = 0, j = (uint) numbers.size(); i < j; i++ )
@@ -4427,8 +4426,8 @@ void FOServer::Process_PrepareSendFileToServer( Client* cl )
     int collection_type;
     int p0, p1, p2;
 	uint msg_len;
-    size_t realsize, sizemd5;
-    string md5 = "";
+    size_t realsize, sizemd5, sizeextension;
+    string md5 = "", extension = "";
 
 	cl->Bin >> msg_len;
     cl->Bin >> collection_type;
@@ -4447,16 +4446,29 @@ void FOServer::Process_PrepareSendFileToServer( Client* cl )
         delete[ sizemd5 + 1 ] md5chars;
     }
 
+	cl->Bin >> sizeextension;
+
+	if (sizeextension)
+	{
+		char* extensionchars = new char[sizeextension + 1];
+		extensionchars[sizeextension] = 0;
+		cl->Bin.Pop(extensionchars, sizeextension);
+		extension = extensionchars;
+		delete[sizeextension + 1] extensionchars;
+	}
+
 	CHECK_IN_BUFF_ERROR( cl );
 
 	uint partsize = 1024;
     if( Script::PrepareContext( ServerFunctions.FileCollectionDownloadReqest, _FUNC_, cl->GetInfo( ) ) )
     {
 		ScriptString* md5ScriptString = new ScriptString( md5 );
+		ScriptString* ExtensionScriptString = new ScriptString(extension);
          // uint %s( Critter& critter, int type, const string&in md5, uint filesize, int p0, int p1, int p2 )
         Script::SetArgObject( cl );
         Script::SetArgUInt( collection_type );
 		Script::SetArgObject( md5ScriptString );
+		Script::SetArgObject(ExtensionScriptString);
 		Script::SetArgUInt( realsize );
         Script::SetArgUInt( p0 );
         Script::SetArgUInt( p1 );
@@ -4467,6 +4479,7 @@ void FOServer::Process_PrepareSendFileToServer( Client* cl )
 			partsize = Script::GetReturnedUInt( );
         }
 
+		ExtensionScriptString->Release();
 		md5ScriptString->Release( );
     }
 
@@ -4489,8 +4502,9 @@ void FOServer::Process_PrepareSendFileToServer( Client* cl )
 				file = FileSendBuffer::CreateDownloadFileBuffer( md5, cl->GetId( ) );
 				file->Resize( realsize );
 				file->type = collection_type;
+				file->Extension = extension;
 
-				auto state =file->CreateState( cl->GetId( ) );
+				auto state = file->CreateState( cl->GetId( ) );
 				state->params[ 0 ] = p0;
 				state->params[ 1 ] = p1;
 				state->params[ 2 ] = p2;
@@ -4511,27 +4525,19 @@ void FOServer::Process_ReciveFilePart( Client * cl )
 	uint msg_len;
 	cl->Bin >> msg_len;
 
-	auto state = file->GetState( cl->GetId() );
-	uint s = state->packetsize;
-	if( state )
-	{
-		if( ( s + state->bytework ) > file->filesize )
-			s = file->filesize - state->bytework;
-	}
-
 	int result = file->PopToBin( cl->Bin, cl->GetId( ) );
 	CHECK_IN_BUFF_ERROR( cl );
 
 	if( result < 0 )
 	{
 		FILE* f;
-		fopen_s( &f, Str::FormatBuf( "avatars\\%s.png", file->MD5.c_str() ), "wb" );
+		fopen_s( &f, Str::FormatBuf( "avatars\\%s.%s", file->MD5.c_str(), file->Extension.c_str()), "wb" );
 		fwrite( file->buffer, 1, file->GetState( cl->GetId( ) )->bytework, f );
 		fclose( f );
+
 		file->FinishDownload( cl->GetId( ) );
 		file->Release( );
-		//WriteLog( "avatars\\%s.png - %i\n", file->MD5.c_str( ), Str::GetHash( Str::FormatBuf( "avatars\\%s.png", file->MD5.c_str( ) ) ) );
-		Str::AddNameHash( Str::FormatBuf( "avatars\\%s.png", file->MD5.c_str( ) ) );
+		Str::AddNameHash( Str::FormatBuf( "avatars\\%s.%s", file->MD5.c_str( ), file->Extension.c_str() ) );
 	}
 	else
 	{
@@ -4539,6 +4545,51 @@ void FOServer::Process_ReciveFilePart( Client * cl )
 		cl->Bout << ( uint )NETMSG_NEXT_FILE_PART_REQEST;
 		cl->Bout << file->GetState( cl->GetId() )->packetsize;
 		BOUT_END( cl );
+	}
+}
+
+void FOServer::Proccess_NextFilePartClientReqest(Client* cl)
+{
+	static int counter = 0;
+
+	auto CurrentFileSend = FileSendBuffer::GetUploadFileBuffer(cl->GetId());
+	auto state = CurrentFileSend->GetState(cl->GetId());
+	cl->Bin >> state->packetsize;
+	CHECK_IN_BUFF_ERROR(cl);
+
+	if (state->packetsize > 0)
+	{
+		Proccess_SendFilePartToClient(cl);
+	}
+	else
+	{
+		CurrentFileSend->FreeUpload(cl->GetId());
+		CurrentFileSend->Release();
+	}
+}
+
+void FOServer::Proccess_SendFilePartToClient(Client* cl)
+{
+	auto CurrentFileSend = FileSendBuffer::GetUploadFileBuffer(cl->GetId());
+	auto state = CurrentFileSend->GetState(cl->GetId());
+	uint s = state->packetsize;
+	if (state->bytework + state->packetsize > CurrentFileSend->filesize)
+	{
+		s = CurrentFileSend->filesize - state->bytework;
+	}
+
+	uint msg_len = sizeof(uint) + sizeof(msg_len) + s;
+
+	BOUT_BEGIN(cl);
+	cl->Bout << NETMSG_SEND_FILE_PART_TO_CLIENT;
+	cl->Bout << msg_len;
+	int result = CurrentFileSend->PushToBout(cl->Bout, cl->GetId());
+	BOUT_END(cl);
+
+	if (result < 0)
+	{
+		CurrentFileSend->FreeUpload(cl->GetId());
+		CurrentFileSend->Release();
 	}
 }
 

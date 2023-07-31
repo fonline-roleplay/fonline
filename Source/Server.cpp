@@ -2,6 +2,8 @@
 #include "Server.h"
 #include "FL/Fl.H"
 
+#include "md5.h"
+
 void* zlib_alloc( void* opaque, unsigned int items, unsigned int size ) { return calloc( items, size ); }
 void  zlib_free( void* opaque, void* address )                          { free( address ); }
 
@@ -367,6 +369,13 @@ void FOServer::RemoveClient( Client* cl )
 		{
 			file->FinishDownload( id, false );
 			file->Release( );
+			file = nullptr;
+		}
+
+		file = FileSendBuffer::GetUploadFileBuffer(id);
+		if (file)
+		{
+			file->FreeUpload(id);
 			file = nullptr;
 		}
         Job::DeferredRelease( cl );
@@ -1865,6 +1874,12 @@ void FOServer::Process( ClientPtr& cl )
 			{
 				Process_ReciveFilePart( cl );
 				BIN_END( cl );
+				continue;
+			}
+			case NETMSG_NEXT_FILE_PART_CLIENT_REQEST:
+			{
+				Proccess_NextFilePartClientReqest(cl);
+				BIN_END(cl);
 				continue;
 			}
             default:
@@ -3576,6 +3591,10 @@ bool FOServer::InitReal()
     FileManager::CreateDirectoryTree( FileManager::GetFullPath( "", PT_SERVER_DUMPS ) );
     FileManager::CreateDirectoryTree( FileManager::GetFullPath( "", PT_SERVER_PROFILER ) );
 
+
+	WriteLog("Init MD5...\n");
+	InitMD5();
+
     ConstantsManager::Initialize( PT_SERVER_DATA ); // Generate name of defines
     if( !InitScriptSystem() )
         return false;                               // Script system
@@ -3587,6 +3606,18 @@ bool FOServer::InitReal()
         return false;
     if( !Singleplayer )
         LoadBans();
+
+	WriteLog("Garbare file collection hash...\n");
+	{
+		WriteLog("Garbare file collection <Avatars> hash...\n");
+		StrVec result;
+		FileManager::GetFolderFileNames("avatars/", false, nullptr, result);
+		
+		for (size_t i = 0; i < result.size(); i++)
+		{
+			Str::AddNameHash( result.at( i ).c_str() );
+		}
+	}
 
     // Managers
     if( !AIMngr.Init() )

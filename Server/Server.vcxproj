@@ -204,6 +204,7 @@
     <ClCompile Include="..\Source\CollectionFile.cpp" />
     <ClCompile Include="..\Source\FileSystem.cpp" />
     <ClCompile Include="..\Source\LookData.cpp" />
+    <ClCompile Include="..\Source\md5.cpp" />
     <ClCompile Include="..\Source\Zlib\adler32.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
@@ -592,6 +593,7 @@
     <ClInclude Include="..\Source\CollectionFile.h" />
     <ClInclude Include="..\Source\FileSystem.h" />
     <ClInclude Include="..\Source\LookData.h" />
+    <ClInclude Include="..\Source\md5.h" />
     <ClInclude Include="..\Source\Zlib\crc32.h" />
     <ClInclude Include="..\Source\Zlib\deflate.h" />
     <ClInclude Include="..\Source\Zlib\inffast.h" />

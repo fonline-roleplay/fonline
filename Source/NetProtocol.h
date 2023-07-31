@@ -7,7 +7,7 @@
 /* Base                                                                 */
 /************************************************************************/
 
-#define FO_PROTOCOL_VERSION                   ( 0xF0E9 ) // FOnline Protocol Version
+#define FO_PROTOCOL_VERSION                   ( 0xFA10 ) // FOnline Protocol Version
 #define MAKE_NETMSG_HEADER( number )    ( (uint) ( ( 0xDEAD << 17 ) | ( number << 8 ) | ( 0xAA ) ) )
 #define PING_CLIENT_LIFE_TIME                 ( 15000 )  // Time to ping client life
 #define PING_CLIENT_INFO_TIME                 ( 2000 )   // Time to ping client for information
@@ -1194,8 +1194,10 @@
 // p1;
 // p2;
 // filebuffer->realsize;
-// filebuffer->MD5.size( );
-// filebuffer->MD5.c_str( ), filebuffer->MD5.size( ) );
+// filebuffer->MD5.size( )
+// filebuffer->MD5.c_str( )
+// filebuffer->Extension.size( )
+// filebuffer->Extension.c_str( )
 // ////////////////////////////////////////////////////////////////////////
 
 #define NETMSG_NEXT_FILE_PART_REQEST                           MAKE_NETMSG_HEADER( 175 )
@@ -1209,4 +1211,29 @@
 // ....
 // ////////////////////////////////////////////////////////////////////////
 
+#define NETMSG_PREPARE_SEND_FILE_TO_CLIENT                        MAKE_NETMSG_HEADER( 177 )
+// ////////////////////////////////////////////////////////////////////////
+// NETMSG_PREPARE_SEND_FILE_TO_SERVER;
+// msg_len;
+// collection_type;
+// p0;
+// p1;
+// p2;
+// filebuffer->realsize;
+// filebuffer->MD5.size( )
+// filebuffer->MD5.c_str( )
+// filebuffer->Extension.size( )
+// filebuffer->Extension.c_str( )
+// ////////////////////////////////////////////////////////////////////////
+
+#define NETMSG_NEXT_FILE_PART_CLIENT_REQEST                           MAKE_NETMSG_HEADER( 178 )
+#define NETMSG_NEXT_FILE_PART_CLIENT_REQEST_SIZE                     ( sizeof( int ) + sizeof( uint ) )
+// ////////////////////////////////////////////////////////////////////////
+// uint partsize
+// ////////////////////////////////////////////////////////////////////////
+
+#define NETMSG_SEND_FILE_PART_TO_CLIENT                        MAKE_NETMSG_HEADER( 179 )
+// ////////////////////////////////////////////////////////////////////////
+// ....
+// ////////////////////////////////////////////////////////////////////////
 #endif // __NET_PROTOCOL__

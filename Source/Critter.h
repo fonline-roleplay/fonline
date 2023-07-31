@@ -385,6 +385,7 @@ public:
     void Send_PlaySoundType( uint crid_synchronize, uchar sound_type, uchar sound_type_ext, uchar sound_id, uchar sound_id_ext );
     void Send_CritterLexems( Critter* cr );
     void Send_LookData();
+	void Send_CollectionFile(FileSendBuffer* filebuffer, int collection_type, int p0, int p1, int p2);
 
     // Send all
     void SendA_Move( uint move_params );
@@ -753,6 +754,7 @@ public:
     void Send_CheckUIDS();
     void Send_SomeItem( Item* item );       // Without checks!
     void Send_LookData();
+	void Send_CollectionFile(FileSendBuffer * filebuffer, int collection_type, int p0, int p1, int p2);
 
     void Send_WorkCollectionFileContext( );
     bool Send_PrepareCollectionFileContext( const CollectionFile* file, uint packet_size );

@@ -2798,6 +2798,13 @@ void Critter::Send_LookData()
         ((Client*)this)->Send_LookData();
 }
 
+void Critter::Send_CollectionFile(FileSendBuffer * filebuffer, int collection_type, int p0, int p1, int p2)
+{
+	if (IsPlayer())
+		((Client*)this)->Send_CollectionFile(filebuffer, collection_type, p0, p1, p2);
+
+}
+
 void Critter::SendA_Move( uint move_params )
 {
     if( VisCr.empty() )
@@ -5173,6 +5180,45 @@ void Client::Send_LookData()
         Bout.Push(dummy, OFFSETOF(LookData, dir));
     }
     BOUT_END(this);
+}
+
+void Client::Send_CollectionFile(FileSendBuffer * filebuffer, int collection_type, int p0, int p1, int p2)
+{
+	if (!filebuffer)
+		return;
+
+	filebuffer->ReserveForUpload(this->GetId());
+	FileSendBuffer::State* state = filebuffer->GetState(this->GetId());
+	if (!state)
+	{
+		state = filebuffer->CreateState(this->GetId());
+	}
+	state->Drop();
+	filebuffer->type = collection_type;
+	state->params[0] = p0;
+	state->params[1] = p1;
+	state->params[2] = p2;
+	state->packetsize = 1024;
+
+	uint msg_len = sizeof(uint) + sizeof(msg_len) + sizeof(collection_type) + sizeof(p0) + sizeof(p1) + sizeof(p2)
+		+ sizeof(uint) + sizeof(uint) + filebuffer->MD5.size() + sizeof(uint) + filebuffer->Extension.size();
+
+	Bout << NETMSG_PREPARE_SEND_FILE_TO_CLIENT;
+	Bout << msg_len;
+	Bout << collection_type;
+	Bout << p0;
+	Bout << p1;
+	Bout << p2;
+
+	Bout << filebuffer->filesize;
+
+	Bout << filebuffer->MD5.size();
+	if (!filebuffer->MD5.empty())
+		Bout.Push(filebuffer->MD5.c_str(), filebuffer->MD5.size());
+
+	Bout << filebuffer->Extension.size();
+	if (!filebuffer->Extension.empty())
+		Bout.Push(filebuffer->Extension.c_str(), filebuffer->Extension.size());
 }
 
 void Client::Send_WorkCollectionFileContext( )

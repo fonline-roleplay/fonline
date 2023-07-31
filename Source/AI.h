@@ -11,7 +11,7 @@
 #define AI_PLANE_MISC                ( 0 )
 #define AI_PLANE_ATTACK              ( 1 )
 #define AI_PLANE_WALK                ( 2 )
-#define AI_PLANE_PICK                ( 3 )
+#define AI_PLANE_PICK                ( 3 ) 
 #define AI_PLANE_PATROL              ( 4 )
 #define AI_PLANE_COURIER             ( 5 )
 

@@ -15,6 +15,8 @@ BIND_ASSERT( engine->RegisterObjectMethod( "DataRef", "int& opIndex(uint)", asFU
 // Computed value
 BIND_ASSERT( engine->RegisterObjectType( "DataVal", 0, asOBJ_REF | asOBJ_NOHANDLE ) );
 BIND_ASSERT( engine->RegisterObjectMethod( "DataVal", "const int opIndex(uint) const", asFUNCTION( BIND_CLASS DataVal_Index ), asCALL_CDECL_OBJFIRST ) );
+
+BIND_ASSERT(engine->RegisterFuncdef("void FileCollectionUploadFuncdef( int result, uint filehash, int type, int p0, int p1, int p2 )"));
 #endif // #if defined(BIND_CLIENT) || defined(BIND_SERVER)
 
 // Item prototype
@@ -615,6 +617,7 @@ BIND_ASSERT( engine->RegisterObjectMethod( "Critter", "bool EventGlobalProcess(i
 BIND_ASSERT( engine->RegisterObjectMethod( "Critter", "bool EventGlobalInvite(Item@ car, uint encounterDescriptor, int combatMode, uint& mapId, uint16& hexX, uint16& hexY, uint8& dir)", asFUNCTION( BIND_CLASS Crit_EventGlobalInvite ), asCALL_CDECL_OBJFIRST ) );
 BIND_ASSERT( engine->RegisterObjectMethod( "Critter", "void EventTurnBasedProcess(Map& map, bool beginTurn)", asFUNCTION( BIND_CLASS Crit_EventTurnBasedProcess ), asCALL_CDECL_OBJFIRST ) );
 BIND_ASSERT( engine->RegisterObjectMethod( "Critter", "void EventSmthTurnBasedProcess(Critter& fromCr, Map& map, bool beginTurn)", asFUNCTION( BIND_CLASS Crit_EventSmthTurnBasedProcess ), asCALL_CDECL_OBJFIRST ) );
+BIND_ASSERT( engine->RegisterObjectMethod( "Critter", "void SendCollectionFile( uint hash, int type, int p0 = 0, int p1 = 0, int p2 = 0, FileCollectionUploadFuncdef@+ func = null)", asFUNCTION(BIND_CLASS Crit_SendCollectionFile), asCALL_CDECL_OBJFIRST));
 
 // Parameters
 BIND_ASSERT( engine->RegisterObjectProperty( "Critter", "const uint Id", OFFSETOF( Critter, Data ) + OFFSETOF( CritData, Id ) ) );
@@ -1073,8 +1076,8 @@ BIND_ASSERT( engine->RegisterGlobalFunction( "int GetScroll(int scrollElement)",
 BIND_ASSERT( engine->RegisterGlobalFunction( "void SetScroll(int scrollElement, int value)", asFUNCTION( BIND_CLASS Global_SetScroll ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "uint GetDayTime(uint dayPart)", asFUNCTION( BIND_CLASS Global_GetDayTime ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "void GetDayColor(uint dayPart, uint8& r, uint8& g, uint8& b)", asFUNCTION( BIND_CLASS Global_GetDayColor ), asCALL_CDECL ) );
-BIND_ASSERT( engine->RegisterGlobalFunction( "void RunServerScript(string& funcName, int p0, int p1, int p2, string@+ p3, int[]@+ p4)", asFUNCTION( BIND_CLASS Global_RunServerScript ), asCALL_CDECL ) );
-BIND_ASSERT( engine->RegisterGlobalFunction( "void RunServerScriptUnsafe(string& funcName, int p0, int p1, int p2, string@+ p3, int[]@+ p4)", asFUNCTION( BIND_CLASS Global_RunServerScriptUnsafe ), asCALL_CDECL ) );
+BIND_ASSERT( engine->RegisterGlobalFunction( "void RunServerScript(string& funcName, int p0 = 0, int p1 = 0, int p2 = 0, string@+ p3 = null, int[]@+ p4 = null)", asFUNCTION( BIND_CLASS Global_RunServerScript ), asCALL_CDECL ) );
+BIND_ASSERT( engine->RegisterGlobalFunction( "void RunServerScriptUnsafe(string& funcName, int p0 = 0, int p1 = 0, int p2 = 0, string@+ p3 = null, int[]@+ p4 = null)", asFUNCTION( BIND_CLASS Global_RunServerScriptUnsafe ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "uint LoadSprite(string& name, int pathIndex)", asFUNCTION( BIND_CLASS Global_LoadSprite ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "uint LoadSprite(uint nameHash, uint8 dir)", asFUNCTION( BIND_CLASS Global_LoadSpriteHash ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "int GetSpriteWidth(uint sprId, int sprIndex)", asFUNCTION( BIND_CLASS Global_GetSpriteWidth ), asCALL_CDECL ) );
@@ -1116,8 +1119,7 @@ BIND_ASSERT( engine->RegisterGlobalFunction( "void RefreshMap(bool onlyTiles, bo
 BIND_ASSERT( engine->RegisterGlobalFunction( "void MouseClick(int x, int y, int button, int cursor)", asFUNCTION( BIND_CLASS Global_MouseClick ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "void KeyboardPress(uint8 key1, uint8 key2)", asFUNCTION( BIND_CLASS Global_KeyboardPress ), asCALL_CDECL ) );
 
-BIND_ASSERT( engine->RegisterFuncdef( "void FileCollectionUploadFuncdef( int result, uint filehash, int type, int p0, int p1, int p2 )" ) );
-BIND_ASSERT( engine->RegisterGlobalFunction( "bool AddFileToServerCollection( const string&in filePath, int type, int p0 = 0, int p1 = 0, int p2 = 0, FileCollectionUploadFuncdef@+ func = nullptr )", asFUNCTION( BIND_CLASS Global_AddFileToServerCollection ), asCALL_CDECL ) );
+BIND_ASSERT( engine->RegisterGlobalFunction( "bool AddFileToServerCollection( const string&in filePath, int type, int p0 = 0, int p1 = 0, int p2 = 0, FileCollectionUploadFuncdef@+ func = null )", asFUNCTION( BIND_CLASS Global_AddFileToServerCollection ), asCALL_CDECL ) );
 
 BIND_ASSERT( engine->RegisterGlobalFunction( "FOWindow@+ get_MainWindow()", asFUNCTION( BIND_CLASS Global_GetMainWindows ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "void SetDebugLookMode( bool isDebug )", asFUNCTION( BIND_CLASS Global_SetDebugLookMode ), asCALL_CDECL ) );

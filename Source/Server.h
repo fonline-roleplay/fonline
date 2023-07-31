@@ -85,6 +85,8 @@ public:
 
     static void Process_PrepareSendFileToServer( Client* cl );
 	static void Process_ReciveFilePart( Client* cl );
+	static void Proccess_NextFilePartClientReqest( Client* cl );
+	static void Proccess_SendFilePartToClient( Client* cl );
 
     static void Send_MapData( Client* cl, ProtoMap* pmap, uchar send_info );
     static void Send_MsgData( Client* cl, uint lang, ushort num_msg, FOMsg& data_msg );
@@ -732,6 +734,7 @@ public:
         static bool Crit_EventGlobalInvite( Critter* cr, Item* car, uint encounter_descriptor, int combat_mode, uint& map_id, ushort& hx, ushort& hy, uchar& dir );
         static void Crit_EventTurnBasedProcess( Critter* cr, Map* map, bool begin_turn );
         static void Crit_EventSmthTurnBasedProcess( Critter* cr, Critter* from_cr, Map* map, bool begin_turn );
+		static void Crit_SendCollectionFile(Critter* cr, uint hash, int type, int p0, int p1, int p2, asIScriptFunction* func);
 
         static GameVar* Global_GetGlobalVar( ushort tvar_id );
         static GameVar* Global_GetLocalVar( ushort tvar_id, uint master_id );

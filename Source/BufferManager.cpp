@@ -5,10 +5,9 @@
 
 #define NET_BUFFER_SIZE    ( 2048 )
 
-#ifdef FONLINE_SERVER
 map< uint, FileSendBuffer*> FileSendBuffer::lib;
 map< uint, FileSendBuffer*> FileSendBuffer::DownloadLib;
-#endif
+map< uint, FileSendBuffer*> FileSendBuffer::UploadLib;
 
 BufferManager::BufferManager()
 {
@@ -388,6 +387,19 @@ BufferManager& BufferManager::operator>>( bool& i )
     return *this;
 }
 
+BufferManager & BufferManager::operator>>(string & i)
+{
+	return *this;
+}
+
+BufferManager & BufferManager::operator<<(string & i)
+{
+	this->operator<<(i.size());
+	if (!i.empty())
+		Push(i.c_str(), i.size());
+	return *this;
+}
+
 #if ( defined ( FONLINE_SERVER ) ) || ( defined ( FONLINE_CLIENT ) )
 bool BufferManager::NeedProcess()
 {
@@ -536,6 +548,8 @@ bool BufferManager::NeedProcess()
         return (NETMSG_SEND_LOOK_DATA_SIZE + bufReadPos <= bufEndPos);
 	case NETMSG_NEXT_FILE_PART_REQEST:
 		return ( NETMSG_NEXT_FILE_PART_REQEST_SIZE + bufReadPos <= bufEndPos );
+	case NETMSG_NEXT_FILE_PART_CLIENT_REQEST:
+		return (NETMSG_NEXT_FILE_PART_CLIENT_REQEST_SIZE + bufReadPos <= bufEndPos);
 	default:
         break;
     }
@@ -588,6 +602,8 @@ bool BufferManager::NeedProcess()
 	case NETMSG_SEND_FILE_IN_COLLECTION:
     case NETMSG_PREPARE_SEND_FILE_TO_SERVER:
 	case NETMSG_SEND_FILE_PART_TO_SERVER:
+	case NETMSG_PREPARE_SEND_FILE_TO_CLIENT:
+	case NETMSG_SEND_FILE_PART_TO_CLIENT:
         return ( msg_len + bufReadPos <= bufEndPos );
     default:
         // Unknown message
@@ -821,6 +837,9 @@ void BufferManager::SkipMsg( uint msg )
     case NETMSG_NEXT_FILE_PART_REQEST:
         size = NETMSG_NEXT_FILE_PART_REQEST_SIZE;
         break;
+	case NETMSG_NEXT_FILE_PART_CLIENT_REQEST:
+		size = NETMSG_NEXT_FILE_PART_CLIENT_REQEST_SIZE;
+		break;
 
     case NETMSG_CHECK_UID0:
     case NETMSG_CHECK_UID1:
@@ -861,6 +880,8 @@ void BufferManager::SkipMsg( uint msg )
 	case NETMSG_SEND_FILE_IN_COLLECTION:
     case NETMSG_PREPARE_SEND_FILE_TO_SERVER:
 	case NETMSG_SEND_FILE_PART_TO_SERVER:
+	case NETMSG_PREPARE_SEND_FILE_TO_CLIENT:
+	case NETMSG_SEND_FILE_PART_TO_CLIENT:
     {
         // Changeable size
         EncryptKey( sizeof( msg ) );
@@ -1007,6 +1028,9 @@ bool BufferManager::IsValidMsg( uint msg )
     case NETMSG_PREPARE_SEND_FILE_TO_SERVER:
 	case NETMSG_SEND_FILE_PART_TO_SERVER:
 	case NETMSG_NEXT_FILE_PART_REQEST:
+	case NETMSG_PREPARE_SEND_FILE_TO_CLIENT:
+	case NETMSG_NEXT_FILE_PART_CLIENT_REQEST:
+	case NETMSG_SEND_FILE_PART_TO_CLIENT:
         return true;
     default:
         return false;
