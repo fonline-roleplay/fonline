@@ -7359,17 +7359,58 @@ void FOClient::Net_OnCheckUID4()
 void FOClient::Net_OnNextFilePartReqestT( )
 {
 	// AddMess(FOMB_GAME, Str::FormatBuf(" - checked ."));
+	int speed = 0;
 	auto state = CurrentFileSend->GetState( Chosen->Id );
-	Bin >> state->packetsize;
+	Bin >> speed;
 	CHECK_IN_BUFF_ERROR;
 
     if( state->packetsize > 0 )
     {
+		state->packetsize = speed;
 	    Net_SendFilePartToServer( );
     }
     else
     {
-		CurrentFileSendPercent = -2;
+		CurrentFileSendPercent = speed;
+
+		string path_hash = Str::FormatBuf("avatars" DIR_SLASH_S "%s.%s", /*lpFilename,*/ CurrentFileSend->MD5.c_str(), CurrentFileSend->Extension.c_str());
+
+		if (speed == 0)
+		{
+			CurrentFileSendPercent = speed = 1;
+			char lpFilename[255];
+			memzero(lpFilename, 255);
+			GetModuleFileNameA(NULL, lpFilename, 255);
+			uint index = 0;
+			uint lastIndex = 0;
+			while (lpFilename[index])
+			{
+				if (lpFilename[index] == '/' || lpFilename[index] == '\\')
+					lastIndex = index + 1;
+				index++;
+			}
+			lpFilename[lastIndex] = 0;
+
+			FILE* fr, *fw;
+			string path = Str::FormatBuf("%s" DIR_SLASH_S "data" DIR_SLASH_S "avatars" DIR_SLASH_S "%s.%s", lpFilename, CurrentFileSend->MD5.c_str(), CurrentFileSend->Extension.c_str());
+
+			auto r = fopen_s(&fr, path.c_str(), "rb");
+			if (r != 0)
+			{
+				r = fopen_s(&fw, path.c_str(), "wb");
+				if (r == 0)
+				{
+					fwrite(CurrentFileSend->buffer, 1, state->bytework, fw);
+					fclose(fw);
+
+					Str::AddNameHash(path_hash.c_str());
+				}
+			}
+			else fclose(fr);
+		}
+
+		uint hash = Str::GetHash(path_hash.c_str());
+
         if( CurrentFileSendCellback )
         {
             // int result, uint hash, int type, int p0, int p1, int p2            
@@ -7377,8 +7418,8 @@ void FOClient::Net_OnNextFilePartReqestT( )
             {
 				ScriptString* str = new ScriptString( state->path );
 
-				Script::SetArgUInt( -1 );
-				Script::SetArgUInt( 0 );
+				Script::SetArgUInt(speed);
+				Script::SetArgUInt(hash);
 				Script::SetArgUInt( CurrentFileSend->type );
 				Script::SetArgUInt( state->params[ 0 ] );
 				Script::SetArgUInt( state->params[ 1 ] );
@@ -7394,6 +7435,8 @@ void FOClient::Net_OnNextFilePartReqestT( )
             CurrentFileSendCellback->Release( );
             CurrentFileSendCellback = nullptr;
         }
+
+		CurrentFileSendPercent = -1;
 
         CurrentFileSend->Release( );
         CurrentFileSend = nullptr;

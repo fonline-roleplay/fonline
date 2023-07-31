@@ -4459,7 +4459,16 @@ void FOServer::Process_PrepareSendFileToServer( Client* cl )
 
 	CHECK_IN_BUFF_ERROR( cl );
 
-	uint partsize = 1024;
+	if (Str::GetHash(Str::FormatBuf("avatars\\%s.%s", md5.c_str(), extension.c_str())))
+	{
+		BOUT_BEGIN(cl);
+		cl->Bout << (uint)NETMSG_NEXT_FILE_PART_REQEST;
+		cl->Bout << 0;
+		BOUT_END(cl);
+		return;
+	}
+
+	int partsize = 1024;
     if( Script::PrepareContext( ServerFunctions.FileCollectionDownloadReqest, _FUNC_, cl->GetInfo( ) ) )
     {
 		ScriptString* md5ScriptString = new ScriptString( md5 );
@@ -4488,14 +4497,14 @@ void FOServer::Process_PrepareSendFileToServer( Client* cl )
 		auto file = FileSendBuffer::GetFileBuffer( md5 );
 		if( file )
 		{
-			partsize = 0;
+			partsize = -3;
 		}
 		else
 		{
 			file = FileSendBuffer::GetDownloadFileBuffer( cl->GetId( ) );
 			if( file )
 			{
-				partsize = 0;
+				partsize = -4;
 			}
 			else
 			{

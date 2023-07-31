@@ -1201,9 +1201,9 @@
 // ////////////////////////////////////////////////////////////////////////
 
 #define NETMSG_NEXT_FILE_PART_REQEST                           MAKE_NETMSG_HEADER( 175 )
-#define NETMSG_NEXT_FILE_PART_REQEST_SIZE                     ( sizeof( uint ) + sizeof( uint ) )
+#define NETMSG_NEXT_FILE_PART_REQEST_SIZE                     ( sizeof( uint ) + sizeof( int ) )
 // ////////////////////////////////////////////////////////////////////////
-// uint partsize
+// int partsize
 // ////////////////////////////////////////////////////////////////////////
 
 #define NETMSG_SEND_FILE_PART_TO_SERVER                        MAKE_NETMSG_HEADER( 176 )
