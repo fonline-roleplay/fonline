@@ -5203,6 +5203,9 @@ void Client::Send_CollectionFile(FileSendBuffer * filebuffer, int collection_typ
 	uint msg_len = sizeof(uint) + sizeof(msg_len) + sizeof(collection_type) + sizeof(p0) + sizeof(p1) + sizeof(p2)
 		+ sizeof(uint) + sizeof(uint) + filebuffer->MD5.size() + sizeof(uint) + filebuffer->Extension.size();
 
+	//WriteLog("Prepare SendPartFile\n");
+
+	BOUT_BEGIN(this);
 	Bout << NETMSG_PREPARE_SEND_FILE_TO_CLIENT;
 	Bout << msg_len;
 	Bout << collection_type;
@@ -5219,6 +5222,7 @@ void Client::Send_CollectionFile(FileSendBuffer * filebuffer, int collection_typ
 	Bout << filebuffer->Extension.size();
 	if (!filebuffer->Extension.empty())
 		Bout.Push(filebuffer->Extension.c_str(), filebuffer->Extension.size());
+	BOUT_END(this);
 }
 
 void Client::Send_WorkCollectionFileContext( )

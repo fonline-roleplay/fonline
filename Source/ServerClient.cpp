@@ -4580,6 +4580,9 @@ void FOServer::Proccess_SendFilePartToClient(Client* cl)
 
 	uint msg_len = sizeof(uint) + sizeof(msg_len) + s;
 
+
+	// WriteLog("SendPartFile\n");
+
 	BOUT_BEGIN(cl);
 	cl->Bout << NETMSG_SEND_FILE_PART_TO_CLIENT;
 	cl->Bout << msg_len;
