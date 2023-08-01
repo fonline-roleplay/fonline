@@ -4573,8 +4573,6 @@ void FOServer::Proccess_NextFilePartClientReqest(Client* cl)
 	cl->Bin >> code;
 	CHECK_IN_BUFF_ERROR(cl);
 
-	WriteLog("code: %i\n", code);
-
 	if ( state->packetsize > 0 && !code )
 	{
 		Proccess_SendFilePartToClient(cl);
