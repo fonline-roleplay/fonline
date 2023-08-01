@@ -1201,9 +1201,10 @@
 // ////////////////////////////////////////////////////////////////////////
 
 #define NETMSG_NEXT_FILE_PART_REQEST                           MAKE_NETMSG_HEADER( 175 )
-#define NETMSG_NEXT_FILE_PART_REQEST_SIZE                     ( sizeof( uint ) + sizeof( int ) )
+#define NETMSG_NEXT_FILE_PART_REQEST_SIZE                     ( sizeof( uint ) + sizeof( unsigned short int ) + sizeof( char ) )
 // ////////////////////////////////////////////////////////////////////////
-// int partsize
+// unsigned short int partsize
+// char code
 // ////////////////////////////////////////////////////////////////////////
 
 #define NETMSG_SEND_FILE_PART_TO_SERVER                        MAKE_NETMSG_HEADER( 176 )
@@ -1227,9 +1228,10 @@
 // ////////////////////////////////////////////////////////////////////////
 
 #define NETMSG_NEXT_FILE_PART_CLIENT_REQEST                           MAKE_NETMSG_HEADER( 178 )
-#define NETMSG_NEXT_FILE_PART_CLIENT_REQEST_SIZE                     ( sizeof( int ) + sizeof( uint ) )
+#define NETMSG_NEXT_FILE_PART_CLIENT_REQEST_SIZE                     ( sizeof( uint ) + sizeof( unsigned short int ) + sizeof( char ) )
 // ////////////////////////////////////////////////////////////////////////
-// uint partsize
+// unsigned short int partsize
+// char code
 // ////////////////////////////////////////////////////////////////////////
 
 #define NETMSG_SEND_FILE_PART_TO_CLIENT                        MAKE_NETMSG_HEADER( 179 )

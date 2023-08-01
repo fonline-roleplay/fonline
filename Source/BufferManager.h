@@ -110,7 +110,7 @@ public:
 
     struct State 
     {
-        size_t packetsize;
+        unsigned short int packetsize;
 		size_t bytework;
 
 		int params[ 3 ];
@@ -256,6 +256,7 @@ public:
 			}
 			realsize = 0;
 			buffer = nullptr;
+			WriteLog("ÓÄÀËÅÍ\n");
 			delete this;
 		}
     }
@@ -313,6 +314,7 @@ public:
 		auto r = UploadLib.find(clientid);
 		if (r != UploadLib.end())
 		{
+			WriteLog("ÀÑÂÀÁÀÆÄÅÍ\n");
 			UploadLib.erase(r);
 			Release();
 		}

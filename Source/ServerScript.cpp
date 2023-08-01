@@ -191,7 +191,7 @@ bool FOServer::InitScriptSystem()
 		{ &ServerFunctions.MapInit, "map_init", "bool %s(Map&,bool)"  },
 		{ &ServerFunctions.FileCollectionDownload, "file_collection_download", "void %s( Critter&, int, const string&in, const string&in, uint, int, int, int )"  },
 		{ &ServerFunctions.FileCollectionUpload, "file_collection_upload", "int %s( Critter&, int, const string&in, const string&in, uint, int, int, int )"  },
-		{ &ServerFunctions.FileCollectionDownloadReqest, "file_collection_download_reqest", "int %s( Critter&, int, const string&in, const string&in, uint, int, int, int )"  }
+		{ &ServerFunctions.FileCollectionDownloadReqest, "file_collection_download_reqest", "int8 %s( Critter&, int, uint16&, const string&in, const string&in, uint, int, int, int )"  }
     };
     if( !Script::BindReservedFunctions( (char*) scripts_cfg.GetBuf(), "server", BindGameFunc, sizeof( BindGameFunc ) / sizeof( BindGameFunc[ 0 ] ) ) )
     {

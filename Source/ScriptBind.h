@@ -16,7 +16,7 @@ BIND_ASSERT( engine->RegisterObjectMethod( "DataRef", "int& opIndex(uint)", asFU
 BIND_ASSERT( engine->RegisterObjectType( "DataVal", 0, asOBJ_REF | asOBJ_NOHANDLE ) );
 BIND_ASSERT( engine->RegisterObjectMethod( "DataVal", "const int opIndex(uint) const", asFUNCTION( BIND_CLASS DataVal_Index ), asCALL_CDECL_OBJFIRST ) );
 
-BIND_ASSERT(engine->RegisterFuncdef("void FileCollectionUploadFuncdef( int result, uint filehash, int type, int p0, int p1, int p2 )"));
+BIND_ASSERT(engine->RegisterFuncdef("void FileCollectionUploadFuncdef( int8 result, uint filehash, int type, int p0, int p1, int p2 )"));
 #endif // #if defined(BIND_CLIENT) || defined(BIND_SERVER)
 
 // Item prototype

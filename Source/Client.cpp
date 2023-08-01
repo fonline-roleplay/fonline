@@ -7359,25 +7359,26 @@ void FOClient::Net_OnCheckUID4()
 void FOClient::Net_OnNextFilePartReqestT( )
 {
 	// AddMess(FOMB_GAME, Str::FormatBuf(" - checked ."));
-	int speed = 0;
+	char code = 0;
 	auto state = CurrentFileSend->GetState( Chosen->Id );
-	Bin >> speed;
+	Bin >> state->packetsize;
+	Bin >> code;
 	CHECK_IN_BUFF_ERROR;
 
-    if( state->packetsize > 0 )
+    if( state->packetsize > 0 && !code )
     {
-		state->packetsize = speed;
 	    Net_SendFilePartToServer( );
     }
     else
     {
-		CurrentFileSendPercent = speed;
+		AddMess(FOMB_GAME, Str::FormatBuf(" - checked code %i.", code));
+
+		CurrentFileSendPercent = code;
 
 		string path_hash = Str::FormatBuf("avatars" DIR_SLASH_S "%s.%s", /*lpFilename,*/ CurrentFileSend->MD5.c_str(), CurrentFileSend->Extension.c_str());
 
-		if (speed == 0)
+		if (code >= 0)
 		{
-			CurrentFileSendPercent = speed = 1;
 			char lpFilename[255];
 			memzero(lpFilename, 255);
 			GetModuleFileNameA(NULL, lpFilename, 255);
@@ -7400,7 +7401,7 @@ void FOClient::Net_OnNextFilePartReqestT( )
 				r = fopen_s(&fw, path.c_str(), "wb");
 				if (r == 0)
 				{
-					fwrite(CurrentFileSend->buffer, 1, state->bytework, fw);
+					fwrite(CurrentFileSend->buffer, 1, CurrentFileSend->filesize, fw);
 					fclose(fw);
 
 					Str::AddNameHash(path_hash.c_str());
@@ -7418,7 +7419,7 @@ void FOClient::Net_OnNextFilePartReqestT( )
             {
 				ScriptString* str = new ScriptString( state->path );
 
-				Script::SetArgUInt(speed);
+				Script::SetArgUChar(code);
 				Script::SetArgUInt(hash);
 				Script::SetArgUInt( CurrentFileSend->type );
 				Script::SetArgUInt( state->params[ 0 ] );
@@ -7615,7 +7616,7 @@ void FOClient::Net_SendFilePartToServer( )
 			if( Script::PrepareContext( Script::BindByFunction( CurrentFileSendCellback, true ), _FUNC_, "Net_SendFilePartToServer" ) )
 			{
 				uint hash = Str::GetHash( path_hash.c_str( ) );
-				Script::SetArgUInt( 1 );
+				Script::SetArgUChar(1);
 				Script::SetArgUInt( hash );
 				Script::SetArgUInt( CurrentFileSend->type );
 				Script::SetArgUInt( state->params[ 0 ] );
