@@ -7371,7 +7371,7 @@ void FOClient::Net_OnNextFilePartReqestT( )
     }
     else
     {
-		AddMess(FOMB_GAME, Str::FormatBuf(" - checked code %i.", code));
+		// AddMess(FOMB_GAME, Str::FormatBuf(" - checked code %i.", code));
 
 		CurrentFileSendPercent = code;
 

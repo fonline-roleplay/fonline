@@ -256,7 +256,6 @@ public:
 			}
 			realsize = 0;
 			buffer = nullptr;
-			WriteLog("сдюкем\n");
 			delete this;
 		}
     }
@@ -314,7 +313,6 @@ public:
 		auto r = UploadLib.find(clientid);
 		if (r != UploadLib.end())
 		{
-			WriteLog("юябюаюфдем\n");
 			UploadLib.erase(r);
 			Release();
 		}
