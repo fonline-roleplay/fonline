@@ -7483,6 +7483,7 @@ void FOClient::Net_OnFilePartToClient()
 	{
 		Bout << (uint)NETMSG_NEXT_FILE_PART_CLIENT_REQEST;
 		Bout << file->GetState(Chosen->Id)->packetsize;
+		Bout << (char)0;
 	}
 }
 
@@ -7526,14 +7527,23 @@ void FOClient::Net_OnPrepareSendFileToClient()
 
 	CHECK_IN_BUFF_ERROR;
 
-	uint partsize = 1024;
+	if (Str::GetName(Str::GetHash(Str::FormatBuf("avatars\\%s.%s", md5.c_str(), extension.c_str()))))
+	{
+		Bout << (uint)NETMSG_NEXT_FILE_PART_CLIENT_REQEST;
+		Bout << (unsigned short)0;
+		Bout << (char)1;
+		return;
+	}
 
+	unsigned short partsize = 1024;
+	char code = 0;
 	if (partsize)
 	{
 		auto file = FileSendBuffer::GetFileBuffer(md5);
 		if (file)
 		{
 			partsize = 0;
+			code = 1;
 		}
 		else
 		{
@@ -7541,6 +7551,7 @@ void FOClient::Net_OnPrepareSendFileToClient()
 			if (file)
 			{
 				partsize = 0;
+				code = -1;
 			}
 			else
 			{
@@ -7560,6 +7571,7 @@ void FOClient::Net_OnPrepareSendFileToClient()
 
 	Bout << (uint)NETMSG_NEXT_FILE_PART_CLIENT_REQEST;
 	Bout << partsize;
+	Bout << code;
 }
 
 void FOClient::Net_SendFilePartToServer( )
