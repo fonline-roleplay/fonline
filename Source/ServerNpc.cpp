@@ -403,9 +403,6 @@ void FOServer::ProcessAI( Npc* npc )
 /************************************************************************/
     case AI_PLANE_ATTACK:
     {
-        if( map->Data.IsTurnBasedAviable && !map->IsTurnBasedOn )
-            map->BeginTurnBased( npc );
-
         /************************************************************************/
         /* Target is visible                                                    */
         /************************************************************************/
@@ -480,6 +477,7 @@ void FOServer::ProcessAI( Npc* npc )
                     weap = def_item_main;
                 }
             }
+
             use = r1;
 
             if( !weap || !weap->IsWeapon() || !weap->WeapIsUseAviable( use ) )
@@ -509,24 +507,14 @@ void FOServer::ProcessAI( Npc* npc )
             npc->ItemSlotMain->SetMode( MAKE_ITEM_MODE( use, 0 ) );
 
             // Load weapon
-            if( !npc->IsRawParam( MODE_UNLIMITED_AMMO ) && weap->WeapGetMaxAmmoCount() && weap->WeapIsEmpty() )
+            if( weap->WeapGetMaxAmmoCount() && weap->WeapIsEmpty() )
             {
                 Item* ammo = npc->GetAmmoForWeapon( weap );
-                if( !ammo )
-                {
-                    WriteLogF( _FUNC_, " - Ammo for weapon not found, full load, npc<%s>.\n", npc->GetInfo() );
-                    weap->WeapLoadHolder();
-                }
-                else
-                {
-                    AI_ReloadWeapon( npc, map, weap, ammo->GetId() );
-                    break;
-                }
+				AI_ReloadWeapon( npc, map, weap, ammo ? ammo->GetId(): 0 );
+                break;
             }
-            else if( npc->IsRawParam( MODE_UNLIMITED_AMMO ) && weap->WeapGetMaxAmmoCount() )
-                weap->WeapLoadHolder();
 
-            /************************************************************************/
+			/************************************************************************/
             /* Step 2: Move to target                                               */
             /************************************************************************/
             bool is_can_walk = CritType::IsCanWalk( npc->GetCrType() );
