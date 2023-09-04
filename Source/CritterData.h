@@ -24,7 +24,7 @@ struct CritData
     uchar      Dir;
     uchar      Cond;
     uchar      ReservedCE;
-    char       Reserved0;
+    bool       LookRefreshFlag;
     uint       ScriptId;
     uint       ShowCritterDist1;
     uint       ShowCritterDist2;

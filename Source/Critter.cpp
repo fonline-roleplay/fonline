@@ -295,6 +295,8 @@ void Critter::ProcessVisibleCritters()
     if( IsNotValid )
         return;
 
+    Data.LookRefreshFlag = false;
+
     // Global map
     if( !GetMap() )
     {

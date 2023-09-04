@@ -51,6 +51,9 @@ void FOServer::ProcessCritter( Critter* cr )
     if( !cr->GetMap() && cr->GroupMove && cr == cr->GroupMove->Rule )
         MapMngr.GM_GroupMove( cr->GroupMove );
 
+    if (cr->Data.LookRefreshFlag)
+        cr->ProcessVisibleCritters();
+
     // Client
     if( cr->IsPlayer() )
     {
