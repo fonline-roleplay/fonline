@@ -29,7 +29,7 @@ CritterCl::CritterCl(): CrDir( 0 ), SprId( 0 ), Id( 0 ), Pid( 0 ), NameColor( 0 
                         staySprDir( 0 ), staySprTick( 0 ), needReSet( false ), reSetTick( 0 ), CurMoveStep( 0 ),
                         Visible( true ), SprDrawValid( false ), IsNotValid( false ), RefCounter( 1 ),
                         OxExtI( 0 ), OyExtI( 0 ), OxExtF( 0 ), OyExtF( 0 ), OxExtSpeed( 0 ), OyExtSpeed( 0 ), OffsExtNextTick( 0 ),
-                        Anim3d( NULL ), Anim3dStay( NULL ), Layers3d( NULL ), Multihex( 0 )
+                        Anim3d( NULL ), Anim3dStay( NULL ), Layers3d( NULL ), Multihex( 0 ), textOnHeadPointX( 0 ), textOnHeadPointY( 0 )
 {
     Name = "";
     NameOnHead = "";
@@ -1658,8 +1658,60 @@ void CritterCl::GetNameTextInfo( bool& nameVisible, int& x, int& y, int& w, int&
 	y = ( int )( ( float )( tr.T + GameOpt.ScrOy ) / GameOpt.SpritesZoom - 70.0f );
 
 	SprMngr.GetTextInfo( 200, 70, str.c_str( ), -1, FT_CENTERX | FT_BOTTOM | FT_BORDERED, w, h, lines );
+
+    FormatTextPoint(x, y);
+
 	x += 100 - ( w / 2 );
 	y += 70 - h;
+
+
+}
+
+void CritterCl::FormatTextPoint(int& x, int& y)
+{
+    const int distantion = 100;
+    int step = 4;
+
+    if (IsRunning)
+        step = 6;
+
+    if (x != textOnHeadPointX && abs(x - textOnHeadPointX) < distantion)
+    {
+        if (x > textOnHeadPointX)
+        {
+            if (x < textOnHeadPointX + step)
+                x = textOnHeadPointX;
+            else
+                x = textOnHeadPointX + step;
+        }
+        else
+        {
+            if (x > textOnHeadPointX - step)
+                x = textOnHeadPointX;
+            else
+                x = textOnHeadPointX - step;
+        }
+    }
+    if (y != textOnHeadPointY && abs(y - textOnHeadPointY) < distantion)
+    {
+        if (y > textOnHeadPointY)
+        {
+            if (y < textOnHeadPointY + step)
+                y = textOnHeadPointY;
+            else
+                y = textOnHeadPointY + step;
+        }
+        else
+        {
+            if (y > textOnHeadPointY - step)
+                y = textOnHeadPointY;
+            else
+                y = textOnHeadPointY - step;
+        }
+    }
+
+    textOnHeadPointX = x;
+    textOnHeadPointY = y;
 }
 
 /*
@@ -1813,6 +1865,9 @@ void CritterCl::DrawTextOnHead()
 			Rect   tr = GetTextRect( );
 			int    x = ( int )( ( float )( tr.L + tr.W( ) / 2 + GameOpt.ScrOx ) / GameOpt.SpritesZoom - 100.0f );
 			int    y = ( int )( ( float )( tr.T + GameOpt.ScrOy ) / GameOpt.SpritesZoom - 70.0f );
+
+            FormatTextPoint(x, y);
+
 			r = Rect( x, y, x + 200, y + 70 );
 		}
 		bool old = FOClient::Self->SpritesCanDraw;

@@ -3637,18 +3637,14 @@ void FOServer::SScriptFunc::Crit_SendCollectionFile(Critter * cr, uint hash, int
 	if( !fileName)
 		SCRIPT_ERROR_R("Hash name nullptr.");
 
-	WriteLog("hash <%s>\n", fileName);
-
 	FILE* file = nullptr;
 	if (fopen_s(&file, fileName, "rb"))
 		SCRIPT_ERROR_R("File open feil.");
 
-    WriteLog("Create sendbuffer <%s>\n", fileName);
 	FileSendBuffer* buffer = new FileSendBuffer();
 	if (buffer->GetRefCounter() > 1)
 		SCRIPT_ERROR_R("(buffer.GetRefCounter() > 1)");
 
-    WriteLog("Read avatar file <%s>\n", fileName);
 	fseek(file, 0, SEEK_END);
 	int size = ftell(file);
 	fseek(file, 0, SEEK_SET);
@@ -3656,21 +3652,15 @@ void FOServer::SScriptFunc::Crit_SendCollectionFile(Critter * cr, uint hash, int
 	fread(buffer->buffer, 1, size, file);
 	fclose(file);
 
-    WriteLog("Md5 <%s>\n", fileName);
 	TMD5   MD5;
 	DWORD  dwSize;
 	LPVOID pFile = MapFile_ReadOnly(TEXT(fileName), dwSize);
 	MD5 = GetMD5(PUCHAR(pFile), dwSize);
 	UnmapViewOfFile(pFile);
 	buffer->MD5 = MD5.hash;
-
-    WriteLog("Ext <%s>\n", fileName);
 	buffer->Extension = FileManager::GetExtension(fileName);
 
-    WriteLog("Prepare send avatar file <%s>\n", fileName);
 	cr->Send_CollectionFile(buffer, type, p0, p1, p2);
-
-    WriteLog("Success\n");
 }
 
 GameVar* FOServer::SScriptFunc::Global_GetGlobalVar( ushort tvar_id )
