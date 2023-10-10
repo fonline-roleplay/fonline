@@ -1669,47 +1669,49 @@ void CritterCl::GetNameTextInfo( bool& nameVisible, int& x, int& y, int& w, int&
 
 void CritterCl::FormatTextPoint(int& x, int& y)
 {
-    const int distantion = 100;
-    int step = 4;
-
-    if (IsRunning)
-        step = 6;
-
-    if (x != textOnHeadPointX && abs(x - textOnHeadPointX) < distantion)
+    if (!FOClient::Self->IsScroll())
     {
-        if (x > textOnHeadPointX)
+        const int distantion = 100;
+        int step = 4;
+
+        if (IsRunning)
+            step = 6;
+
+        if (x != textOnHeadPointX && abs(x - textOnHeadPointX) < distantion)
         {
-            if (x < textOnHeadPointX + step)
-                x = textOnHeadPointX;
+            if (x > textOnHeadPointX)
+            {
+                if (x < textOnHeadPointX + step)
+                    x = textOnHeadPointX;
+                else
+                    x = textOnHeadPointX + step;
+            }
             else
-                x = textOnHeadPointX + step;
+            {
+                if (x > textOnHeadPointX - step)
+                    x = textOnHeadPointX;
+                else
+                    x = textOnHeadPointX - step;
+            }
         }
-        else
+        if (y != textOnHeadPointY && abs(y - textOnHeadPointY) < distantion)
         {
-            if (x > textOnHeadPointX - step)
-                x = textOnHeadPointX;
+            if (y > textOnHeadPointY)
+            {
+                if (y < textOnHeadPointY + step)
+                    y = textOnHeadPointY;
+                else
+                    y = textOnHeadPointY + step;
+            }
             else
-                x = textOnHeadPointX - step;
+            {
+                if (y > textOnHeadPointY - step)
+                    y = textOnHeadPointY;
+                else
+                    y = textOnHeadPointY - step;
+            }
         }
     }
-    if (y != textOnHeadPointY && abs(y - textOnHeadPointY) < distantion)
-    {
-        if (y > textOnHeadPointY)
-        {
-            if (y < textOnHeadPointY + step)
-                y = textOnHeadPointY;
-            else
-                y = textOnHeadPointY + step;
-        }
-        else
-        {
-            if (y > textOnHeadPointY - step)
-                y = textOnHeadPointY;
-            else
-                y = textOnHeadPointY - step;
-        }
-    }
-
     textOnHeadPointX = x;
     textOnHeadPointY = y;
 }
