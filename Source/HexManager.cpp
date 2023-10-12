@@ -1018,6 +1018,7 @@ void HexManager::RebuildMap( int rx, int ry )
             CritterCl* cr = f.Crit;
             if( cr && GameOpt.ShowCrit && cr->Visible )
             {
+                cr->DropTextOnHeadPosition();
                 Sprite& spr = mainTree.AddSprite( DRAW_ORDER_CRIT_AUTO( cr ), nx, ny, 0,
                                                   f.ScrX + HEX_OX, f.ScrY + HEX_OY, 0, &cr->SprId, &cr->SprOx, &cr->SprOy,
                                                   &cr->Alpha, &cr->SprDrawValid );
@@ -1043,6 +1044,7 @@ void HexManager::RebuildMap( int rx, int ry )
                     if( !cr->Visible )
                         continue;
 
+                    cr->DropTextOnHeadPosition();
                     Sprite& spr = mainTree.AddSprite( DRAW_ORDER_CRIT_AUTO( cr ), nx, ny, 0,
                                                       f.ScrX + HEX_OX, f.ScrY + HEX_OY, 0, &cr->SprId, &cr->SprOx, &cr->SprOy,
                                                       &cr->Alpha, &cr->SprDrawValid );

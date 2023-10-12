@@ -352,7 +352,10 @@ private:
 
     int textOnHeadPointX;
     int textOnHeadPointY;
+    uint textDropTick;
 
+public:
+    void DropTextOnHeadPosition();
     // Ap cost
 public:
     int GetApCostCritterMove( bool is_run ) { return is_run ? GetParam( QST_AP_COST_RUN ) : 0; }
