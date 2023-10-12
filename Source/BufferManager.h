@@ -303,9 +303,9 @@ public:
 
 	void ReserveForUpload(uint clientid)
 	{
+		AddRef();
 		FreeUpload(clientid);
 		UploadLib.insert(PAIR(clientid, this));
-		AddRef();
 	}
 
 	void FreeUpload(uint clientid)

@@ -5189,12 +5189,16 @@ void Client::Send_CollectionFile(FileSendBuffer * filebuffer, int collection_typ
 	if (!filebuffer)
 		return;
 
+    //WriteLog("Send_CollectionFile start data: <%i>\n", filebuffer->Extension.size());
 	filebuffer->ReserveForUpload(this->GetId());
 	FileSendBuffer::State* state = filebuffer->GetState(this->GetId());
 	if (!state)
 	{
 		state = filebuffer->CreateState(this->GetId());
 	}
+
+    //WriteLog("Extension size check 0: %i\n", filebuffer->Extension.size());
+
 	state->Drop();
 	filebuffer->type = collection_type;
 	state->params[0] = p0;
@@ -5202,11 +5206,12 @@ void Client::Send_CollectionFile(FileSendBuffer * filebuffer, int collection_typ
 	state->params[2] = p2;
 	state->packetsize = 1024;
 
+    //WriteLog("Extension size check 1: %i\n", filebuffer->Extension.size());
+
 	uint msg_len = sizeof(uint) + sizeof(msg_len) + sizeof(collection_type) + sizeof(p0) + sizeof(p1) + sizeof(p2)
 		+ sizeof(uint) + sizeof(uint) + filebuffer->MD5.size() + sizeof(uint) + filebuffer->Extension.size();
 
-	//WriteLog("Prepare SendPartFile\n");
-
+    //WriteLog("Extension size check 2: %i\n", filebuffer->Extension.size());
 	BOUT_BEGIN(this);
 	Bout << NETMSG_PREPARE_SEND_FILE_TO_CLIENT;
 	Bout << msg_len;
@@ -5217,14 +5222,22 @@ void Client::Send_CollectionFile(FileSendBuffer * filebuffer, int collection_typ
 
 	Bout << filebuffer->filesize;
 
+    //WriteLog("Extension size check 3: %i\n", filebuffer->Extension.size());
+
 	Bout << filebuffer->MD5.size();
 	if (!filebuffer->MD5.empty())
 		Bout.Push(filebuffer->MD5.c_str(), filebuffer->MD5.size());
 
+    //WriteLog("Extension size check 4: %i\n", filebuffer->Extension.size() );
 	Bout << filebuffer->Extension.size();
-	if (!filebuffer->Extension.empty())
-		Bout.Push(filebuffer->Extension.c_str(), filebuffer->Extension.size());
-	BOUT_END(this);
+    if (!filebuffer->Extension.empty())
+    {
+        if (filebuffer->Extension.size() > 3 || filebuffer->Extension.size() < 0)
+            WriteLog("Extension %s\n", filebuffer->Extension.c_str());
+        Bout.Push(filebuffer->Extension.c_str(), filebuffer->Extension.size());
+    }
+    //WriteLog("Extension cool\n");
+    BOUT_END(this);
 }
 
 void Client::Send_WorkCollectionFileContext( )
