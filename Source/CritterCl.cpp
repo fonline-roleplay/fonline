@@ -1669,7 +1669,7 @@ void CritterCl::GetNameTextInfo( bool& nameVisible, int& x, int& y, int& w, int&
 
 void CritterCl::FormatTextPoint(int& x, int& y)
 {
-    if (!FOClient::Self->IsScroll() && !GameOpt.MapZooming /* && Timer::FastTick() - textDropTick >= 50*/)
+    if (!FOClient::Self->IsScroll() && !GameOpt.MapZooming && !FOClient::Self->HexMngr.AutoScroll.Active /* && Timer::FastTick() - textDropTick >= 50*/)
     {
         const int distantion = 100;
         int step = 4;
@@ -1679,7 +1679,7 @@ void CritterCl::FormatTextPoint(int& x, int& y)
 
         // FOClient::Self->AddMess(0, Str::FormatBuf( "FormatTextPoint <%i:%i> <%i:%i> %i <%i:%i>", textOnHeadPointX, textOnHeadPointY, x, y, Timer::FastTick() - textDropTick, GameOpt.ScrOx, GameOpt.ScrOy) );
 
-        if (textOnHeadPointX != -1000 && x != ( textOnHeadPointX + (GameOpt.ScrOx / GameOpt.SpritesZoom) ) && abs(x - textOnHeadPointX) < distantion)
+        if (textOnHeadPointX != -1000 && x != ( textOnHeadPointX ) && abs(x - textOnHeadPointX) < distantion)
         {
             if (x > textOnHeadPointX)
             {
@@ -1697,7 +1697,7 @@ void CritterCl::FormatTextPoint(int& x, int& y)
             }
         }
 
-        if (textOnHeadPointY != -1000 && y != ( textOnHeadPointY + (GameOpt.ScrOy / GameOpt.SpritesZoom) ) && abs(y - textOnHeadPointY) < distantion)
+        if (textOnHeadPointY != -1000 && y != ( textOnHeadPointY ) && abs(y - textOnHeadPointY) < distantion)
         {
             if (y > textOnHeadPointY)
             {
@@ -1717,8 +1717,8 @@ void CritterCl::FormatTextPoint(int& x, int& y)
     }
 
     
-    textOnHeadPointX = x - (GameOpt.ScrOx / GameOpt.SpritesZoom);
-    textOnHeadPointY = y - (GameOpt.ScrOy / GameOpt.SpritesZoom);
+    textOnHeadPointX = x;
+    textOnHeadPointY = y;
 }
 
 /*
