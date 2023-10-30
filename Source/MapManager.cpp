@@ -1757,6 +1757,19 @@ void MapManager::TraceBullet( TraceData& trace )
         if (!map->IsHexRaked(cx, cy))
         {
             trace.NotRakedTrace = true;
+
+            if (trace.Block)
+            {
+                (*trace.Block).first = cx;
+                (*trace.Block).second = cy;
+            }
+
+            if (trace.PreBlock)
+            {
+                (*trace.PreBlock).first = old_cx;
+                (*trace.PreBlock).second = old_cy;
+            }
+
             if( !trace.ForceFullTrace )
                 break;
         }
@@ -1786,21 +1799,6 @@ void MapManager::TraceBullet( TraceData& trace )
 
         old_cx = cx;
         old_cy = cy;
-    }
-
-    if( !trace.NotRakedTrace )
-    {
-        if( trace.Block )
-        {
-            ( *trace.Block ).first = cx;
-            ( *trace.Block ).second = cy;
-        }
-
-        if( trace.PreBlock )
-        {
-            ( *trace.PreBlock ).first = old_cx;
-            ( *trace.PreBlock ).second = old_cy;
-        }
     }
 }
 
