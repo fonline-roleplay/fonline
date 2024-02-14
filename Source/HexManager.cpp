@@ -2703,73 +2703,73 @@ bool HexManager::GetHexPixel( int x, int y, ushort& hx, ushort& hy )
     return false;
 }
 
-ItemHex* HexManager::GetItemPixel( int x, int y, bool& item_egg )
+ItemHex* HexManager::GetItemPixel(int x, int y, bool& item_egg)
 {
-    if( !IsMapLoaded() )
+    if (!IsMapLoaded())
         return NULL;
 
     ItemHexVec pix_item;
     ItemHexVec pix_item_egg;
-    bool       is_egg = SprMngr.IsEggTransp( x, y );
+    bool       is_egg = SprMngr.IsEggTransp(x, y);
 
-    for( auto it = hexItems.begin(), end = hexItems.end(); it != end; ++it )
+    for (auto it = hexItems.begin(), end = hexItems.end(); it != end; ++it)
     {
-        ItemHex* item = ( *it );
+        ItemHex* item = (*it);
         ushort   hx = item->GetHexX();
         ushort   hy = item->GetHexY();
 
-        if( item->IsFinishing() || !item->SprDrawValid )
+        if (item->IsFinishing() || !item->SprDrawValid)
             continue;
 
-        #ifdef FONLINE_CLIENT
-        if( item->IsHidden() || item->IsFullyTransparent() )
+#ifdef FONLINE_CLIENT
+        if (item->IsHidden() || item->IsFullyTransparent())
             continue;
-        if( item->IsScenOrGrid() && !GameOpt.ShowScen )
+        if (item->IsScenOrGrid() && !GameOpt.ShowScen)
             continue;
-        if( item->IsItem() && !GameOpt.ShowItem )
+        if (item->IsItem() && !GameOpt.ShowItem)
             continue;
-        if( item->IsWall() && !GameOpt.ShowWall )
+        if (item->IsWall() && !GameOpt.ShowWall)
             continue;
-        #else // FONLINE_MAPPER
-        bool is_fast = fastPids.count( item->GetProtoId() ) != 0;
-        if( item->IsScenOrGrid() && !GameOpt.ShowScen && !is_fast )
+#else // FONLINE_MAPPER
+        bool is_fast = fastPids.count(item->GetProtoId()) != 0;
+        if (item->IsScenOrGrid() && !GameOpt.ShowScen && !is_fast)
             continue;
-        if( item->IsItem() && !GameOpt.ShowItem && !is_fast )
+        if (item->IsItem() && !GameOpt.ShowItem && !is_fast)
             continue;
-        if( item->IsWall() && !GameOpt.ShowWall && !is_fast )
+        if (item->IsWall() && !GameOpt.ShowWall && !is_fast)
             continue;
-        if( !GameOpt.ShowFast && is_fast )
+        if (!GameOpt.ShowFast && is_fast)
             continue;
-        if( ignorePids.count( item->GetProtoId() ) )
+        if (ignorePids.count(item->GetProtoId()))
             continue;
-        #endif
+#endif
 
-        SpriteInfo* si = SprMngr.GetSpriteInfo( item->SprId );
-        if( !si )
+        SpriteInfo* si = SprMngr.GetSpriteInfo(item->SprId);
+        if (!si)
             continue;
 
-        if( si->Anim3d )
+        if (si->Anim3d)
         {
-            if( si->Anim3d->IsIntersect( x, y ) )
-                pix_item.push_back( item );
+            if (si->Anim3d->IsIntersect(x, y))
+                pix_item.push_back(item);
             continue;
         }
 
-        int l = (int) ( ( *item->HexScrX + item->ScrX + si->OffsX + HEX_OX + GameOpt.ScrOx - si->Width / 2 ) / GameOpt.SpritesZoom );
-        int r = (int) ( ( *item->HexScrX + item->ScrX + si->OffsX + HEX_OX + GameOpt.ScrOx + si->Width / 2 ) / GameOpt.SpritesZoom );
-        int t = (int) ( ( *item->HexScrY + item->ScrY + si->OffsY + HEX_OY + GameOpt.ScrOy - si->Height ) / GameOpt.SpritesZoom );
-        int b = (int) ( ( *item->HexScrY + item->ScrY + si->OffsY + HEX_OY + GameOpt.ScrOy ) / GameOpt.SpritesZoom );
+        int l = (int)((*item->HexScrX + item->ScrX + si->OffsX + HEX_OX + GameOpt.ScrOx - si->Width / 2) / GameOpt.SpritesZoom);
+        int r = (int)((*item->HexScrX + item->ScrX + si->OffsX + HEX_OX + GameOpt.ScrOx + si->Width / 2) / GameOpt.SpritesZoom);
+        int t = (int)((*item->HexScrY + item->ScrY + si->OffsY + HEX_OY + GameOpt.ScrOy - si->Height) / GameOpt.SpritesZoom);
+        int b = (int)((*item->HexScrY + item->ScrY + si->OffsY + HEX_OY + GameOpt.ScrOy) / GameOpt.SpritesZoom);
 
-        if( x >= l && x <= r && y >= t && y <= b )
+        if (x >= l && x <= r && y >= t && y <= b)
         {
-            Sprite* spr = item->SprDraw->GetIntersected( x - l, y - t );
-            if( spr )
+            Sprite* spr = item->SprDraw->GetIntersected(x - l, y - t);
+            if (spr)
             {
                 item->SprTemp = spr;
-                if( is_egg && SprMngr.CompareHexEgg( hx, hy, item->GetEggType() ) )
-                    pix_item_egg.push_back( item );
+                if (is_egg && SprMngr.CompareHexEgg(hx, hy, item->GetEggType()))
+                    pix_item_egg.push_back(item);
                 else
-                    pix_item.push_back( item );
+                    pix_item.push_back(item);
             }
         }
     }
@@ -2777,32 +2777,37 @@ ItemHex* HexManager::GetItemPixel( int x, int y, bool& item_egg )
     // Sorters
     struct Sorter
     {
-        static bool ByTreeIndex( ItemHex* o1, ItemHex* o2 )   { return o1->SprTemp->TreeIndex > o2->SprTemp->TreeIndex; }
-        static bool ByTransparent( ItemHex* o1, ItemHex* o2 ) { return !o1->IsTransparent() && o2->IsTransparent(); }
+        static bool ByTreeIndex(ItemHex* o1, ItemHex* o2) { return o1->SprTemp->TreeIndex > o2->SprTemp->TreeIndex; }
+        static bool ByTransparent(ItemHex* o1, ItemHex* o2) { return !o1->IsTransparent() && o2->IsTransparent(); }
+        static bool ByBad(ItemHex* o1, ItemHex* o2) { return o1->IsBadItem() && !o2->IsBadItem(); }
+
+        static inline void sort(ItemHexVec& items)
+        {
+            if (items.size() > 1)
+            {                
+                std::sort(items.begin(), items.end(), ByTreeIndex);
+                std::sort(items.begin(), items.end(), ByTransparent);
+                std::sort(items.begin(), items.end(), ByBad);
+            }
+        }
     };
 
     // Egg items
-    if( pix_item.empty() )
+    if (pix_item.empty())
     {
-        if( pix_item_egg.empty() )
+        if (pix_item_egg.empty())
             return NULL;
-        if( pix_item_egg.size() > 1 )
-        {
-            std::sort( pix_item_egg.begin(), pix_item_egg.end(), Sorter::ByTreeIndex );
-            std::sort( pix_item_egg.begin(), pix_item_egg.end(), Sorter::ByTransparent );
-        }
+        Sorter::sort(pix_item_egg);
         item_egg = true;
-        return pix_item_egg[ 0 ];
+        return pix_item_egg[0];
     }
-
-    // Visible items
-    if( pix_item.size() > 1 )
+    else // Visible items
+    // if (pix_item.size() > 1)
     {
-        std::sort( pix_item.begin(), pix_item.end(), Sorter::ByTreeIndex );
-        std::sort( pix_item.begin(), pix_item.end(), Sorter::ByTransparent );
+        Sorter::sort(pix_item);
+        item_egg = false;
+        return pix_item[0];
     }
-    item_egg = false;
-    return pix_item[ 0 ];
 }
 
 CritterCl* HexManager::GetCritterPixel( int x, int y, bool ignore_dead_and_chosen )
