@@ -4272,32 +4272,32 @@ void SpriteManager::SetEgg( ushort hx, ushort hy, Sprite* spr )
     eggValid = true;
 }
 
-bool SpriteManager::DrawSprites( Sprites& dtree, bool collect_contours, bool use_egg, int draw_oder_from, int draw_oder_to )
+bool SpriteManager::DrawSprites(Sprites& dtree, bool collect_contours, bool use_egg, int draw_oder_from, int draw_oder_to)
 {
     PointVec borders;
 
-    if( !eggValid )
+    if (!eggValid)
         use_egg = false;
     bool egg_trans = false;
     int  ex = eggX + GameOpt.ScrOx;
     int  ey = eggY + GameOpt.ScrOy;
     uint cur_tick = Timer::FastTick();
 
-    for( auto it = dtree.Begin(), end = dtree.End(); it != end; ++it )
+    for (auto it = dtree.Begin(), end = dtree.End(); it != end; ++it)
     {
         // Data
-        Sprite* spr = *it;
-        if( !spr->Valid )
+        SpriteFORP* spr = static_cast<SpriteFORP*>(*it);
+        if (!spr->Valid)
             continue;
 
-        if( spr->DrawOrderType < draw_oder_from )
+        if (spr->DrawOrderType < draw_oder_from)
             continue;
-        if( spr->DrawOrderType > draw_oder_to )
+        if (spr->DrawOrderType > draw_oder_to)
             break;
 
-        uint        id = ( spr->PSprId ? *spr->PSprId : spr->SprId );
-        SpriteInfo* si = sprData[ id ];
-        if( !si )
+        uint        id = (spr->PSprId ? *spr->PSprId : spr->SprId);
+        SpriteInfo* si = sprData[id];
+        if (!si)
             continue;
 
         // Coords
@@ -4305,36 +4305,37 @@ bool SpriteManager::DrawSprites( Sprites& dtree, bool collect_contours, bool use
         int y = spr->ScrY - si->Height + si->OffsY;
         x += GameOpt.ScrOx;
         y += GameOpt.ScrOy;
-        if( spr->OffsX )
+        if (spr->OffsX)
             x += *spr->OffsX;
-        if( spr->OffsY )
+        if (spr->OffsY)
             y += *spr->OffsY;
+
         float zoom = GameOpt.SpritesZoom;
 
         // Base color
         uint cur_color;
-        if( spr->Color )
-            cur_color = ( spr->Color | 0xFF000000 );
+        if (spr->Color)
+            cur_color = (spr->Color | 0xFF000000);
         else
             cur_color = baseColor;
 
         // Light
-        if( spr->Light )
+        if (spr->Light)
         {
             int    lr = *spr->Light;
-            int    lg = *( spr->Light + 1 );
-            int    lb = *( spr->Light + 2 );
-            uchar& r = ( (uchar*) &cur_color )[ 2 ];
-            uchar& g = ( (uchar*) &cur_color )[ 1 ];
-            uchar& b = ( (uchar*) &cur_color )[ 0 ];
-            int    ir = (int) r + lr;
-            int    ig = (int) g + lg;
-            int    ib = (int) b + lb;
-            if( ir > 0xFF )
+            int    lg = *(spr->Light + 1);
+            int    lb = *(spr->Light + 2);
+            uchar& r = ((uchar*)&cur_color)[2];
+            uchar& g = ((uchar*)&cur_color)[1];
+            uchar& b = ((uchar*)&cur_color)[0];
+            int    ir = (int)r + lr;
+            int    ig = (int)g + lg;
+            int    ib = (int)b + lb;
+            if (ir > 0xFF)
                 ir = 0xFF;
-            if( ig > 0xFF )
+            if (ig > 0xFF)
                 ig = 0xFF;
-            if( ib > 0xFF )
+            if (ib > 0xFF)
                 ib = 0xFF;
             r = ir;
             g = ig;
@@ -4342,334 +4343,336 @@ bool SpriteManager::DrawSprites( Sprites& dtree, bool collect_contours, bool use
         }
 
         // Alpha
-        if( spr->Alpha )
+        if (spr->Alpha)
         {
-            ( (uchar*) &cur_color )[ 3 ] = *spr->Alpha;
+            ((uchar*)&cur_color)[3] = *spr->Alpha;
         }
 
         // Process flashing
-        if( spr->FlashMask )
+        if (spr->FlashMask)
         {
             static int  cnt = 0;
             static uint tick = cur_tick + 100;
             static bool add = true;
-            if( cur_tick >= tick )
+            if (cur_tick >= tick)
             {
-                cnt += ( add ? 10 : -10 );
-                if( cnt > 40 )
+                cnt += (add ? 10 : -10);
+                if (cnt > 40)
                 {
                     cnt = 40;
                     add = false;
                 }
-                else if( cnt < -40 )
+                else if (cnt < -40)
                 {
                     cnt = -40;
                     add = true;
                 }
                 tick = cur_tick + 100;
             }
-            int r = ( ( cur_color >> 16 ) & 0xFF ) + cnt;
-            int g = ( ( cur_color >> 8 ) & 0xFF ) + cnt;
-            int b = ( cur_color & 0xFF ) + cnt;
-            r = CLAMP( r, 0, 0xFF );
-            g = CLAMP( g, 0, 0xFF );
-            b = CLAMP( b, 0, 0xFF );
-            ( (uchar*) &cur_color )[ 2 ] = r;
-            ( (uchar*) &cur_color )[ 1 ] = g;
-            ( (uchar*) &cur_color )[ 0 ] = b;
+            int r = ((cur_color >> 16) & 0xFF) + cnt;
+            int g = ((cur_color >> 8) & 0xFF) + cnt;
+            int b = (cur_color & 0xFF) + cnt;
+            r = CLAMP(r, 0, 0xFF);
+            g = CLAMP(g, 0, 0xFF);
+            b = CLAMP(b, 0, 0xFF);
+            ((uchar*)&cur_color)[2] = r;
+            ((uchar*)&cur_color)[1] = g;
+            ((uchar*)&cur_color)[0] = b;
             cur_color &= spr->FlashMask;
         }
 
-        #ifdef FO_D3D
+#ifdef FO_D3D
         // Check borders
-        if( !si->Anim3d )
+        if (!si->Anim3d)
         {
-            if( x / zoom > modeWidth || ( x + si->Width ) / zoom < 0 || y / zoom > modeHeight || ( y + si->Height ) / zoom < 0 )
+            if (x / zoom > modeWidth || (x + si->Width) / zoom < 0 || y / zoom > modeHeight || (y + si->Height) / zoom < 0)
                 continue;
         }
 
         // 3d model
-        if( si->Anim3d )
+        if (si->Anim3d)
         {
             // Draw collected sprites and disable egg
             Flush();
-            if( egg_trans )
+            if (egg_trans)
             {
-                # ifdef FO_D3D
-                D3D_HR( d3dDevice->SetTextureStageState( 1, D3DTSS_COLOROP, D3DTOP_DISABLE ) );
-                D3D_HR( d3dDevice->SetTexture( 1, NULL ) );
-                # endif
+# ifdef FO_D3D
+                D3D_HR(d3dDevice->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_DISABLE));
+                D3D_HR(d3dDevice->SetTexture(1, NULL));
+# endif
                 egg_trans = false;
             }
 
             // Draw 3d animation
-            Render3d( (int) ( x / zoom ), (int) ( y / zoom ), 1.0f / zoom, si->Anim3d, NULL, cur_color );
+            Render3d((int)(x / zoom), (int)(y / zoom), 1.0f / zoom, si->Anim3d, NULL, cur_color);
 
             // Process contour effect
-            if( collect_contours && spr->ContourType )
-                CollectContour( x, y, si, spr );
+            if (collect_contours && spr->ContourType)
+                CollectContour(x, y, si, spr);
 
             // Debug borders
-            if( GameOpt.DebugInfo )
+            if (GameOpt.DebugInfo)
             {
                 Rect eb = si->Anim3d->GetExtraBorders();
                 Rect bb = si->Anim3d->GetBaseBorders();
-                PrepareSquare( borders, Rect( eb.L, eb.T, eb.R, eb.B ), 0x5f750075 );
-                PrepareSquare( borders, Rect( bb.L, bb.T, bb.R, bb.B ), 0x5f757575 );
+                PrepareSquare(borders, Rect(eb.L, eb.T, eb.R, eb.B), 0x5f750075);
+                PrepareSquare(borders, Rect(bb.L, bb.T, bb.R, bb.B), 0x5f757575);
             }
 
             continue;
         }
-        #else
+#else
         // Render 3d
-        if( si->Anim3d )
+        if (si->Anim3d)
         {
             x += si->Width / 2 - si->OffsX;
             y += si->Height - si->OffsY;
-            x = (int) ( (float) x / zoom );
-            y = (int) ( (float) y / zoom );
-            Render3d( x, y, 1.0f / zoom, si->Anim3d, NULL, 0  );
+            x = (int)((float)x / zoom);
+            y = (int)((float)y / zoom);
+            Render3d(x, y, 1.0f / zoom, si->Anim3d, NULL, 0);
             x -= si->Width / 2 - si->OffsX;
             y -= si->Height - si->OffsY;
             zoom = 1.0f;
         }
 
         // Check borders
-        if( x / zoom > modeWidth || ( x + si->Width ) / zoom < 0 || y / zoom > modeHeight || ( y + si->Height ) / zoom < 0 )
+        if (x / zoom > modeWidth || (x + si->Width) / zoom < 0 || y / zoom > modeHeight || (y + si->Height) / zoom < 0)
             continue;
-        #endif
+#endif
 
         // 2d sprite
         // Egg process
         bool egg_added = false;
-        if( use_egg && spr->EggType && CompareHexEgg( spr->HexX, spr->HexY, spr->EggType ) )
+        if (use_egg && spr->EggType && CompareHexEgg(spr->HexX, spr->HexY, spr->EggType))
         {
             int x1 = x - ex;
             int y1 = y - ey;
             int x2 = x1 + si->Width;
             int y2 = y1 + si->Height;
 
-            if( spr->CutType )
+            if (spr->CutType)
             {
-                x1 += (int) spr->CutX;
-                x2 = x1 + (int) spr->CutW;
+                x1 += (int)spr->CutX;
+                x2 = x1 + (int)spr->CutW;
             }
 
-            if( !( x1 >= eggSprWidth || y1 >= eggSprHeight || x2 < 0 || y2 < 0 ) )
+            if (!(x1 >= eggSprWidth || y1 >= eggSprHeight || x2 < 0 || y2 < 0))
             {
-                if( !egg_trans )
+                if (!egg_trans)
                 {
                     Flush();
-                    #ifdef FO_D3D
-                    D3D_HR( d3dDevice->SetTextureStageState( 1, D3DTSS_COLOROP, D3DTOP_SELECTARG2 ) );
-                    D3D_HR( d3dDevice->SetTexture( 1, sprEgg->Surf->TextureOwner->Instance ) );
-                    #endif
+#ifdef FO_D3D
+                    D3D_HR(d3dDevice->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_SELECTARG2));
+                    D3D_HR(d3dDevice->SetTexture(1, sprEgg->Surf->TextureOwner->Instance));
+#endif
                     egg_trans = true;
                 }
 
-                x1 = max( x1, 0 );
-                y1 = max( y1, 0 );
-                x2 = min( x2, eggSprWidth );
-                y2 = min( y2, eggSprHeight );
+                x1 = max(x1, 0);
+                y1 = max(y1, 0);
+                x2 = min(x2, eggSprWidth);
+                y2 = min(y2, eggSprHeight);
 
-                float x1f = (float) ( x1 + SURF_SPRITES_OFFS );
-                float x2f = (float) ( x2 + SURF_SPRITES_OFFS );
-                float y1f = (float) ( y1 + SURF_SPRITES_OFFS );
-                float y2f = (float) ( y2 + SURF_SPRITES_OFFS );
+                float x1f = (float)(x1 + SURF_SPRITES_OFFS);
+                float x2f = (float)(x2 + SURF_SPRITES_OFFS);
+                float y1f = (float)(y1 + SURF_SPRITES_OFFS);
+                float y2f = (float)(y2 + SURF_SPRITES_OFFS);
 
                 int   mulpos = curSprCnt * 4;
-                vBuffer[ mulpos + 0 ].tu2 = x1f / eggSurfWidth;
-                vBuffer[ mulpos + 0 ].tv2 = y2f / eggSurfHeight;
-                vBuffer[ mulpos + 1 ].tu2 = x1f / eggSurfWidth;
-                vBuffer[ mulpos + 1 ].tv2 = y1f / eggSurfHeight;
-                vBuffer[ mulpos + 2 ].tu2 = x2f / eggSurfWidth;
-                vBuffer[ mulpos + 2 ].tv2 = y1f / eggSurfHeight;
-                vBuffer[ mulpos + 3 ].tu2 = x2f / eggSurfWidth;
-                vBuffer[ mulpos + 3 ].tv2 = y2f / eggSurfHeight;
+                vBuffer[mulpos + 0].tu2 = x1f / eggSurfWidth;
+                vBuffer[mulpos + 0].tv2 = y2f / eggSurfHeight;
+                vBuffer[mulpos + 1].tu2 = x1f / eggSurfWidth;
+                vBuffer[mulpos + 1].tv2 = y1f / eggSurfHeight;
+                vBuffer[mulpos + 2].tu2 = x2f / eggSurfWidth;
+                vBuffer[mulpos + 2].tv2 = y1f / eggSurfHeight;
+                vBuffer[mulpos + 3].tu2 = x2f / eggSurfWidth;
+                vBuffer[mulpos + 3].tv2 = y2f / eggSurfHeight;
 
                 egg_added = true;
             }
         }
 
-        if( !egg_added && egg_trans )
+        if (!egg_added && egg_trans)
         {
             Flush();
-            #ifdef FO_D3D
-            D3D_HR( d3dDevice->SetTextureStageState( 1, D3DTSS_COLOROP, D3DTOP_DISABLE ) );
-            D3D_HR( d3dDevice->SetTexture( 1, NULL ) );
-            #endif
+#ifdef FO_D3D
+            D3D_HR(d3dDevice->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_DISABLE));
+            D3D_HR(d3dDevice->SetTexture(1, NULL));
+#endif
             egg_trans = false;
         }
 
-        // Choose surface
-        if( dipQueue.empty() || dipQueue.back().SourceTexture != si->Surf->TextureOwner || dipQueue.back().SourceEffect != si->DrawEffect )
-            dipQueue.push_back( DipData( si->Surf->TextureOwner, si->DrawEffect ) );
+        if (dipQueue.empty() || dipQueue.back().SourceTexture != si->Surf->TextureOwner || dipQueue.back().SourceEffect != si->DrawEffect)
+            dipQueue.push_back(DipData(si->Surf->TextureOwner, si->DrawEffect));
         else
             dipQueue.back().SpritesCount++;
 
         // Casts
-        float xf = (float) x / zoom;
-        float yf = (float) y / zoom;
-        float wf = (float) si->Width / zoom;
-        float hf = (float) si->Height / zoom;
+        float xf = (float)x / zoom;
+        float yf = (float)y / zoom;
+        float wf = (float)si->Width / zoom * spr->Zoom;
+        float hf = (float)si->Height / zoom * spr->Zoom;
+
+        float zoomox = (wf - (float)si->Width / (zoom)) * 0.5f, zoomoy = hf - (float)si->Height / (zoom);
+
 
         // Fill buffer
         int mulpos = curSprCnt * 4;
 
-        vBuffer[ mulpos ].x = xf;
-        vBuffer[ mulpos ].y = yf + hf;
-        vBuffer[ mulpos ].tu = si->SprRect.L;
-        vBuffer[ mulpos ].tv = si->SprRect.B;
-        vBuffer[ mulpos++ ].diffuse = cur_color;
+        vBuffer[mulpos].x = xf - zoomox;
+        vBuffer[mulpos].y = yf + hf - zoomoy;
+        vBuffer[mulpos].tu = si->SprRect.L;
+        vBuffer[mulpos].tv = si->SprRect.B;
+        vBuffer[mulpos++].diffuse = cur_color;
 
-        vBuffer[ mulpos ].x = xf;
-        vBuffer[ mulpos ].y = yf;
-        vBuffer[ mulpos ].tu = si->SprRect.L;
-        vBuffer[ mulpos ].tv = si->SprRect.T;
-        vBuffer[ mulpos++ ].diffuse = cur_color;
+        vBuffer[mulpos].x = xf - zoomox;
+        vBuffer[mulpos].y = yf - zoomoy;
+        vBuffer[mulpos].tu = si->SprRect.L;
+        vBuffer[mulpos].tv = si->SprRect.T;
+        vBuffer[mulpos++].diffuse = cur_color;
 
-        vBuffer[ mulpos ].x = xf + wf;
-        vBuffer[ mulpos ].y = yf;
-        vBuffer[ mulpos ].tu = si->SprRect.R;
-        vBuffer[ mulpos ].tv = si->SprRect.T;
-        vBuffer[ mulpos++ ].diffuse = cur_color;
+        vBuffer[mulpos].x = xf + wf - zoomox;
+        vBuffer[mulpos].y = yf - zoomoy;
+        vBuffer[mulpos].tu = si->SprRect.R;
+        vBuffer[mulpos].tv = si->SprRect.T;
+        vBuffer[mulpos++].diffuse = cur_color;
 
-        vBuffer[ mulpos ].x = xf + wf;
-        vBuffer[ mulpos ].y = yf + hf;
-        vBuffer[ mulpos ].tu = si->SprRect.R;
-        vBuffer[ mulpos ].tv = si->SprRect.B;
-        vBuffer[ mulpos++ ].diffuse = cur_color;
+        vBuffer[mulpos].x = xf + wf - zoomox;
+        vBuffer[mulpos].y = yf + hf - zoomoy;
+        vBuffer[mulpos].tu = si->SprRect.R;
+        vBuffer[mulpos].tv = si->SprRect.B;
+        vBuffer[mulpos++].diffuse = cur_color;
 
         // Cutted sprite
-        if( spr->CutType )
+        if (spr->CutType)
         {
-            xf = (float) ( x + spr->CutX ) / zoom;
+            xf = (float)(x + spr->CutX) / zoom;
             wf = spr->CutW / zoom;
-            vBuffer[ mulpos - 4 ].x = xf;
-            vBuffer[ mulpos - 4 ].tu = spr->CutTexL;
-            vBuffer[ mulpos - 3 ].x = xf;
-            vBuffer[ mulpos - 3 ].tu = spr->CutTexL;
-            vBuffer[ mulpos - 2 ].x = xf + wf;
-            vBuffer[ mulpos - 2 ].tu = spr->CutTexR;
-            vBuffer[ mulpos - 1 ].x = xf + wf;
-            vBuffer[ mulpos - 1 ].tu = spr->CutTexR;
+            vBuffer[mulpos - 4].x = xf;
+            vBuffer[mulpos - 4].tu = spr->CutTexL;
+            vBuffer[mulpos - 3].x = xf;
+            vBuffer[mulpos - 3].tu = spr->CutTexL;
+            vBuffer[mulpos - 2].x = xf + wf;
+            vBuffer[mulpos - 2].tu = spr->CutTexR;
+            vBuffer[mulpos - 1].x = xf + wf;
+            vBuffer[mulpos - 1].tu = spr->CutTexR;
         }
 
         // Set default texture coordinates for egg texture
-        if( !egg_added )
+        if (!egg_added)
         {
-            vBuffer[ mulpos - 1 ].tu2 = 0.0f;
-            vBuffer[ mulpos - 1 ].tv2 = 0.0f;
-            vBuffer[ mulpos - 2 ].tu2 = 0.0f;
-            vBuffer[ mulpos - 2 ].tv2 = 0.0f;
-            vBuffer[ mulpos - 3 ].tu2 = 0.0f;
-            vBuffer[ mulpos - 3 ].tv2 = 0.0f;
-            vBuffer[ mulpos - 4 ].tu2 = 0.0f;
-            vBuffer[ mulpos - 4 ].tv2 = 0.0f;
+            vBuffer[mulpos - 1].tu2 = 0.0f;
+            vBuffer[mulpos - 1].tv2 = 0.0f;
+            vBuffer[mulpos - 2].tu2 = 0.0f;
+            vBuffer[mulpos - 2].tv2 = 0.0f;
+            vBuffer[mulpos - 3].tu2 = 0.0f;
+            vBuffer[mulpos - 3].tv2 = 0.0f;
+            vBuffer[mulpos - 4].tu2 = 0.0f;
+            vBuffer[mulpos - 4].tv2 = 0.0f;
         }
 
         // Draw
-        if( ++curSprCnt == flushSprCnt || si->Anim3d )
+        if (++curSprCnt == flushSprCnt || si->Anim3d)
             Flush();
 
-        #ifdef FONLINE_MAPPER
+#ifdef FONLINE_MAPPER
         // Corners indication
-        if( GameOpt.ShowCorners && spr->EggType )
+        if (GameOpt.ShowCorners && spr->EggType)
         {
             PointVec corner;
             float    cx = wf / 2.0f;
 
-            switch( spr->EggType )
+            switch (spr->EggType)
             {
             case EGG_ALWAYS:
-                PrepareSquare( corner, RectF( xf + cx - 2.0f, yf + hf - 50.0f, xf + cx + 2.0f, yf + hf ), 0x5FFFFF00 );
+                PrepareSquare(corner, RectF(xf + cx - 2.0f, yf + hf - 50.0f, xf + cx + 2.0f, yf + hf), 0x5FFFFF00);
                 break;
             case EGG_X:
-                PrepareSquare( corner, PointF( xf + cx - 5.0f, yf + hf - 55.0f ), PointF( xf + cx + 5.0f, yf + hf - 45.0f ), PointF( xf + cx - 5.0f, yf + hf - 5.0f ), PointF( xf + cx + 5.0f, yf + hf + 5.0f ), 0x5F00AF00 );
+                PrepareSquare(corner, PointF(xf + cx - 5.0f, yf + hf - 55.0f), PointF(xf + cx + 5.0f, yf + hf - 45.0f), PointF(xf + cx - 5.0f, yf + hf - 5.0f), PointF(xf + cx + 5.0f, yf + hf + 5.0f), 0x5F00AF00);
                 break;
             case EGG_Y:
-                PrepareSquare( corner, PointF( xf + cx - 5.0f, yf + hf - 49.0f ), PointF( xf + cx + 5.0f, yf + hf - 52.0f ), PointF( xf + cx - 5.0f, yf + hf + 1.0f ), PointF( xf + cx + 5.0f, yf + hf - 2.0f ), 0x5F00FF00 );
+                PrepareSquare(corner, PointF(xf + cx - 5.0f, yf + hf - 49.0f), PointF(xf + cx + 5.0f, yf + hf - 52.0f), PointF(xf + cx - 5.0f, yf + hf + 1.0f), PointF(xf + cx + 5.0f, yf + hf - 2.0f), 0x5F00FF00);
                 break;
             case EGG_X_AND_Y:
-                PrepareSquare( corner, PointF( xf + cx - 10.0f, yf + hf - 49.0f ), PointF( xf + cx, yf + hf - 52.0f ), PointF( xf + cx - 10.0f, yf + hf + 1.0f ), PointF( xf + cx, yf + hf - 2.0f ), 0x5FFF0000 );
-                PrepareSquare( corner, PointF( xf + cx, yf + hf - 55.0f ), PointF( xf + cx + 10.0f, yf + hf - 45.0f ), PointF( xf + cx, yf + hf - 5.0f ), PointF( xf + cx + 10.0f, yf + hf + 5.0f ), 0x5FFF0000 );
+                PrepareSquare(corner, PointF(xf + cx - 10.0f, yf + hf - 49.0f), PointF(xf + cx, yf + hf - 52.0f), PointF(xf + cx - 10.0f, yf + hf + 1.0f), PointF(xf + cx, yf + hf - 2.0f), 0x5FFF0000);
+                PrepareSquare(corner, PointF(xf + cx, yf + hf - 55.0f), PointF(xf + cx + 10.0f, yf + hf - 45.0f), PointF(xf + cx, yf + hf - 5.0f), PointF(xf + cx + 10.0f, yf + hf + 5.0f), 0x5FFF0000);
                 break;
             case EGG_X_OR_Y:
-                PrepareSquare( corner, PointF( xf + cx, yf + hf - 49.0f ), PointF( xf + cx + 10.0f, yf + hf - 52.0f ), PointF( xf + cx, yf + hf + 1.0f ), PointF( xf + cx + 10.0f, yf + hf - 2.0f ), 0x5FAF0000 );
-                PrepareSquare( corner, PointF( xf + cx - 10.0f, yf + hf - 55.0f ), PointF( xf + cx, yf + hf - 45.0f ), PointF( xf + cx - 10.0f, yf + hf - 5.0f ), PointF( xf + cx, yf + hf + 5.0f ), 0x5FAF0000 );
+                PrepareSquare(corner, PointF(xf + cx, yf + hf - 49.0f), PointF(xf + cx + 10.0f, yf + hf - 52.0f), PointF(xf + cx, yf + hf + 1.0f), PointF(xf + cx + 10.0f, yf + hf - 2.0f), 0x5FAF0000);
+                PrepareSquare(corner, PointF(xf + cx - 10.0f, yf + hf - 55.0f), PointF(xf + cx, yf + hf - 45.0f), PointF(xf + cx - 10.0f, yf + hf - 5.0f), PointF(xf + cx, yf + hf + 5.0f), 0x5FAF0000);
             default:
                 break;
             }
 
-            DrawPoints( corner, PRIMITIVE_TRIANGLELIST );
+            DrawPoints(corner, PRIMITIVE_TRIANGLELIST);
         }
 
         // Cuts
-        if( GameOpt.ShowSpriteCuts && spr->CutType )
+        if (GameOpt.ShowSpriteCuts && spr->CutType)
         {
             PointVec cut;
             float    z = zoom;
-            float    oy = ( spr->CutType == SPRITE_CUT_HORIZONTAL ? 3.0f : -5.2f ) / z;
-            # ifdef FO_D3D
-            float    x1 = (float) ( spr->ScrX - si->Width / 2 + spr->CutX + GameOpt.ScrOx + 1.0f ) / z - 0.5f;
-            float    y1 = (float) ( spr->ScrY + spr->CutOyL + GameOpt.ScrOy ) / z - 0.5f;
-            float    x2 = (float) ( spr->ScrX - si->Width / 2 + spr->CutX + spr->CutW + GameOpt.ScrOx - 1.0f ) / z - 0.5f;
-            float    y2 = (float) ( spr->ScrY + spr->CutOyR + GameOpt.ScrOy ) / z - 0.5f;
-            # else
-            float    x1 = (float) ( spr->ScrX - si->Width / 2 + spr->CutX + GameOpt.ScrOx + 1.0f ) / z;
-            float    y1 = (float) ( spr->ScrY + spr->CutOyL + GameOpt.ScrOy ) / z;
-            float    x2 = (float) ( spr->ScrX - si->Width / 2 + spr->CutX + spr->CutW + GameOpt.ScrOx - 1.0f ) / z;
-            float    y2 = (float) ( spr->ScrY + spr->CutOyR + GameOpt.ScrOy ) / z;
-            # endif
-            PrepareSquare( cut, PointF( x1, y1 - 80.0f / z + oy ), PointF( x2, y2 - 80.0f / z - oy ), PointF( x1, y1 + oy ), PointF( x2, y2 - oy ), 0x4FFFFF00 );
-            PrepareSquare( cut, RectF( xf, yf, xf + 1.0f, yf + hf ), 0x4F000000 );
-            PrepareSquare( cut, RectF( xf + wf, yf, xf + wf + 1.0f, yf + hf ), 0x4F000000 );
-            DrawPoints( cut, PRIMITIVE_TRIANGLELIST );
+            float    oy = (spr->CutType == SPRITE_CUT_HORIZONTAL ? 3.0f : -5.2f) / z;
+# ifdef FO_D3D
+            float    x1 = (float)(spr->ScrX - si->Width / 2 + spr->CutX + GameOpt.ScrOx + 1.0f) / z - 0.5f;
+            float    y1 = (float)(spr->ScrY + spr->CutOyL + GameOpt.ScrOy) / z - 0.5f;
+            float    x2 = (float)(spr->ScrX - si->Width / 2 + spr->CutX + spr->CutW + GameOpt.ScrOx - 1.0f) / z - 0.5f;
+            float    y2 = (float)(spr->ScrY + spr->CutOyR + GameOpt.ScrOy) / z - 0.5f;
+# else
+            float    x1 = (float)(spr->ScrX - si->Width / 2 + spr->CutX + GameOpt.ScrOx + 1.0f) / z;
+            float    y1 = (float)(spr->ScrY + spr->CutOyL + GameOpt.ScrOy) / z;
+            float    x2 = (float)(spr->ScrX - si->Width / 2 + spr->CutX + spr->CutW + GameOpt.ScrOx - 1.0f) / z;
+            float    y2 = (float)(spr->ScrY + spr->CutOyR + GameOpt.ScrOy) / z;
+# endif
+            PrepareSquare(cut, PointF(x1, y1 - 80.0f / z + oy), PointF(x2, y2 - 80.0f / z - oy), PointF(x1, y1 + oy), PointF(x2, y2 - oy), 0x4FFFFF00);
+            PrepareSquare(cut, RectF(xf, yf, xf + 1.0f, yf + hf), 0x4F000000);
+            PrepareSquare(cut, RectF(xf + wf, yf, xf + wf + 1.0f, yf + hf), 0x4F000000);
+            DrawPoints(cut, PRIMITIVE_TRIANGLELIST);
         }
 
         // Draw order
-        if( GameOpt.ShowDrawOrder )
+        if (GameOpt.ShowDrawOrder)
         {
             float z = zoom;
             int   x1, y1;
 
-            if( !spr->CutType )
+            if (!spr->CutType)
             {
-                x1 = (int) ( ( spr->ScrX + GameOpt.ScrOx ) / z );
-                y1 = (int) ( ( spr->ScrY + GameOpt.ScrOy ) / z );
+                x1 = (int)((spr->ScrX + GameOpt.ScrOx) / z);
+                y1 = (int)((spr->ScrY + GameOpt.ScrOy) / z);
             }
             else
             {
 
-                x1 = (int) ( ( spr->ScrX - si->Width / 2 + spr->CutX + GameOpt.ScrOx + 1.0f ) / z );
-                y1 = (int) ( ( spr->ScrY + spr->CutOyL + GameOpt.ScrOy ) / z );
+                x1 = (int)((spr->ScrX - si->Width / 2 + spr->CutX + GameOpt.ScrOx + 1.0f) / z);
+                y1 = (int)((spr->ScrY + spr->CutOyL + GameOpt.ScrOy) / z);
             }
 
-            if( spr->DrawOrderType >= DRAW_ORDER_FLAT && spr->DrawOrderType < DRAW_ORDER )
-                y1 -= (int) ( 40.0f / z );
+            if (spr->DrawOrderType >= DRAW_ORDER_FLAT && spr->DrawOrderType < DRAW_ORDER)
+                y1 -= (int)(40.0f / z);
 
-            char str[ 32 ];
-            Str::Format( str, "%u", spr->TreeIndex );
-            DrawStr( Rect( x1, y1, x1 + 100, y1 + 100 ), str, 0 );
+            char str[32];
+            Str::Format(str, "%u", spr->TreeIndex);
+            DrawStr(Rect(x1, y1, x1 + 100, y1 + 100), str, 0);
         }
-        #endif
+#endif
 
         // Process contour effect
-        if( collect_contours && spr->ContourType )
-            CollectContour( x, y, si, spr );
+        if (collect_contours && spr->ContourType)
+            CollectContour(x, y, si, spr);
     }
 
     Flush();
-    if( egg_trans )
+    if (egg_trans)
     {
-        #ifdef FO_D3D
-        D3D_HR( d3dDevice->SetTextureStageState( 1, D3DTSS_COLOROP, D3DTOP_DISABLE ) );
-        D3D_HR( d3dDevice->SetTexture( 1, NULL ) );
-        #endif
+#ifdef FO_D3D
+        D3D_HR(d3dDevice->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_DISABLE));
+        D3D_HR(d3dDevice->SetTexture(1, NULL));
+#endif
     }
 
-    if( GameOpt.DebugInfo )
-        DrawPoints( borders, PRIMITIVE_TRIANGLELIST );
+    if (GameOpt.DebugInfo)
+        DrawPoints(borders, PRIMITIVE_TRIANGLELIST);
     return true;
 }
 
@@ -5266,7 +5269,7 @@ bool SpriteManager::CollectContour( int x, int y, SpriteInfo* si, Sprite* spr )
             uint contour_id = GetSpriteContour( si, spr );
             if( contour_id )
             {
-                Sprite& contour_spr = spriteContours.AddSprite( 0, 0, 0, 0, spr->ScrX, spr->ScrY, contour_id, NULL, spr->OffsX, spr->OffsY, NULL, NULL );
+                Sprite& contour_spr = spriteContours.AddSprite( 0, 0, 0, 0, spr->ScrX, spr->ScrY, contour_id, NULL, spr->OffsX, spr->OffsY, NULL, NULL, static_cast<SpriteFORP*>(spr)->Zoom);
                 if( spr->ContourType == CONTOUR_RED )
                 {
                     contour_spr.SetFlash( 0xFFFF0000 );

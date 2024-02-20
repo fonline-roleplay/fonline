@@ -933,6 +933,8 @@ BIND_ASSERT( engine->RegisterObjectMethod( "CritterCl", "bool GetVisible() const
 // BIND_ASSERT( engine->RegisterObjectMethod( "CritterCl", "bool IsMyTurn() const", asFUNCTION( BIND_CLASS Crit_CheckKey ), asCALL_CDECL_OBJFIRST ) );
 BIND_ASSERT( engine->RegisterObjectMethod( "CritterCl", "void set_ContourColor(uint value)", asFUNCTION( BIND_CLASS Crit_set_ContourColor ), asCALL_CDECL_OBJFIRST ) );
 BIND_ASSERT( engine->RegisterObjectMethod( "CritterCl", "uint get_ContourColor() const", asFUNCTION( BIND_CLASS Crit_get_ContourColor ), asCALL_CDECL_OBJFIRST ) );
+BIND_ASSERT( engine->RegisterObjectMethod( "CritterCl", "void set_SpriteZoom(float value)", asFUNCTION( BIND_CLASS Crit_set_SpriteZoom), asCALL_CDECL_OBJFIRST ) );
+BIND_ASSERT( engine->RegisterObjectMethod( "CritterCl", "float get_SpriteZoom() const", asFUNCTION( BIND_CLASS Crit_get_SpriteZoom), asCALL_CDECL_OBJFIRST ) );
 BIND_ASSERT( engine->RegisterObjectMethod( "CritterCl", "uint GetMultihex() const", asFUNCTION( BIND_CLASS Crit_GetMultihex ), asCALL_CDECL_OBJFIRST ) );
 BIND_ASSERT( engine->RegisterObjectMethod( "CritterCl", "bool IsTurnBasedTurn() const", asFUNCTION( BIND_CLASS Crit_IsTurnBasedTurn ), asCALL_CDECL_OBJFIRST ) );
 

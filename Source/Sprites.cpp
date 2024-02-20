@@ -90,21 +90,21 @@ void Sprites::GrowPool( uint size )
 {
     spritesPool.reserve( spritesPool.size() + size );
     for( uint i = 0; i < size; i++ )
-        spritesPool.push_back( new Sprite() );
+        spritesPool.push_back( new SpriteFORP() );
 }
 
 void Sprites::ClearPool()
 {
     for( auto it = spritesPool.begin(), end = spritesPool.end(); it != end; ++it )
     {
-        Sprite* spr = *it;
+        SpriteFORP* spr = static_cast<SpriteFORP*>(*it);
         spr->Unvalidate();
         delete spr;
     }
     spritesPool.clear();
 }
 
-Sprite& Sprites::PutSprite( uint index, int draw_order, int hx, int hy, int cut, int x, int y, uint id, uint* id_ptr, short* ox, short* oy, uchar* alpha, bool* callback )
+Sprite& Sprites::PutSprite( uint index, int draw_order, int hx, int hy, int cut, int x, int y, uint id, uint* id_ptr, short* ox, short* oy, uchar* alpha, bool* callback, float zoom )
 {
     if( index >= spritesTreeSize )
     {
@@ -112,7 +112,7 @@ Sprite& Sprites::PutSprite( uint index, int draw_order, int hx, int hy, int cut,
         if( spritesTreeSize >= spritesTree.size() )
             Resize( spritesTreeSize + SPRITES_RESIZE_COUNT );
     }
-    Sprite* spr = spritesTree[ index ];
+    SpriteFORP* spr = static_cast<SpriteFORP*>(spritesTree[ index ]);
     spr->TreeIndex = index;
     spr->HexX = hx;
     spr->HexY = hy;
@@ -136,7 +136,7 @@ Sprite& Sprites::PutSprite( uint index, int draw_order, int hx, int hy, int cut,
     spr->FlashMask = 0;
     spr->Parent = NULL;
     spr->Child = NULL;
-
+    spr->Zoom = zoom;
     // Cutting
     if( cut == SPRITE_CUT_HORIZONTAL || cut == SPRITE_CUT_VERTICAL )
     {
@@ -176,7 +176,7 @@ Sprite& Sprites::PutSprite( uint index, int draw_order, int hx, int hy, int cut,
             if( xx + ww > widthf )
                 ww = widthf - xx;
 
-            Sprite& spr_ = ( i != h1 ? PutSprite( spritesTreeSize, draw_order, hor ? i : hx, hor ? hy : i, 0, x, y, id, id_ptr, ox, oy, alpha, NULL ) : *spr );
+            Sprite& spr_ = ( i != h1 ? PutSprite( spritesTreeSize, draw_order, hor ? i : hx, hor ? hy : i, 0, x, y, id, id_ptr, ox, oy, alpha, NULL, zoom ) : *spr );
             if( i != h1 )
                 spr_.Parent = parent;
             parent->Child = &spr_;
@@ -213,17 +213,17 @@ Sprite& Sprites::PutSprite( uint index, int draw_order, int hx, int hy, int cut,
     return *spr;
 }
 
-Sprite& Sprites::AddSprite( int draw_order, int hx, int hy, int cut, int x, int y, uint id, uint* id_ptr, short* ox, short* oy, uchar* alpha, bool* callback )
+Sprite& Sprites::AddSprite( int draw_order, int hx, int hy, int cut, int x, int y, uint id, uint* id_ptr, short* ox, short* oy, uchar* alpha, bool* callback, float zoom )
 {
-    return PutSprite( spritesTreeSize, draw_order, hx, hy, cut, x, y, id, id_ptr, ox, oy, alpha, callback );
+    return PutSprite( spritesTreeSize, draw_order, hx, hy, cut, x, y, id, id_ptr, ox, oy, alpha, callback, zoom );
 }
 
-Sprite& Sprites::InsertSprite( int draw_order, int hx, int hy, int cut, int x, int y, uint id, uint* id_ptr, short* ox, short* oy, uchar* alpha, bool* callback )
+Sprite& Sprites::InsertSprite( int draw_order, int hx, int hy, int cut, int x, int y, uint id, uint* id_ptr, short* ox, short* oy, uchar* alpha, bool* callback, float zoom )
 {
     // For cutted sprites need resort all tree
     if( cut == SPRITE_CUT_HORIZONTAL || cut == SPRITE_CUT_VERTICAL )
     {
-        Sprite& spr = PutSprite( spritesTreeSize, draw_order, hx, hy, cut, x, y, id, id_ptr, ox, oy, alpha, callback );
+        Sprite& spr = PutSprite( spritesTreeSize, draw_order, hx, hy, cut, x, y, id, id_ptr, ox, oy, alpha, callback, zoom );
         SortByMapPos();
         return spr;
     }
@@ -256,7 +256,7 @@ Sprite& Sprites::InsertSprite( int draw_order, int hx, int hy, int cut, int x, i
         spritesTree.pop_back();
     }
 
-    return PutSprite( index, draw_order, hx, hy, cut, x, y, id, id_ptr, ox, oy, alpha, callback );
+    return PutSprite( index, draw_order, hx, hy, cut, x, y, id, id_ptr, ox, oy, alpha, callback, zoom );
 }
 
 void Sprites::Resize( uint size )

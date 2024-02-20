@@ -976,6 +976,8 @@ struct BindClass
     static void Crit_GetVisible()       {}
     static void Crit_set_ContourColor() {}
     static void Crit_get_ContourColor() {}
+    static void Crit_set_SpriteZoom()   {}
+    static void Crit_get_SpriteZoom()   {}
     static void Crit_GetMultihex()      {}
     static void Crit_IsTurnBasedTurn()  {}
 

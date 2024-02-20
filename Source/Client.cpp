@@ -4106,7 +4106,7 @@ void FOClient::Net_OnAddCritter( bool is_npc )
         WriteLogF( _FUNC_, " - Invalid positions hx<%u>, hy<%u>, dir<%u>.\n", hx, hy, dir );
     else
     {
-        CritterCl* cr = new CritterCl();
+        CritterCl* cr = new CritterClFORP();
         cr->Id = crid;
         cr->HexX = hx;
         cr->HexY = hy;
@@ -10808,6 +10808,26 @@ uint FOClient::SScriptFunc::Crit_get_ContourColor( CritterCl* cr )
     return cr->ContourColor;
 }
 
+void FOClient::SScriptFunc::Crit_set_SpriteZoom(CritterCl* cr, float value)
+{
+    if (cr->IsNotValid)
+        SCRIPT_ERROR_R("This nullptr.");
+    if (cr->SprDrawValid)
+        static_cast<SpriteFORP*>(cr->SprDraw)->Zoom = value;
+    static_cast<CritterClFORP*>(cr)->SprZoom = value;
+}
+
+float FOClient::SScriptFunc::Crit_get_SpriteZoom(CritterCl* cr)
+{
+    if (cr->IsNotValid)
+        SCRIPT_ERROR_R0("This nullptr.");
+
+    if (cr->SprDrawValid)
+        return static_cast<SpriteFORP*>(cr->SprDraw)->Zoom;
+
+    return static_cast<CritterClFORP*>(cr)->SprZoom;
+}
+
 uint FOClient::SScriptFunc::Crit_GetMultihex( CritterCl* cr )
 {
     if( cr->IsNotValid )
@@ -12350,7 +12370,7 @@ void FOClient::SScriptFunc::Global_DrawMapSprite( ushort hx, ushort hy, ushort p
     Sprites&   tree = Self->HexMngr.GetDrawTree();
     Sprite&    spr = tree.InsertSprite( is_flat ? ( is_item ? DRAW_ORDER_FLAT_ITEM : DRAW_ORDER_FLAT_SCENERY ) : ( is_item ? DRAW_ORDER_ITEM : DRAW_ORDER_SCENERY ),
                                         hx, hy + ( proto_item ? proto_item->DrawOrderOffsetHexY : 0 ), 0,
-                                        f.ScrX + HEX_OX + ox, f.ScrY + HEX_OY + oy, spr_index < 0 ? anim->GetCurSprId() : anim->GetSprId( spr_index ), NULL, NULL, NULL, NULL, NULL );
+                                        f.ScrX + HEX_OX + ox, f.ScrY + HEX_OY + oy, spr_index < 0 ? anim->GetCurSprId() : anim->GetSprId( spr_index ), NULL, NULL, NULL, NULL, NULL, 1.0f );
     if( !no_light )
         spr.SetLight( Self->HexMngr.GetLightHex( 0, 0 ), Self->HexMngr.GetMaxHexX(), Self->HexMngr.GetMaxHexY() );
 

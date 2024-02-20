@@ -383,6 +383,17 @@ public:
     }
 };
 
+class CritterClFORP : public CritterCl
+{
+public:
+    float SprZoom;
+
+    CritterClFORP()
+    {
+        SprZoom = 1.0f;
+    }
+};
+
 typedef map< uint, CritterCl*, less< uint > > CritMap;
 typedef vector< CritterCl* >                  CritVec;
 typedef CritterCl*                            CritterClPtr;

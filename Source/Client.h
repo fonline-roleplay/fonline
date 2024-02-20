@@ -532,6 +532,8 @@ public:
         static bool       Crit_GetVisible( CritterCl* cr );
         static void       Crit_set_ContourColor( CritterCl* cr, uint value );
         static uint       Crit_get_ContourColor( CritterCl* cr );
+        static void       Crit_set_SpriteZoom(CritterCl* cr, float value);
+        static float      Crit_get_SpriteZoom(CritterCl* cr);
         static uint       Crit_GetMultihex( CritterCl* cr );
         static bool       Crit_IsTurnBasedTurn( CritterCl* cr );
 

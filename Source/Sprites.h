@@ -44,6 +44,18 @@ public:
     void SetFlash( uint mask );
     void SetLight( uchar* light, int maxhx, int maxhy );
 };
+
+class SpriteFORP : public Sprite
+{
+public:
+    float Zoom;
+
+    SpriteFORP() 
+    { 
+        memzero(this, sizeof(SpriteFORP));
+    }
+};
+
 typedef vector< Sprite* > SpriteVec;
 
 class Sprites
@@ -57,7 +69,7 @@ private:
     // Data
     SpriteVec spritesTree;
     uint      spritesTreeSize;
-    Sprite&   PutSprite( uint index, int draw_order, int hx, int hy, int cut, int x, int y, uint id, uint* id_ptr, short* ox, short* oy, uchar* alpha, bool* callback );
+    Sprite&   PutSprite( uint index, int draw_order, int hx, int hy, int cut, int x, int y, uint id, uint* id_ptr, short* ox, short* oy, uchar* alpha, bool* callback, float zoom );
 
 public:
     Sprites(): spritesTreeSize( 0 ) {}
@@ -65,8 +77,8 @@ public:
     auto Begin()->SpriteVec::iterator { return spritesTree.begin(); }
     auto End()->SpriteVec::iterator { return spritesTree.begin() + spritesTreeSize; }
     uint    Size() { return spritesTreeSize; }
-    Sprite& AddSprite( int draw_order, int hx, int hy, int cut, int x, int y, uint id, uint* id_ptr, short* ox, short* oy, uchar* alpha, bool* callback );
-    Sprite& InsertSprite( int draw_order, int hx, int hy, int cut, int x, int y, uint id, uint* id_ptr, short* ox, short* oy, uchar* alpha, bool* callback );
+    Sprite& AddSprite( int draw_order, int hx, int hy, int cut, int x, int y, uint id, uint* id_ptr, short* ox, short* oy, uchar* alpha, bool* callback, float zoom );
+    Sprite& InsertSprite( int draw_order, int hx, int hy, int cut, int x, int y, uint id, uint* id_ptr, short* ox, short* oy, uchar* alpha, bool* callback, float zoom );
     void    Resize( uint size );
     void    Clear() { Resize( 0 ); }
     void    Unvalidate();

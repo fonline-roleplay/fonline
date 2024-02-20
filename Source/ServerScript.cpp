@@ -3633,6 +3633,9 @@ void FOServer::SScriptFunc::Crit_SendCollectionFile(Critter * cr, uint hash, int
 	if( !hash )
 		SCRIPT_ERROR_R("Zero hash.");
 
+    if (cr->IsNpc())
+        return;
+
 	const char* fileName = Str::GetName(hash);
 	if( !fileName)
 		SCRIPT_ERROR_R("Hash name nullptr.");

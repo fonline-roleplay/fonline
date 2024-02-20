@@ -24,7 +24,7 @@ Sprites* HexMngr_GetDrawTree()
 
 Sprite* Sprites_InsertSprite(Sprites* sprites, int draw_order, int hx, int hy, int cut, int x, int y, uint id, uint* id_ptr, short* ox, short* oy, uchar* alpha, bool* callback )
 {
-	return &sprites->InsertSprite(draw_order, hx, hy, cut, x, y, id, id_ptr, ox, oy, alpha, callback);
+	return &sprites->InsertSprite(draw_order, hx, hy, cut, x, y, id, id_ptr, ox, oy, alpha, callback, 1.0f);
 }
 
 void Field_ChangeTile(Field* field, AnyFrames* anim, short ox, short oy, uchar layer, bool is_roof )

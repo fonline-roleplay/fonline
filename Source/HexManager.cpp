@@ -343,7 +343,7 @@ bool HexManager::AddItem( uint id, ushort pid, ushort hx, ushort hy, bool is_add
         if( GetHexToDraw( hx, hy ) && !item->IsHidden() && !item->IsFullyTransparent() )
         {
             Sprite& spr = mainTree.InsertSprite( DRAW_ORDER_ITEM_AUTO( item ), hx, hy + item->Proto->DrawOrderOffsetHexY, item->SpriteCut,
-                                                 f.ScrX + HEX_OX, f.ScrY + HEX_OY, 0, &item->SprId, &item->ScrX, &item->ScrY, &item->Alpha, &item->SprDrawValid );
+                                                 f.ScrX + HEX_OX, f.ScrY + HEX_OY, 0, &item->SprId, &item->ScrX, &item->ScrY, &item->Alpha, &item->SprDrawValid, 1.0f );
             if( !item->IsNoLightInfluence() && !( item->IsFlat() && item->IsScenOrGrid() ) )
                 spr.SetLight( hexLight, maxHexX, maxHexY );
             item->SetSprite( &spr );
@@ -477,7 +477,7 @@ void HexManager::ProcessItems()
                 if( GetHexToDraw( step.first, step.second ) )
                 {
                     item->SprDraw = &mainTree.InsertSprite( DRAW_ORDER_ITEM_AUTO( item ), step.first, step.second + item->Proto->DrawOrderOffsetHexY, item->SpriteCut,
-                                                            f_.ScrX + HEX_OX, f_.ScrY + HEX_OY, 0, &item->SprId, &item->ScrX, &item->ScrY, &item->Alpha, &item->SprDrawValid );
+                                                            f_.ScrX + HEX_OX, f_.ScrY + HEX_OY, 0, &item->SprId, &item->ScrX, &item->ScrY, &item->Alpha, &item->SprDrawValid, 1.0f );
                     if( !item->IsNoLightInfluence() && !( item->IsFlat() && item->IsScenOrGrid() ) )
                         item->SprDraw->SetLight( hexLight, maxHexX, maxHexY );
 
@@ -646,7 +646,7 @@ bool HexManager::RunEffect( ushort eff_pid, ushort from_hx, ushort from_hy, usho
     if( GetHexToDraw( from_hx, from_hy ) )
     {
         item->SprDraw = &mainTree.InsertSprite( DRAW_ORDER_ITEM_AUTO( item ), from_hx, from_hy + item->Proto->DrawOrderOffsetHexY, item->SpriteCut,
-                                                f.ScrX + HEX_OX, f.ScrY + HEX_OY, 0, &item->SprId, &item->ScrX, &item->ScrY, &item->Alpha, &item->SprDrawValid );
+                                                f.ScrX + HEX_OX, f.ScrY + HEX_OY, 0, &item->SprId, &item->ScrX, &item->ScrY, &item->Alpha, &item->SprDrawValid, 1.0f );
         if( !item->IsNoLightInfluence() && !( item->IsFlat() && item->IsScenOrGrid() ) )
             item->SprDraw->SetLight( hexLight, maxHexX, maxHexY );
     }
@@ -858,7 +858,7 @@ void HexManager::RebuildMap( int rx, int ry )
             {
                 uint        spr_id = ( GetHexTrack( nx, ny ) == 1 ? picTrack1->GetCurSprId() : picTrack2->GetCurSprId() );
                 SpriteInfo* si = SprMngr.GetSpriteInfo( spr_id );
-                mainTree.AddSprite( DRAW_ORDER_TRACK, nx, ny, 0, f.ScrX + HEX_OX, f.ScrY + HEX_OY + ( si ? si->Height / 2 : 0 ), spr_id, NULL, NULL, NULL, NULL, NULL );
+                mainTree.AddSprite( DRAW_ORDER_TRACK, nx, ny, 0, f.ScrX + HEX_OX, f.ScrY + HEX_OY + ( si ? si->Height / 2 : 0 ), spr_id, NULL, NULL, NULL, NULL, NULL, 1.0f );
             }
 
             // Hex Lines
@@ -878,7 +878,7 @@ void HexManager::RebuildMap( int rx, int ry )
 
                 uint        spr_id = ( thru ? picHex[ 1 ]->GetCurSprId() : picHex[ 0 ]->GetCurSprId() );
                 SpriteInfo* si = SprMngr.GetSpriteInfo( spr_id );
-                mainTree.AddSprite( DRAW_ORDER_HEX_GRID, nx, ny, 0, f.ScrX + ( si ? si->Width / 2 : 0 ), f.ScrY + ( si ? si->Height : 0 ), spr_id, NULL, NULL, NULL, NULL, NULL );
+                mainTree.AddSprite( DRAW_ORDER_HEX_GRID, nx, ny, 0, f.ScrX + ( si ? si->Width / 2 : 0 ), f.ScrY + ( si ? si->Height : 0 ), spr_id, NULL, NULL, NULL, NULL, NULL, 1.0f);
             }
 
             // Rain
@@ -899,7 +899,7 @@ void HexManager::RebuildMap( int rx, int ry )
                         rainData.push_back( new_drop );
 
                         mainTree.AddSprite( DRAW_ORDER_RAIN, nx, ny, 0, f.ScrX + HEX_OX, f.ScrY + HEX_OY, 0, &new_drop->CurSprId,
-                                            &new_drop->OffsX, &new_drop->OffsY, NULL, NULL ).SetLight( hexLight, maxHexX, maxHexY );
+                                            &new_drop->OffsX, &new_drop->OffsY, NULL, NULL, 1.0f).SetLight( hexLight, maxHexX, maxHexY );
                     }
                     else if( !roofSkip || roofSkip != GetField( rofx, rofy ).RoofNum )
                     {
@@ -907,7 +907,7 @@ void HexManager::RebuildMap( int rx, int ry )
                         rainData.push_back( new_drop );
 
                         roofRainTree.AddSprite( DRAW_ORDER_RAIN, nx, ny, 0, f.ScrX + HEX_OX, f.ScrY + HEX_OY, 0, &new_drop->CurSprId,
-                                                &new_drop->OffsX, &new_drop->OffsY, NULL, NULL ).SetLight( hexLight, maxHexX, maxHexY );
+                                                &new_drop->OffsX, &new_drop->OffsY, NULL, NULL, 1.0f).SetLight( hexLight, maxHexX, maxHexY );
                         //;
                     }
                 }
@@ -946,7 +946,7 @@ void HexManager::RebuildMap( int rx, int ry )
 							
 							SpriteInfo* si = SprMngr.GetSpriteInfo( spr_id );
 							mainTree.AddSprite( DRAW_ORDER_TRACK, nx, ny, 0, f.ScrX + HEX_OX, f.ScrY + HEX_OY + ( si ? si->Height / 2 : 0 ), spr_id,
-												NULL, NULL, NULL, NULL, NULL );
+												NULL, NULL, NULL, NULL, NULL, 1.0f);
 						}
 					}
 					
@@ -980,7 +980,7 @@ void HexManager::RebuildMap( int rx, int ry )
 					if( item->IsWall() ) //HOTRINGWALLS
 					{
 						Sprite& spr = mainTree.AddSprite( DRAW_ORDER_ITEM_AUTO( item ), nx, ny + item->Proto->DrawOrderOffsetHexY, item->SpriteCut,
-                        f.ScrX + HEX_OX, f.ScrY + HEX_OY, 0, &item->SprId, &item->ScrX, &item->ScrY, &GameOpt.WallAlpha, &item->SprDrawValid );
+                        f.ScrX + HEX_OX, f.ScrY + HEX_OY, 0, &item->SprId, &item->ScrX, &item->ScrY, &GameOpt.WallAlpha, &item->SprDrawValid, 1.0f);
 						if( !item->IsNoLightInfluence() && !( item->IsFlat() && item->IsScenOrGrid() ) )
 						spr.SetLight( hexLight, maxHexX, maxHexY );
 						item->SetSprite( &spr );
@@ -989,7 +989,7 @@ void HexManager::RebuildMap( int rx, int ry )
 					else if (!item->IsItem())
 					{
 						Sprite& spr = mainTree.AddSprite( DRAW_ORDER_ITEM_AUTO( item ), nx, ny + item->Proto->DrawOrderOffsetHexY, item->SpriteCut,
-                        f.ScrX + HEX_OX, f.ScrY + HEX_OY, 0, &item->SprId, &item->ScrX, &item->ScrY, &item->Alpha, &item->SprDrawValid );
+                        f.ScrX + HEX_OX, f.ScrY + HEX_OY, 0, &item->SprId, &item->ScrX, &item->ScrY, &item->Alpha, &item->SprDrawValid, 1.0f);
 						if( !item->IsNoLightInfluence() && !( item->IsFlat() && item->IsScenOrGrid() ) )
                         spr.SetLight( hexLight, maxHexX, maxHexY );
 						item->SetSprite( &spr );
@@ -998,7 +998,7 @@ void HexManager::RebuildMap( int rx, int ry )
 					else if ( item->IsItem() && !item->IsWall() && !item->IsScen() && !item->IsScenOrGrid() && !item->IsGrid())
 					{
 						Sprite& spr = mainTree.AddSprite( DRAW_ORDER_ITEM_AUTO( item ), nx, ny + item->Proto->DrawOrderOffsetHexY, item->SpriteCut,
-                        f.ScrX + HEX_OX, f.ScrY + HEX_OY, 0, &item->SprId, &item->ScrX, &item->ScrY, &item->Alpha, &item->SprDrawValid );		  
+                        f.ScrX + HEX_OX, f.ScrY + HEX_OY, 0, &item->SprId, &item->ScrX, &item->ScrY, &item->Alpha, &item->SprDrawValid, 1.0f);
 						if( !item->IsNoLightInfluence() && !( item->IsFlat() && item->IsScenOrGrid() ) )
                         spr.SetLight( hexLight, maxHexX, maxHexY );
 						item->SetSprite( &spr );
@@ -1021,10 +1021,10 @@ void HexManager::RebuildMap( int rx, int ry )
                 cr->DropTextOnHeadPosition();
                 Sprite& spr = mainTree.AddSprite( DRAW_ORDER_CRIT_AUTO( cr ), nx, ny, 0,
                                                   f.ScrX + HEX_OX, f.ScrY + HEX_OY, 0, &cr->SprId, &cr->SprOx, &cr->SprOy,
-                                                  &cr->Alpha, &cr->SprDrawValid );
+                                                  &cr->Alpha, &cr->SprDrawValid, static_cast<CritterClFORP*>(cr)->SprZoom);
                 spr.SetLight( hexLight, maxHexX, maxHexY );
-                cr->SprDraw = &spr;
 
+                cr->SprDraw = &spr;
                 cr->SetSprRect();
 
                 int contour = 0;
@@ -1047,7 +1047,7 @@ void HexManager::RebuildMap( int rx, int ry )
                     cr->DropTextOnHeadPosition();
                     Sprite& spr = mainTree.AddSprite( DRAW_ORDER_CRIT_AUTO( cr ), nx, ny, 0,
                                                       f.ScrX + HEX_OX, f.ScrY + HEX_OY, 0, &cr->SprId, &cr->SprOx, &cr->SprOy,
-                                                      &cr->Alpha, &cr->SprDrawValid );
+                                                      &cr->Alpha, &cr->SprDrawValid, static_cast<CritterClFORP*>(cr)->SprZoom);
                     spr.SetLight( hexLight, maxHexX, maxHexY );
 					
 					//dead critters containers					
@@ -1059,7 +1059,7 @@ void HexManager::RebuildMap( int rx, int ry )
 					{
 						spr.SetContour( CONTOUR_CUSTOM, cr->ContourColor );					
 					}
-					
+
                     cr->SprDraw = &spr;
 
                     cr->SetSprRect();
@@ -1602,7 +1602,7 @@ void HexManager::RebuildTiles()
                     tilesTree.AddSprite( DRAW_ORDER_TILE + tile.Layer, hx, hy, 0, ox, oy, spr_id, NULL, NULL, NULL, tiles[ i ].IsSelected ? (uchar*) &SELECT_ALPHA : NULL, NULL );
                 }
                 #else
-                    tilesTree.AddSprite( DRAW_ORDER_TILE + tile.Layer, hx, hy, 0, ox, oy, spr_id, NULL, NULL, NULL, NULL, NULL );
+                    tilesTree.AddSprite( DRAW_ORDER_TILE + tile.Layer, hx, hy, 0, ox, oy, spr_id, NULL, NULL, NULL, NULL, NULL, 1.0f );
                 #endif
             }
         }
@@ -1654,7 +1654,7 @@ void HexManager::RebuildRoof()
                         roofTree.AddSprite( DRAW_ORDER_TILE + roof.Layer, hx, hy, 0, ox, oy, spr_id, NULL, NULL, NULL, roofs[ i ].IsSelected ? (uchar*) &SELECT_ALPHA : &GameOpt.RoofAlpha, NULL ).SetEgg( EGG_ALWAYS );
                     }
                     #else
-                        roofTree.AddSprite( DRAW_ORDER_TILE + roof.Layer, hx, hy, 0, ox, oy, spr_id, NULL, NULL, NULL, &GameOpt.RoofAlpha, NULL ).SetEgg( EGG_ALWAYS );
+                        roofTree.AddSprite( DRAW_ORDER_TILE + roof.Layer, hx, hy, 0, ox, oy, spr_id, NULL, NULL, NULL, &GameOpt.RoofAlpha, NULL, 1.0f ).SetEgg( EGG_ALWAYS );
                     #endif
                 }
             }
@@ -2431,7 +2431,7 @@ void HexManager::SetCrit( CritterCl* cr )
     if( GetHexToDraw( hx, hy ) && cr->Visible )
     {
         Sprite& spr = mainTree.InsertSprite( DRAW_ORDER_CRIT_AUTO( cr ), hx, hy, 0,
-                                             f.ScrX + HEX_OX, f.ScrY + HEX_OY, 0, &cr->SprId, &cr->SprOx, &cr->SprOy, &cr->Alpha, &cr->SprDrawValid );
+                                             f.ScrX + HEX_OX, f.ScrY + HEX_OY, 0, &cr->SprId, &cr->SprOx, &cr->SprOy, &cr->Alpha, &cr->SprDrawValid,static_cast<CritterClFORP*>(cr)->SprZoom);
         spr.SetLight( hexLight, maxHexX, maxHexY );
         cr->SprDraw = &spr;
 
