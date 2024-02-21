@@ -60,6 +60,7 @@ Sprite* Sprite::GetIntersected( int ox, int oy )
                                                                 return; Valid = false; val = val ## __; val2 = val2 ## __; if( Parent ) \
                                                                 Parent->func( val ## __, val2 ## __ ); if( Child )                      \
                                                                 Child->func( val ## __, val2 ## __ ); Valid = true; }
+
 SPRITE_SETTER( SetEgg, int, EggType );
 SPRITE_SETTER( SetContour, int, ContourType );
 SPRITE_SETTER2( SetContour, int, ContourType, uint, ContourColor );
@@ -136,7 +137,7 @@ Sprite& Sprites::PutSprite( uint index, int draw_order, int hx, int hy, int cut,
     spr->FlashMask = 0;
     spr->Parent = NULL;
     spr->Child = NULL;
-    spr->Zoom = zoom;
+    spr->SetZoom( zoom );
     // Cutting
     if( cut == SPRITE_CUT_HORIZONTAL || cut == SPRITE_CUT_VERTICAL )
     {

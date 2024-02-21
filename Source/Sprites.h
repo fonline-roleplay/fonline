@@ -47,12 +47,30 @@ public:
 
 class SpriteFORP : public Sprite
 {
-public:
     float Zoom;
+public:
 
     SpriteFORP() 
     { 
         memzero(this, sizeof(SpriteFORP));
+    }
+
+    void SetZoom( float value )
+    {
+        if (!Valid)
+            return;
+        Valid = false;
+        Zoom = value;
+        if (Parent) 
+            static_cast<SpriteFORP*>(Parent)->SetZoom(value);
+        if (Child)               
+            static_cast<SpriteFORP*>(Parent)->SetZoom(value);
+        Valid = true;
+    }
+
+    inline float GetZoom() const
+    {
+        return Zoom;
     }
 };
 

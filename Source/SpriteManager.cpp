@@ -4510,8 +4510,8 @@ bool SpriteManager::DrawSprites(Sprites& dtree, bool collect_contours, bool use_
         // Casts
         float xf = (float)x / zoom;
         float yf = (float)y / zoom;
-        float wf = (float)si->Width / zoom * spr->Zoom;
-        float hf = (float)si->Height / zoom * spr->Zoom;
+        float wf = (float)si->Width / zoom * spr->GetZoom();
+        float hf = (float)si->Height / zoom * spr->GetZoom();
 
         float zoomox = (wf - (float)si->Width / (zoom)) * 0.5f, zoomoy = hf - (float)si->Height / (zoom);
 

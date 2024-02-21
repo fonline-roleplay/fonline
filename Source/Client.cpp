@@ -10813,7 +10813,7 @@ void FOClient::SScriptFunc::Crit_set_SpriteZoom(CritterCl* cr, float value)
     if (cr->IsNotValid)
         SCRIPT_ERROR_R("This nullptr.");
     if (cr->SprDrawValid)
-        static_cast<SpriteFORP*>(cr->SprDraw)->Zoom = value;
+        static_cast<SpriteFORP*>(cr->SprDraw)->SetZoom( value );
     static_cast<CritterClFORP*>(cr)->SprZoom = value;
 }
 
@@ -10823,7 +10823,7 @@ float FOClient::SScriptFunc::Crit_get_SpriteZoom(CritterCl* cr)
         SCRIPT_ERROR_R0("This nullptr.");
 
     if (cr->SprDrawValid)
-        return static_cast<SpriteFORP*>(cr->SprDraw)->Zoom;
+        return static_cast<SpriteFORP*>(cr->SprDraw)->GetZoom();
 
     return static_cast<CritterClFORP*>(cr)->SprZoom;
 }
