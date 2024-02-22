@@ -5269,7 +5269,7 @@ bool SpriteManager::CollectContour( int x, int y, SpriteInfo* si, Sprite* spr )
             uint contour_id = GetSpriteContour( si, spr );
             if( contour_id )
             {
-                Sprite& contour_spr = spriteContours.AddSprite( 0, 0, 0, 0, spr->ScrX, spr->ScrY, contour_id, NULL, spr->OffsX, spr->OffsY, NULL, NULL, static_cast<SpriteFORP*>(spr)->Zoom);
+                Sprite& contour_spr = spriteContours.AddSprite( 0, 0, 0, 0, spr->ScrX, spr->ScrY, contour_id, NULL, spr->OffsX, spr->OffsY, NULL, NULL, static_cast<SpriteFORP*>(spr)->GetZoom());
                 if( spr->ContourType == CONTOUR_RED )
                 {
                     contour_spr.SetFlash( 0xFFFF0000 );
