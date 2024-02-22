@@ -1647,7 +1647,7 @@ bool ProtoMap::Refresh()
     char map_info[ MAX_FOTEXT ];
     Str::Format( map_info, "pid<%u>, name<%s>", GetPid(), pmapName.c_str() );
 
-    WriteLog("Load map <%s>\n", map_info);
+    // WriteLog("Load map <%s>\n", map_info);
 
     // Read
     string fname_txt = pmapName + MAP_PROTO_EXT;
