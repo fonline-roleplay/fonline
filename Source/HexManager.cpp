@@ -2832,9 +2832,13 @@ CritterCl* HexManager::GetCritterPixel( int x, int y, bool ignore_dead_and_chose
             continue;
         }
 
+        auto si = SprMngr.GetSpriteInfo(cr->SprDraw);
+
+        SpriteFORP* forpspr = static_cast<SpriteFORP*>(cr->SprDraw);
+
         // Check sprite hit
-        if( x >= ( cr->DRect.L + GameOpt.ScrOx ) / GameOpt.SpritesZoom && x <= ( cr->DRect.R + GameOpt.ScrOx ) / GameOpt.SpritesZoom &&
-            y >= ( cr->DRect.T + GameOpt.ScrOy ) / GameOpt.SpritesZoom && y <= ( cr->DRect.B + GameOpt.ScrOy ) / GameOpt.SpritesZoom &&
+        if( x >= ( cr->DRect.L + GameOpt.ScrOx ) / (GameOpt.SpritesZoom * forpspr->GetZoom()) && x <= ( cr->DRect.R + GameOpt.ScrOx ) / (GameOpt.SpritesZoom * forpspr->GetZoom()) &&
+            y >= ( cr->DRect.T + GameOpt.ScrOy ) / (GameOpt.SpritesZoom * forpspr->GetZoom()) && y <= ( cr->DRect.B + GameOpt.ScrOy ) / (GameOpt.SpritesZoom * forpspr->GetZoom()) &&
             SprMngr.IsPixNoTransp( cr->SprId, (int) ( x - ( cr->DRect.L + GameOpt.ScrOx ) / GameOpt.SpritesZoom ), (int) ( y - ( cr->DRect.T + GameOpt.ScrOy ) / GameOpt.SpritesZoom ) ) )
         {
             crits.push_back( cr );

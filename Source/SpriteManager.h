@@ -376,9 +376,10 @@ public:
     uint        GetSpritesColor()         { return baseColor; }
     SprInfoVec& GetSpritesInfo()          { return sprData; }
     SpriteInfo* GetSpriteInfo( uint id )  { return sprData[ id ]; }
+    SpriteInfo* GetSpriteInfo(Sprite* spr);
     void        GetDrawRect( Sprite* prep, Rect& rect );
-    uint        GetPixColor( uint spr_id, int offs_x, int offs_y, bool with_zoom = true );
-    bool        IsPixNoTransp( uint spr_id, int offs_x, int offs_y, bool with_zoom = true );
+    uint        GetPixColor(uint spr_id, int offs_x, int offs_y, bool with_zoom = true, float sprzoom = 1.0f );
+    bool        IsPixNoTransp( uint spr_id, int offs_x, int offs_y, bool with_zoom = true, float sprzoom = 1.0f);
     bool        IsEggTransp( int pix_x, int pix_y );
 
     void PrepareSquare( PointVec& points, Rect r, uint color );

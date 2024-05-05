@@ -145,6 +145,7 @@ static LONG WINAPI TopLevelFilterReadableDump( EXCEPTION_POINTERS* except )
 					fprintf( f, "0x%0X", except->ExceptionRecord->ExceptionCode );
 					break;
 			}
+
 			fprintf( f, "\n" );
 			fprintf( f, "\tAddress   0x%p\n", except->ExceptionRecord->ExceptionAddress );
 			fprintf( f, "\tFlags     0x%0X\n", except->ExceptionRecord->ExceptionFlags );

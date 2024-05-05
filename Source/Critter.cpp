@@ -3216,9 +3216,9 @@ void Critter::Send_AllAutomapsInfo()
     for( ushort i = 0; i < data_ext->LocationsCount; i++ )
     {
         uint      loc_id = data_ext->LocationsId[ i ];
-        Location* loc = MapMngr.GetLocation( loc_id );
-        if( loc && loc->IsAutomaps() )
-            locs.push_back( loc );
+        Location* location = MapMngr.GetLocation( loc_id );
+        if(location && location->IsAutomaps() )
+            locs.push_back(location);
     }
 
     Send_AutomapsInfo( &locs, NULL );
@@ -5189,6 +5189,37 @@ void Client::Send_CollectionFile(FileSendBuffer * filebuffer, int collection_typ
 	if (!filebuffer)
 		return;
 
+    // int file_collection_upload( Critter& critter, int type, const string&in md5, const string&in ext, uint filesize, int p0, int p1, int p2 )
+    int partsize = 0;
+    if (Script::PrepareContext(ServerFunctions.FileCollectionUpload, _FUNC_, GetInfo()))
+    {
+        ScriptString* md5ScriptString = new ScriptString(filebuffer->MD5.c_str());
+        ScriptString* ExtensionScriptString = new ScriptString(filebuffer->Extension.c_str());
+        // uint %s( Critter& critter, int type, const string&in md5, uint filesize, int p0, int p1, int p2 )
+        Script::SetArgObject(this);
+        Script::SetArgUInt(collection_type);
+        Script::SetArgObject(md5ScriptString);
+        Script::SetArgObject(ExtensionScriptString);
+        Script::SetArgUInt(filebuffer->filesize);
+        Script::SetArgUInt(p0);
+        Script::SetArgUInt(p1);
+        Script::SetArgUInt(p2);
+
+        if (Script::RunPrepared())
+        {
+            partsize = Script::GetReturnedUInt();
+        }
+
+        ExtensionScriptString->Release();
+        md5ScriptString->Release();
+    }
+
+    if (!partsize)
+    {
+        filebuffer->Release();
+        return;
+    }
+
     //WriteLog("Send_CollectionFile start data: <%i>\n", filebuffer->Extension.size());
 	filebuffer->ReserveForUpload(this->GetId());
 	FileSendBuffer::State* state = filebuffer->GetState(this->GetId());
@@ -5204,7 +5235,7 @@ void Client::Send_CollectionFile(FileSendBuffer * filebuffer, int collection_typ
 	state->params[0] = p0;
 	state->params[1] = p1;
 	state->params[2] = p2;
-	state->packetsize = 1024;
+	state->packetsize = partsize;
 
     //WriteLog("Extension size check 1: %i\n", filebuffer->Extension.size());
 

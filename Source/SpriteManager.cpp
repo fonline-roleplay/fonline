@@ -4173,12 +4173,18 @@ uint SpriteManager::PackColor( int r, int g, int b )
     return COLOR_XRGB( r, g, b );
 }
 
+SpriteInfo* SpriteManager::GetSpriteInfo(Sprite* spr)
+{
+    uint id = (spr->PSprId ? *spr->PSprId : spr->SprId);
+    if (id >= sprData.size())
+        return nullptr;
+    SpriteInfo* si = sprData[id];
+    return si;
+}
+
 void SpriteManager::GetDrawRect( Sprite* prep, Rect& rect )
 {
-    uint id = ( prep->PSprId ? *prep->PSprId : prep->SprId );
-    if( id >= sprData.size() )
-        return;
-    SpriteInfo* si = sprData[ id ];
+    SpriteInfo* si = GetSpriteInfo(prep);
     if( !si )
         return;
 
@@ -4676,13 +4682,13 @@ bool SpriteManager::DrawSprites(Sprites& dtree, bool collect_contours, bool use_
     return true;
 }
 
-bool SpriteManager::IsPixNoTransp( uint spr_id, int offs_x, int offs_y, bool with_zoom )
+bool SpriteManager::IsPixNoTransp( uint spr_id, int offs_x, int offs_y, bool with_zoom, float sprzoom)
 {
-    uint color = GetPixColor( spr_id, offs_x, offs_y, with_zoom );
+    uint color = GetPixColor( spr_id, offs_x, offs_y, with_zoom, sprzoom);
     return ( color & 0xFF000000 ) != 0;
 }
 
-uint SpriteManager::GetPixColor( uint spr_id, int offs_x, int offs_y, bool with_zoom )
+uint SpriteManager::GetPixColor( uint spr_id, int offs_x, int offs_y, bool with_zoom, float sprzoom )
 {
     if( offs_x < 0 || offs_y < 0 )
         return 0;
@@ -4723,15 +4729,15 @@ uint SpriteManager::GetPixColor( uint spr_id, int offs_x, int offs_y, bool with_
     }
 
     // 2d animation
-    if( with_zoom && ( offs_x > si->Width / GameOpt.SpritesZoom || offs_y > si->Height / GameOpt.SpritesZoom ) )
+    if( with_zoom && ( offs_x > si->Width / ( GameOpt.SpritesZoom * sprzoom )  || offs_y > si->Height / (GameOpt.SpritesZoom * sprzoom)))
         return 0;
     if( !with_zoom && ( offs_x > si->Width || offs_y > si->Height ) )
         return 0;
 
     if( with_zoom )
     {
-        offs_x = (int) ( offs_x * GameOpt.SpritesZoom );
-        offs_y = (int) ( offs_y * GameOpt.SpritesZoom );
+        offs_x = (int) ( offs_x * GameOpt.SpritesZoom * sprzoom);
+        offs_y = (int) ( offs_y * GameOpt.SpritesZoom * sprzoom);
     }
 
     #ifdef FO_D3D
@@ -5304,25 +5310,42 @@ bool SpriteManager::CollectContour( int x, int y, SpriteInfo* si, Sprite* spr )
         if( borders.L >= modeWidth * GameOpt.SpritesZoom || borders.R < 0 || borders.T >= modeHeight * GameOpt.SpritesZoom || borders.B < 0 )
             return true;
 
-        if( GameOpt.SpritesZoom == 1.0f )
+       /* if (GameOpt.SpritesZoom == 1.0f)
         {
+            SpriteFORP* forpspr = static_cast<SpriteFORP*>(spr);
+
             ws = 1.0f / (float) si->Surf->Width;
             hs = 1.0f / (float) si->Surf->Height;
             tuv = RectF( si->SprRect.L - ws, si->SprRect.T - hs, si->SprRect.R + ws, si->SprRect.B + hs );
             tuvh = tuv;
         }
-        else
+        else*/
         {
-            borders( (int) ( x / GameOpt.SpritesZoom ), (int) ( y / GameOpt.SpritesZoom ),
-                     (int) ( ( x + si->Width ) / GameOpt.SpritesZoom ), (int) ( ( y + si->Height ) / GameOpt.SpritesZoom ) );
+                // L, T, R, B;
+
+            SpriteFORP* forpspr = static_cast<SpriteFORP*>(spr);
+
+            borders( (int) ( x / ( GameOpt.SpritesZoom ) ), (int) ( y / ( GameOpt.SpritesZoom ) ),
+                     (int) ( ( x + si->Width ) /  ( GameOpt.SpritesZoom ) ), (int) ( ( y + si->Height ) / GameOpt.SpritesZoom ) );
+
+            float wf = (float)si->Width / GameOpt.SpritesZoom * forpspr->GetZoom();
+            float hf = (float)si->Height / GameOpt.SpritesZoom * forpspr->GetZoom();
+
+            float zoomox = (wf - (float)si->Width / (GameOpt.SpritesZoom)) * 0.5f, zoomoy = hf - (float)si->Height / (GameOpt.SpritesZoom);
+
+            borders.L -= zoomox;
+            borders.T -= zoomoy;
+            borders.R += zoomox;
+            //borders.B = zoomoy;
+
             struct VertexUP
             {
                 float x, y, z, rhw;
                 float tu, tv;
             } vb[ 6 ] =
             {
-                { (float) borders.L, (float) borders.B, 1.0f, 1.0f, si->SprRect.L, si->SprRect.B },
                 { (float) borders.L, (float) borders.T, 1.0f, 1.0f, si->SprRect.L, si->SprRect.T },
+                { (float) borders.L, (float) borders.B, 1.0f, 1.0f, si->SprRect.L, si->SprRect.B },
                 { (float) borders.R, (float) borders.B, 1.0f, 1.0f, si->SprRect.R, si->SprRect.B },
                 { (float) borders.L, (float) borders.T, 1.0f, 1.0f, si->SprRect.L, si->SprRect.T },
                 { (float) borders.R, (float) borders.T, 1.0f, 1.0f, si->SprRect.R, si->SprRect.T },
@@ -5537,7 +5560,7 @@ bool SpriteManager::CollectContour( int x, int y, SpriteInfo* si, Sprite* spr )
     if( borders.L >= modeWidth * zoom || borders.R < 0 || borders.T >= modeHeight * zoom || borders.B < 0 )
         return true;
 
-    if( zoom == 1.0f )
+    /*if (zoom == 1.0f)
     {
         RectF& sr = si->SprRect;
         float  txw = texture->SizeData[ 2 ];
@@ -5562,8 +5585,9 @@ bool SpriteManager::CollectContour( int x, int y, SpriteInfo* si, Sprite* spr )
                 1.0f - (float) r.B / texture->SizeData[ 1 ] );
         }
     }
-    else
+    else */
     {
+
         RectF& sr = si->SprRect;
         borders( (int) ( x / zoom ), (int) ( y / zoom ),
                  (int) ( ( x + si->Width ) / zoom ), (int) ( ( y + si->Height ) / zoom ) );
@@ -5617,6 +5641,17 @@ bool SpriteManager::CollectContour( int x, int y, SpriteInfo* si, Sprite* spr )
     RectF pos( (float) borders.L, (float) borders.T, (float) borders.R, (float) borders.B );
 
     PushRenderTarget( rtContours );
+
+    SpriteFORP* forpspr = static_cast<SpriteFORP*>(spr);
+    float wf = (float)si->Width / GameOpt.SpritesZoom * forpspr->GetZoom();
+    float hf = (float)si->Height / GameOpt.SpritesZoom * forpspr->GetZoom();
+
+    float zoomox = (wf - (float)si->Width / (GameOpt.SpritesZoom)) * 0.5f, zoomoy = hf - (float)si->Height / (GameOpt.SpritesZoom);
+
+    pos.L -= zoomox;
+    pos.T -= zoomoy;
+    pos.R += zoomox;
+    //borders.B = zoomoy;
 
     uint mulpos = 0;
     vBuffer[ mulpos ].x = pos.L;

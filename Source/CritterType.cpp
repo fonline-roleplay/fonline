@@ -348,8 +348,8 @@ bool CritType::InitFromMsg( FOMsg* msg )
         }
         sound_name[ Str::Length( sound_name ) - 1 ] = 0;
 
-        for( int i = 1; i <= 25; i++ )
-            ct.Anim1[ i ] = anims[ i ] != 0;
+        for( int j = 1; j <= 25; j++ )
+            ct.Anim1[ j ] = anims[ j ] != 0;
         ct.CanWalk = canDo[ 0 ] != 0;
         ct.CanRun = canDo[ 1 ] != 0;
         ct.CanAim = canDo[ 2 ] != 0;

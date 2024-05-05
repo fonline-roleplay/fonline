@@ -153,7 +153,7 @@ bool FOClient::Init()
     UID_PREPARE_UID4_0;
 
     // Another check for already runned window
-    #ifndef DEV_VESRION
+   /* #ifndef DEV_VESRION
     if( !Singleplayer )
     {
         # ifdef FO_WINDOWS
@@ -164,7 +164,7 @@ bool FOClient::Init()
         // Todo: Linux
         # endif
     }
-    #endif
+    #endif*/
 
     // Register dll script data
     struct CritterChangeParameter_
@@ -7446,7 +7446,6 @@ void FOClient::Net_OnNextFilePartReqestT( )
 
 void FOClient::Net_OnFilePartToClient()
 {
-
 	auto file = FileSendBuffer::GetDownloadFileBuffer(Chosen->Id);
 	uint msg_len;
 	Bin >> msg_len;

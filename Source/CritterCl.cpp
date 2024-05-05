@@ -1584,6 +1584,19 @@ void CritterCl::SetOffs( short set_ox, short set_oy, bool move_text )
             SprMngr.GetDrawRect( SprDraw, DRect );
             if( move_text )
                 textRect = DRect;
+
+            auto si = SprMngr.GetSpriteInfo(SprDraw);
+
+            SpriteFORP* forpspr = static_cast<SpriteFORP*>(SprDraw);
+
+            float wf = (float)si->Width / GameOpt.SpritesZoom * forpspr->GetZoom();
+            float hf = (float)si->Height / GameOpt.SpritesZoom * forpspr->GetZoom();
+
+            float zoomox = (wf - (float)si->Width / (GameOpt.SpritesZoom)) * 0.5f, zoomoy = hf - (float)si->Height / (GameOpt.SpritesZoom);
+
+            textRect.L -= zoomox;
+            textRect.T -= zoomoy;
+            textRect.R += zoomox;
         }
         if( Anim3d )
             Anim3d->SetDrawPos( SprDraw->ScrX + SprOx + GameOpt.ScrOx, SprDraw->ScrY + SprOy + GameOpt.ScrOy );
@@ -1604,6 +1617,19 @@ void CritterCl::SetSprRect()
             textRect.R += DRect.L - old.L;
             textRect.T += DRect.T - old.T;
             textRect.B += DRect.T - old.T;
+
+            auto si = SprMngr.GetSpriteInfo(SprDraw);
+
+            SpriteFORP* forpspr = static_cast<SpriteFORP*>(SprDraw);
+
+            float wf = (float)si->Width / GameOpt.SpritesZoom * forpspr->GetZoom();
+            float hf = (float)si->Height / GameOpt.SpritesZoom * forpspr->GetZoom();
+
+            float zoomox = (wf - (float)si->Width / (GameOpt.SpritesZoom)) * 0.5f, zoomoy = hf - (float)si->Height / (GameOpt.SpritesZoom);
+
+            textRect.L -= zoomox;
+            textRect.T -= zoomoy;
+            textRect.R += zoomox;
         }
         else
         {

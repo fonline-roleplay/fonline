@@ -1065,7 +1065,7 @@ int CraftManager::ProcessCraft( Critter* cr, uint num )
             }
             else
             {
-                for( uint j = 0; j < count; j++ )
+                for( uint c = 0; c < count; c++ )
                 {
                     Item* item = ItemMngr.AddItemCritter( cr, pid, 1 );
                     if( item )

@@ -198,13 +198,13 @@ inline void PackCommand( const char* str, BufferManager& buf, void ( * logcb )( 
     break;
     case CMD_CRITID:
     {
-        char name[ MAX_FOTEXT ];
-        if( sscanf( args, "%s", name ) != 1 )
+        char names[ MAX_FOTEXT ];
+        if( sscanf( args, "%s", names ) != 1 )
         {
             logcb( "Invalid arguments. Example: <~id name>." );
             break;
         }
-        name[ MAX_NAME ] = 0;
+        names[ MAX_NAME ] = 0;
         msg_len += MAX_NAME;
 
         buf << msg;
@@ -636,12 +636,12 @@ inline void PackCommand( const char* str, BufferManager& buf, void ( * logcb )( 
     {
         istrstream str_( args );
         char       params[ 128 ] = { 0 };
-        char       name[ 128 ] = { 0 };
+        char       names[ 128 ] = { 0 };
         uint       ban_hours = 0;
         char       info[ 128 ] = { 0 };
         str_ >> params;
         if( !str_.fail() )
-            str_ >> name;
+            str_ >> names;
         if( !str_.fail() )
             str_ >> ban_hours;
         if( !str_.fail() )
@@ -651,7 +651,7 @@ inline void PackCommand( const char* str, BufferManager& buf, void ( * logcb )( 
             logcb( "Invalid arguments. Example: <~ban [add,add+,delete,list] [user] [hours] [comment]>." );
             break;
         }
-        Str::Replacement( name, '*', ' ' );
+        Str::Replacement(names, '*', ' ' );
         Str::Replacement( info, '$', '*' );
         while( info[ 0 ] == ' ' )
             Str::CopyBack( info );
@@ -660,7 +660,7 @@ inline void PackCommand( const char* str, BufferManager& buf, void ( * logcb )( 
         buf << msg;
         buf << msg_len;
         buf << cmd;
-        buf.Push( name, MAX_NAME );
+        buf.Push(names, MAX_NAME );
         buf.Push( params, MAX_NAME );
         buf << ban_hours;
         buf.Push( info, 128 );

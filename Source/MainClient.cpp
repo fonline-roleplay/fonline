@@ -116,7 +116,7 @@ int main( int argc, char** argv )
     #endif
 
     // Check for already runned window
-    #ifndef DEV_VESRION
+    /*#ifndef DEV_VESRION
     # ifdef FO_WINDOWS
     if( !Singleplayer && FindWindow( GetWindowName(), GetWindowName() ) != NULL )
     {
@@ -126,7 +126,7 @@ int main( int argc, char** argv )
     # else // FO_LINUX
     // Todo: Linux
     # endif
-    #endif
+    #endif*/
 
     // Options
     GetClientOptions();
