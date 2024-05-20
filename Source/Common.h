@@ -432,6 +432,7 @@ struct ClientScriptFunctions
     int GetActiveScreens;
     int ScreenChange;
     int RenderIface;
+	int CritterGetMoney;
     int RenderMap;
     int MouseDown;
     int MouseUp;

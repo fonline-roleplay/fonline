@@ -10420,6 +10420,7 @@ bool FOClient::ReloadScripts()
         { &ClientFunctions.KeyDown, "key_down", "bool %s(FOWindow@,uint8)" },
         { &ClientFunctions.KeyUp, "key_up", "bool %s(FOWindow@,uint8)" },
         { &ClientFunctions.InputLost, "input_lost", "void %s(FOWindow@)" },
+		{ &ClientFunctions.CritterGetMoney, "critter_get_money", "string %s(CritterCl&)" },
         { &ClientFunctions.CritterIn, "critter_in", "void %s(CritterCl&)" },
         { &ClientFunctions.CritterOut, "critter_out", "void %s(CritterCl&)" },
         { &ClientFunctions.ItemMapIn, "item_map_in", "void %s(ItemCl&)" },
