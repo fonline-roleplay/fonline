@@ -784,6 +784,7 @@ struct GameOptions
     uint         DamageHitDelay;
     int          ScreenWidth;
     int          ScreenHeight;
+	bool		 SpritesFiltering;
     int          MultiSampling;
     bool         MouseScroll;
     int          IndicatorType;
