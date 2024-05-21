@@ -784,7 +784,6 @@ struct GameOptions
     uint         DamageHitDelay;
     int          ScreenWidth;
     int          ScreenHeight;
-	bool		 SpritesFiltering;
     int          MultiSampling;
     bool         MouseScroll;
     int          IndicatorType;
@@ -883,6 +882,8 @@ struct GameOptions
     // Callbacks
     uint         ( * GetUseApCost )( void*, void*, uchar );
     uint         ( * GetAttackDistantion )( void*, void*, uchar );
+	
+	bool		 SpritesFiltering;
 
     GameOptions();
 } extern GameOpt;
