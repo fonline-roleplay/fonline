@@ -1286,8 +1286,6 @@ void GetClientOptions()
     GameOpt.ScreenHeight = cfg.GetInt( CLIENT_CONFIG_APP, "ScreenHeight", 0 );
     GETOPTIONS_CMD_LINE_INT( GameOpt.ScreenHeight, "-ScreenHeight" );
     GETOPTIONS_CHECK( GameOpt.ScreenHeight, 100, 30000, 600 );
-	GameOpt.SpritesFiltering = cfg.GetInt(CLIENT_CONFIG_APP, "SpritesFiltering", false) != 0;
-	GETOPTIONS_CMD_LINE_BOOL(GameOpt.SpritesFiltering, "-SpritesFiltering");
     GameOpt.MultiSampling = cfg.GetInt( CLIENT_CONFIG_APP, "MultiSampling", 0 );
     GETOPTIONS_CMD_LINE_INT( GameOpt.MultiSampling, "-MultiSampling" );
     GETOPTIONS_CHECK( GameOpt.MultiSampling, -1, 16, -1 );
@@ -1758,7 +1756,6 @@ GameOptions::GameOptions()
     DamageHitDelay = 0;
     ScreenWidth = 800;
     ScreenHeight = 600;
-	SpritesFiltering = false;
     MultiSampling = 0;
     MouseScroll = true;
     IndicatorType = INDICATOR_LINES;
