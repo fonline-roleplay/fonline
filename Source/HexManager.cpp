@@ -2002,6 +2002,11 @@ void HexManager::DrawMap()
     SprMngr.PushRenderTarget( rtMap );
     SprMngr.ClearCurrentRenderTarget( 0 );
     #endif
+	
+	#ifdef FO_D3D
+	// Getting D3D render device 
+	Device_ device = SprMngr.GetDevice();
+	#endif
 
     // Rebuild light
     if( requestRebuildLight )
@@ -2015,7 +2020,6 @@ void HexManager::DrawMap()
     {
         SprMngr.SetCurEffect2D( DEFAULT_EFFECT_TILE );
         #ifdef FO_D3D
-        Device_ device = SprMngr.GetDevice();
         device->SetSamplerState( 0, D3DSAMP_MAGFILTER, D3DTEXF_POINT );
         device->SetSamplerState( 0, D3DSAMP_MINFILTER, D3DTEXF_POINT );
         #endif
@@ -2028,7 +2032,18 @@ void HexManager::DrawMap()
 
     // Flat sprites
     SprMngr.SetCurEffect2D( DEFAULT_EFFECT_GENERIC );
+	#ifdef FO_D3D
+	if (!GameOpt.SpritesFiltering)
+	{
+		device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
+		device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
+	}
+	#endif
     SprMngr.DrawSprites( mainTree, true, false, DRAW_ORDER_FLAT, DRAW_ORDER_LIGHT - 1 );
+	#ifdef FO_D3D
+	device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+	device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+	#endif
 
     // Light
     for( uint i = 0; i < lightPointsCount; i++ )
@@ -2040,13 +2055,23 @@ void HexManager::DrawMap()
 
     // Sprites
     SprMngr.SetCurEffect2D( DEFAULT_EFFECT_GENERIC );
+	#ifdef FO_D3D
+	if (!GameOpt.SpritesFiltering)
+	{
+		device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
+		device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
+	}
+	#endif
     SprMngr.DrawSprites( mainTree, true, true, DRAW_ORDER_LIGHT, DRAW_ORDER_LAST );
+	#ifdef FO_D3D
+	device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+	device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+	#endif
 
     // Roof
     if( GameOpt.ShowRoof )
     {
         #ifdef FO_D3D
-        Device_ device = SprMngr.GetDevice();
         device->SetSamplerState( 0, D3DSAMP_MAGFILTER, D3DTEXF_POINT );
         device->SetSamplerState( 0, D3DSAMP_MINFILTER, D3DTEXF_POINT );
         #endif

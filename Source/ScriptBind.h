@@ -1637,6 +1637,7 @@ BIND_ASSERT( engine->RegisterGlobalProperty( "bool __ShowContourDeadCritters", &
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __ShowContourScenery", &GameOpt.ShowContourScenery ) );
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __ShowContourWalls", &GameOpt.ShowContourWalls ) );
 //===================================================================
+BIND_ASSERT( engine->RegisterGlobalProperty( "bool __SpritesFiltering", &GameOpt.SpritesFiltering ) );
 
 #endif
 
