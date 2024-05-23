@@ -1589,11 +1589,11 @@ void FOServer::Process( ClientPtr& cl )
                     uchar ap; cl->Bin >> ap; if( !Singleplayer ) { if( !cl->IsTurnBased() ) { if( ap > cl->GetParam( ST_ACTION_POINTS ) ) \
                                                                                                   break; if( (int) ap > cl->GetParam( ST_CURRENT_AP ) ) { cl->Bin.MoveReadPos( -int( sizeof( msg ) + sizeof( ap ) ) ); BIN_END( cl ); return; } } }
         #define CHECK_AP( ap )                                                                                     \
-            if( !Singleplayer ) { if( !cl->IsTurnBased() ) { if( (int) ( ap ) > cl->GetParam( ST_ACTION_POINTS ) ) \
-                                                                 break; if( (int) ( ap ) > cl->GetParam( ST_CURRENT_AP ) ) { cl->Bin.MoveReadPos( -int( sizeof( msg ) ) ); BIN_END( cl ); return; } } }
+            if( !Singleplayer ) { if( !cl->IsTurnBased() ) { if( cl->GetParam( ST_CURRENT_AP ) < 0 ) \
+                                                                 break; } }
         #define CHECK_REAL_AP( ap )                                                                                             \
-            if( !Singleplayer ) { if( !cl->IsTurnBased() ) { if( (int) ( ap ) > cl->GetParam( ST_ACTION_POINTS ) * AP_DIVIDER ) \
-                                                                 break; if( (int) ( ap ) > cl->GetRealAp() ) { cl->Bin.MoveReadPos( -int( sizeof( msg ) ) ); BIN_END( cl ); return; } } }
+            if( !Singleplayer ) { if( !cl->IsTurnBased() ) { if( cl->GetParam( ST_CURRENT_AP ) < 0 ) \
+                                                                 break; } }
 
         for( int i = 0; i < MESSAGES_PER_CYCLE; i++ )
         {

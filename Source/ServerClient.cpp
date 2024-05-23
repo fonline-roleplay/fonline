@@ -630,7 +630,7 @@ bool FOServer::Act_Attack( Critter* cr, uchar rate_weap, uint target_id )
     }
 
     int ap_cost = ( GameOpt.GetUseApCost ? GameOpt.GetUseApCost( cr, weap, rate_weap ) : 1 );
-    if( cr->GetParam( ST_CURRENT_AP ) < ap_cost && !Singleplayer )
+    if( cr->GetParam( ST_CURRENT_AP ) < 0 && !Singleplayer )
     {
         cr->Send_Param( ST_CURRENT_AP );
         WriteLogF( _FUNC_, " - Not enough AP, critter<%s>, target critter<%s>.\n", cr->GetInfo(), t_cr->GetInfo() );
@@ -724,7 +724,7 @@ bool FOServer::Act_Reload( Critter* cr, uint weap_id, uint ammo_id )
     }
 
     int ap_cost = ( GameOpt.GetUseApCost ? GameOpt.GetUseApCost( cr, weap, USE_RELOAD ) : 1 );
-    if( cr->GetParam( ST_CURRENT_AP ) < ap_cost && !Singleplayer )
+    if( cr->GetParam( ST_CURRENT_AP ) < 0 && !Singleplayer )
     {
         WriteLogF( _FUNC_, " - Not enough AP, critter<%s>.\n", cr->GetInfo() );
         cr->Send_Param( ST_CURRENT_AP );
@@ -772,7 +772,7 @@ bool FOServer::Act_Use( Critter* cr, uint item_id, int skill, int target_type, u
     }
 
     int ap_cost = ( item_id ? ( GameOpt.GetUseApCost ? GameOpt.GetUseApCost( cr, item, USE_USE ) : 1 ) : cr->GetApCostUseSkill() );
-    if( cr->GetParam( ST_CURRENT_AP ) < ap_cost && !Singleplayer )
+    if( cr->GetParam( ST_CURRENT_AP ) < 0 && !Singleplayer )
     {
         cr->Send_Param( ST_CURRENT_AP );
         WriteLogF( _FUNC_, " - Not enough AP, critter<%s>.\n", cr->GetInfo() );
