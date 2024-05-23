@@ -8830,7 +8830,7 @@ label_EndMove:
                 // Refresh orientation
                 CHECK_NEED_AP( Chosen->GetApCostUseSkill() );
                 uchar dir = GetFarDir( Chosen->GetHexX(), Chosen->GetHexY(), cr->GetHexX(), cr->GetHexY() );
-                if( DistGame( Chosen->GetHexX(), Chosen->GetHexY(), cr->GetHexX(), cr->GetHexY() ) >= 1 && Chosen->GetDir() != dir )
+                if( DistGame( Chosen->GetHexX(), Chosen->GetHexY(), cr->GetHexX(), cr->GetHexY() ) >= 1 && Chosen->GetDir() != dir && skill != SK_STEAL)
                 {
                     Chosen->SetDir( dir );
                     Net_SendDir();
