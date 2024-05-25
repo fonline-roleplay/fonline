@@ -7359,6 +7359,10 @@ void FOClient::Net_OnCheckUID4()
 void FOClient::Net_OnNextFilePartReqestT( )
 {
 	// AddMess(FOMB_GAME, Str::FormatBuf(" - checked ."));
+    if (!Chosen)
+    {
+        return;
+    }
 	char code = 0;
 	auto state = CurrentFileSend->GetState( Chosen->Id );
 	Bin >> state->packetsize;
@@ -7446,6 +7450,9 @@ void FOClient::Net_OnNextFilePartReqestT( )
 
 void FOClient::Net_OnFilePartToClient()
 {
+    if (!Chosen)
+        return;
+
 	auto file = FileSendBuffer::GetDownloadFileBuffer(Chosen->Id);
 	uint msg_len;
 	Bin >> msg_len;
