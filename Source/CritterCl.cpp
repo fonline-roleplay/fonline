@@ -675,6 +675,7 @@ void CritterCl::DrawStay( Rect r )
     }
 }
 
+#ifndef FONLINE_MAPPER
 const char* CritterCl::GetMoneyStr()
 {
 	if (Script::PrepareContext(ClientFunctions.CritterGetMoney, _FUNC_, "Game"))
@@ -694,6 +695,7 @@ const char* CritterCl::GetMoneyStr()
 
 	return Str::FormatBuf("<error>");
 }
+#endif
 
 bool CritterCl::NextRateItem( bool prev )
 {

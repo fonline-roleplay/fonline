@@ -1497,4 +1497,6 @@ struct GameOptions
     int ShowSpriteCuts;
     int ShowDrawOrder;
     int SplitTilesCollection;
+
+	bool SpritesFiltering;
 } GameOpt;
