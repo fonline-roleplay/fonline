@@ -1586,8 +1586,7 @@ void FOServer::Process( ClientPtr& cl )
                 if( cl->GetMap() || !cl->GroupMove ) \
                     break;
                 #define CHECK_AP_MSG                                                                                                      \
-                    uchar ap; cl->Bin >> ap; if( !Singleplayer ) { if( !cl->IsTurnBased() ) { if( ap > cl->GetParam( ST_ACTION_POINTS ) ) \
-                                                                                                  break; if( (int) ap > cl->GetParam( ST_CURRENT_AP ) ) { cl->Bin.MoveReadPos( -int( sizeof( msg ) + sizeof( ap ) ) ); BIN_END( cl ); return; } } }
+                    uchar ap; cl->Bin >> ap; if( !Singleplayer ) { if( !cl->IsTurnBased() ) { if( cl->GetParam( ST_CURRENT_AP ) < 0 ) { cl->Bin.MoveReadPos( -int( sizeof( msg ) + sizeof( ap ) ) ); BIN_END( cl ); return; } } }
         #define CHECK_AP( ap )                                                                                     \
             if( !Singleplayer ) { if( !cl->IsTurnBased() ) { if( cl->GetParam( ST_CURRENT_AP ) < 0 ) \
                                                                  break; } }
