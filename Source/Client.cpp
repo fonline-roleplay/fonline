@@ -8576,7 +8576,7 @@ label_EndMove:
         else
             Chosen->Action( ACTION_USE_ITEM, 0, item );
 
-        Chosen->SubAp( ap_cost );
+        //Chosen->SubAp( ap_cost );
 
         if( is_attack && !aim && Keyb::ShiftDwn )               // Continue battle after attack
         {

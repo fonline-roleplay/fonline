@@ -1050,7 +1050,7 @@ bool FOServer::Act_PickItem( Critter* cr, ushort hx, ushort hy, ushort pid )
     }
 
     int ap_cost = cr->GetApCostPickItem();
-    if( cr->GetParam( ST_CURRENT_AP ) < ap_cost && !Singleplayer )
+    if( cr->GetParam( ST_CURRENT_AP ) < 0 && !Singleplayer )
     {
         WriteLogF( _FUNC_, " - Not enough AP, critter<%s>.\n", cr->GetInfo() );
         cr->Send_Param( ST_CURRENT_AP );
