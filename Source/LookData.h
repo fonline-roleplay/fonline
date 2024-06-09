@@ -72,7 +72,7 @@ public:
     void InitCritter( const Critter& critter);
     void InitMap( const Map& map);
     void InitItem( const Item& item );
-    static Result CheckLook( Map& map, LookData& look, LookData& hide );
+    static Result CheckLook( Map& map, LookData& look, LookData& hide, bool isDebug = false );
 #endif
 
     void GetMixed( const LookData& other, LookData& outData );

@@ -6491,7 +6491,7 @@ void FOServer::SScriptFunc::Crit_UpdateLookData(Critter* critter)
 }
 
 // LookData::Result LookData::CheckLook( Map& map, LookData& look, LookData& hide )
-bool FOServer::SScriptFunc::CheckLook( Map& map, LookData& look, LookData& hide, bool& isView, bool& isHear )
+bool FOServer::SScriptFunc::CheckLook( Map& map, LookData& look, LookData& hide, bool& isView, bool& isHear, bool isDebug )
 {
     if( map.IsNotValid )
         SCRIPT_ERROR_R0( "This nullptr." );
@@ -6516,7 +6516,7 @@ bool FOServer::SScriptFunc::CheckLook( Map& map, LookData& look, LookData& hide,
     mixHide.access = hide.access;
 
     Script::StartCallStack( "CheckLook", false );
-    auto result = LookData::CheckLook( map, mixLook, mixHide );
+    auto result = LookData::CheckLook( map, mixLook, mixHide, isDebug );
     Script::CallStackInfoWriteAndClose( );
     isView = result.IsView;
     isHear = result.IsHear;

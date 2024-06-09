@@ -1743,7 +1743,7 @@ BIND_ASSERT(engine->RegisterObjectMethod("Map", "LookData@ get_Look()", asFUNCTI
 
 BIND_ASSERT(engine->RegisterObjectMethod("Critter", "void LookData_Update()", asFUNCTION(BIND_CLASS Crit_UpdateLookData), asCALL_CDECL_OBJFIRST));
 
-BIND_ASSERT( engine->RegisterGlobalFunction( "bool CheckLook( Map& map, LookData& look, LookData& hide, bool&out isView = void, bool&out isHear = void )", asFUNCTION( BIND_CLASS CheckLook ), asCALL_CDECL ) );
+BIND_ASSERT( engine->RegisterGlobalFunction( "bool CheckLook( Map& map, LookData& look, LookData& hide, bool&out isView = void, bool&out isHear = void, bool isDebug = false )", asFUNCTION( BIND_CLASS CheckLook ), asCALL_CDECL ) );
 
 BIND_ASSERT( engine->RegisterObjectMethod( "LookData", "void WorkItem(const Item&in item)", asMETHODPR( LookData, InitItem, ( const Item& item ), void ), asCALL_THISCALL ) );
 BIND_ASSERT( engine->RegisterObjectMethod( "LookData", "void WorkMap(const Map&in map)", asMETHODPR( LookData, InitMap, ( const Map& map ), void ), asCALL_THISCALL ) );

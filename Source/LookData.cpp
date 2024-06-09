@@ -181,7 +181,7 @@ void LookData::ScriptRegistration( asIScriptEngine* engine )
 }
 
 #ifdef FONLINE_SERVER
-LookData::Result LookData::CheckLook( Map& map, LookData& look, LookData& hide )
+LookData::Result LookData::CheckLook( Map& map, LookData& look, LookData& hide, bool isDebug /*= false*/ )
 {
     /*
     if( true )
@@ -245,6 +245,7 @@ LookData::Result LookData::CheckLook( Map& map, LookData& look, LookData& hide )
     static UShortPair block;
     if( !trace.Walls ) trace.Walls = new SceneryClRefVec( );
     if( !trace.Items ) trace.Items = new ItemPtrVec( );
+    if (!trace.Sceneries) trace.Sceneries = new SceneryClRefVec();
     if( !trace.Block ) trace.Block = &block;
 
     block.first = 0;
@@ -280,6 +281,9 @@ LookData::Result LookData::CheckLook( Map& map, LookData& look, LookData& hide )
     {
         Item* traceItem = nullptr;
         bool isHex = false;
+        if(isDebug)
+           WriteLog(" Items: %i max_view: %i \n", trace.Items->size(), max_view);
+
         for( auto it = trace.Items->begin( ), end = trace.Items->end( ); it != end; ++it )
         {
             traceItem = *it;
@@ -287,16 +291,32 @@ LookData::Result LookData::CheckLook( Map& map, LookData& look, LookData& hide )
 
             if( traceItem->IsViewBlocks( ) )
             {
-                if( isHex )
+                if (isDebug)
+                    WriteLog(" IsViewBlocks \n");
+
+                if (isHex)
+                {
                     view_mul *= 0.01 * traceItem->Proto->FORPData.Look_Block;
+
+                    if (isDebug)
+                        WriteLog(" isHex view_mul %f\n", view_mul);
+                }
                 else
                 {
                     uint disttoitem = DistGame( look.hexx, look.hexy, traceItem->AccHex.HexX, traceItem->AccHex.HexY );
-                    if( disttoitem >= max_view )
+                    if (disttoitem >= max_view)
+                    {
+
+                        if (isDebug)
+                            WriteLog(" Обрыв \n");
                         break;
+                    }
 
                     uint distchange = max_view - disttoitem;
                     max_view = disttoitem + ( uint )( distchange * traceItem->Proto->FORPData.Look_BlockDir[ GetFarDir( look.hexx, look.hexy, traceItem->AccHex.HexX, traceItem->AccHex.HexY ) ] * 0.01 );
+
+                    if (isDebug)
+                        WriteLog(" distchange: %i max_view: %i \n", distchange, max_view);
                 }
             }
 
@@ -317,12 +337,92 @@ LookData::Result LookData::CheckLook( Map& map, LookData& look, LookData& hide )
         }
         trace.Items->clear( );
     }
+
+    if (trace.Sceneries)
+    {
+        SceneryCl* traceItem = nullptr;
+        ProtoItem* protoItem = nullptr;
+        bool isHex = false;
+        if (isDebug)
+            WriteLog(" Sceneries: %i max_view: %i \n", trace.Sceneries->size(), max_view);
+
+        for (auto it = trace.Sceneries->begin(), end = trace.Sceneries->end(); it != end; ++it)
+        {
+            traceItem = *it;
+            protoItem = ItemMngr.GetProtoItem((*it)->ProtoId);
+            isHex = (look.hexx == traceItem->MapX && look.hexy == traceItem->MapY);
+
+            if (protoItem->IsViewBlocks())
+            {
+                if (isDebug)
+                    WriteLog(" IsViewBlocks \n");
+
+                if (isHex)
+                {
+                    view_mul *= 0.01 * protoItem->FORPData.Look_Block;
+
+                    if (isDebug)
+                        WriteLog(" isHex view_mul %f\n", view_mul);
+                }
+                else
+                {
+                    uint disttoitem = DistGame(look.hexx, look.hexy, traceItem->MapX, traceItem->MapY);
+                    if (disttoitem >= max_view)
+                    {
+
+                        if (isDebug)
+                            WriteLog(" Обрыв \n");
+                        break;
+                    }
+
+                    uint distchange = max_view - disttoitem;
+                    max_view = disttoitem + (uint)(distchange * protoItem->FORPData.Look_BlockDir[GetFarDir(look.hexx, look.hexy, traceItem->MapX, traceItem->MapY)] * 0.01);
+
+                    if (isDebug)
+                        WriteLog(" distchange: %i max_view: %i \n", distchange, max_view);
+                }
+            }
+
+            if (protoItem->IsHearBlocks())
+            {
+                if (isHex)
+                    hear_mul *= 0.01 * protoItem->FORPData.Hear_Block;
+                else
+                {
+                    uint disttoitem = DistGame(look.hexx, look.hexy, traceItem->MapX, traceItem->MapY);
+                    if (disttoitem >= max_hear)
+                        break;
+
+                    uint distchange = max_hear - disttoitem;
+                    max_hear = disttoitem + (uint)(distchange * protoItem->FORPData.Hear_BlockDir[GetFarDir(look.hexx, look.hexy, traceItem->MapX, traceItem->MapY)] * 0.01);
+                }
+            }
+        }
+        trace.Items->clear();
+    }
     
-    if( dist > max_view  || ( !trace.IsFullTrace && ( !trace.Block || ( block.first != hide.hexx && block.second != hide.hexy ) ) ) )
+
+    if (isDebug)
+    {
+        WriteLog(" dist (%i) > max_view (%i)  || ( !trace.IsFullTrace (%s) && ( !trace.Block (%s) || ( block.first != hide.hexx (%s) && block.second != hide.hexy (%s) ) )\n",
+            dist, max_view, (!trace.IsFullTrace) ? "true" : "false", (!trace.Block) ? "true" : "false", (block.first != hide.hexx) ? "true" : "false", (block.second != hide.hexy) ? "true" : "false");
+        WriteLog(" %s  || (%s) ( %s || %s )\n",
+            (dist > max_view) ? "true" : "false", ((!trace.IsFullTrace && (!trace.Block || (block.first != hide.hexx && block.second != hide.hexy)))) ? "true" : "false", 
+            (block.first != hide.hexx) ? "true" : "false", (block.second != hide.hexy) ? "true" : "false");
+
+        WriteLog(" block.first: %i block.second: %i x: %i y: %i\n", block.first, block.second, hide.hexx, hide.hexy);
+    }
+    if( dist > max_view )
         result.IsView = false;
 
+    if (!trace.IsFullTrace)
+    {
+        if (trace.Block)
+            result.IsView = DistGame(block.first, block.second, hide.hexx, hide.hexy) == 0;
+        else result.IsView = false;
+    }
     if( dist > ( uint )( max_hear * hear_mul ) )
-        result.IsHear = false;
+        result.IsHear = false; 
 
     return result;
 }

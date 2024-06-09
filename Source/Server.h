@@ -952,7 +952,7 @@ public:
         static LookData* Crit_GetLookData(Critter* critter);
         static LookData* Map_GetLookData(Map* map);
         static void Crit_UpdateLookData(Critter* critter);
-        static bool CheckLook( Map& map, LookData& look, LookData& hide, bool& isView, bool& isHear );
+        static bool CheckLook( Map& map, LookData& look, LookData& hide, bool& isView, bool& isHear, bool isDebug );
         static void Crit_SendFileToClient( Critter* critter, ScriptString& file );
     } ScriptFunc;
 };
