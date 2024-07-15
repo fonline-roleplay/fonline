@@ -8866,7 +8866,7 @@ label_EndMove:
                 break;
             item_action = item;
 
-            if( skill == SK_SCIENCE && item->IsHolodisk() )
+            if( skill == SK_SCIENCE && item->IsHolodisk() && !FLAG(item->Data.Flags, ITEM_MULTI_HEX) )
             {
                 ShowScreen( SCREEN__INPUT_BOX );
                 IboxMode = IBOX_MODE_HOLO;
