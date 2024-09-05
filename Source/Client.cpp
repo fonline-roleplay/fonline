@@ -13109,3 +13109,61 @@ ScriptString* FOClient::SScriptFunc::Global_WindowsExplorer_OpenFileName( Script
         return new ScriptString( str );
     return nullptr;
 }
+
+uint FOClient::SScriptFunc::CraftItem_GetShowParams(CraftItem* craft, CScriptArray* nums, CScriptArray* vals, CScriptArray* ors)
+{
+	if (nums)
+		Script::AppendVectorToArray(craft->ShowPNum, nums);
+	if (vals)
+		Script::AppendVectorToArray(craft->ShowPVal, vals);
+	if (ors)
+		Script::AppendVectorToArray(craft->ShowPOr, ors);
+	return (uint)craft->ShowPNum.size();
+}
+
+uint FOClient::SScriptFunc::CraftItem_GetNeedParams(CraftItem* craft, CScriptArray* nums, CScriptArray* vals, CScriptArray* ors)
+{
+	if (nums)
+		Script::AppendVectorToArray(craft->NeedPNum, nums);
+	if (vals)
+		Script::AppendVectorToArray(craft->NeedPVal, vals);
+	if (ors)
+		Script::AppendVectorToArray(craft->NeedPOr, ors);
+	return (uint)craft->NeedPNum.size();
+}
+
+uint FOClient::SScriptFunc::CraftItem_GetNeedTools(CraftItem* craft, CScriptArray* pids, CScriptArray* vals, CScriptArray* ors)
+{
+	if (pids)
+		Script::AppendVectorToArray(craft->NeedTools, pids);
+	if (vals)
+		Script::AppendVectorToArray(craft->NeedToolsVal, vals);
+	if (ors)
+		Script::AppendVectorToArray(craft->NeedToolsOr, ors);
+	return (uint)craft->NeedTools.size();
+}
+
+uint FOClient::SScriptFunc::CraftItem_GetNeedItems(CraftItem* craft, CScriptArray* pids, CScriptArray* vals, CScriptArray* ors)
+{
+	if (pids)
+		Script::AppendVectorToArray(craft->NeedItems, pids);
+	if (vals)
+		Script::AppendVectorToArray(craft->NeedItemsVal, vals);
+	if (ors)
+		Script::AppendVectorToArray(craft->NeedItemsOr, ors);
+	return (uint)craft->NeedItems.size();
+}
+
+uint FOClient::SScriptFunc::CraftItem_GetOutItems(CraftItem* craft, CScriptArray* pids, CScriptArray* vals)
+{
+	if (pids)
+		Script::AppendVectorToArray(craft->OutItems, pids);
+	if (vals)
+		Script::AppendVectorToArray(craft->OutItemsVal, vals);
+	return (uint)craft->OutItems.size();
+}
+
+CraftItem* FOClient::SScriptFunc::Global_GetCraftItem(uint num)
+{
+	return MrFixit.GetCraft(num);
+}

@@ -687,6 +687,13 @@ public:
 
         static ScriptString* Global_WindowsExplorer_OpenFileName( ScriptString& filter );
 
+		static uint			 CraftItem_GetShowParams(CraftItem* craft, CScriptArray* nums, CScriptArray* vals, CScriptArray* ors);
+		static uint			 CraftItem_GetNeedParams(CraftItem* craft, CScriptArray* nums, CScriptArray* vals, CScriptArray* ors);
+		static uint			 CraftItem_GetNeedTools(CraftItem* craft, CScriptArray* pids, CScriptArray* vals, CScriptArray* ors);
+		static uint			 CraftItem_GetNeedItems(CraftItem* craft, CScriptArray* pids, CScriptArray* vals, CScriptArray* ors);
+		static uint			 CraftItem_GetOutItems(CraftItem* craft, CScriptArray* pids, CScriptArray* vals);
+		static CraftItem*	 Global_GetCraftItem(uint num);
+
         static void Global_SetDebugLookMode( bool isDebug );
         static bool Global_IsDebugLookMode( );
 

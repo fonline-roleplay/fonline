@@ -1149,6 +1149,25 @@ BIND_ASSERT( engine->RegisterGlobalProperty( "float __GmapGroupSpeed", &BIND_CLA
 
 BIND_ASSERT( engine->RegisterGlobalProperty( "int __CurrentFileSendPercent", &BIND_CLASS CurrentFileSendPercent ) );
 BIND_ASSERT( engine->RegisterGlobalProperty( "int __CurrentFileRecivePercent", &BIND_CLASS CurrentFileRecivePercent ) );
+
+BIND_ASSERT(engine->RegisterObjectType("CraftItem", 0, asOBJ_REF));
+BIND_ASSERT(engine->RegisterObjectBehaviour("CraftItem", asBEHAVE_ADDREF, "void f()", asMETHOD(CraftItem, AddRef), asCALL_THISCALL));
+BIND_ASSERT(engine->RegisterObjectBehaviour("CraftItem", asBEHAVE_RELEASE, "void f()", asMETHOD(CraftItem, Release), asCALL_THISCALL));
+
+// Properties
+BIND_ASSERT(engine->RegisterObjectProperty("CraftItem", "const uint Num", OFFSETOF(CraftItem, Num)));
+BIND_ASSERT(engine->RegisterObjectProperty("CraftItem", "const string Name", OFFSETOF(CraftItem, Name)));
+BIND_ASSERT(engine->RegisterObjectProperty("CraftItem", "const string Info", OFFSETOF(CraftItem, Info)));
+BIND_ASSERT(engine->RegisterObjectProperty("CraftItem", "const uint Experience", OFFSETOF(CraftItem, Experience)));
+BIND_ASSERT(engine->RegisterObjectProperty("CraftItem", "const string Script", OFFSETOF(CraftItem, Script)));
+
+// Methods
+BIND_ASSERT(engine->RegisterObjectMethod("CraftItem", "uint GetShowParams(array<uint>@+ nums, array<int>@+ values, array<bool>@+ ors)", asFUNCTION(BIND_CLASS CraftItem_GetShowParams), asCALL_CDECL_OBJFIRST));
+BIND_ASSERT(engine->RegisterObjectMethod("CraftItem", "uint GetNeedParams(array<uint>@+ nums, array<int>@+ values, array<bool>@+ ors)", asFUNCTION(BIND_CLASS CraftItem_GetNeedParams), asCALL_CDECL_OBJFIRST));
+BIND_ASSERT(engine->RegisterObjectMethod("CraftItem", "uint GetNeedTools(array<uint16>@+ pids, array<uint>@+ values, array<bool>@+ ors)", asFUNCTION(BIND_CLASS CraftItem_GetNeedTools), asCALL_CDECL_OBJFIRST));
+BIND_ASSERT(engine->RegisterObjectMethod("CraftItem", "uint GetNeedItems(array<uint16>@+ pids, array<uint>@+ values, array<bool>@+ ors)", asFUNCTION(BIND_CLASS CraftItem_GetNeedItems), asCALL_CDECL_OBJFIRST));
+BIND_ASSERT(engine->RegisterObjectMethod("CraftItem", "uint GetOutItems(array<uint16>@+ pids, array<uint>@+ values)", asFUNCTION(BIND_CLASS CraftItem_GetOutItems), asCALL_CDECL_OBJFIRST));
+BIND_ASSERT(engine->RegisterGlobalFunction("CraftItem@ GetCraftItem(uint num)", asFUNCTION(BIND_CLASS Global_GetCraftItem), asCALL_CDECL));
 #endif
 
 #if defined ( BIND_CLIENT ) || defined ( BIND_SERVER )

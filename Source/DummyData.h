@@ -1229,6 +1229,12 @@ struct BindClass
 
     static void Global_AddFileToServerCollection( ){}
     static void Global_WindowsExplorer_OpenFileName( ){}
+	
+	static void CraftItem_GetShowParams() {}
+	static void CraftItem_GetNeedParams() {}
+	static void CraftItem_GetNeedTools() {}
+	static void CraftItem_GetNeedItems() {}
+	static void CraftItem_GetOutItems() {}
 };
 
 #ifdef BIND_CLIENT
