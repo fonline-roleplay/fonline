@@ -347,7 +347,7 @@ public:
     }
     bool IsCanPickUp() { return FLAG( Flags, ITEM_CAN_PICKUP ); }
 
-    uint GetColorContour() { return COLOR_XRGB(ColorContour[0], ColorContour[1], ColorContour[2]); }
+    uint GetColorContour(uchar alpha) { return COLOR_ARGB(alpha, ColorContour[0], ColorContour[1], ColorContour[2]); }
 
     bool operator==( const ushort& _r ) { return ( ProtoId == _r ); }
     ProtoItem() { Clear(); }
@@ -637,7 +637,7 @@ public:
     uint  GetColor()    { return ( Data.LightColor ? Data.LightColor : Proto->LightColor ) & 0xFFFFFF; }
     uchar GetAlpha()    { return ( Data.LightColor ? Data.LightColor : Proto->LightColor ) >> 24; }
     uint  GetInvColor() { return FLAG( Data.Flags, ITEM_COLORIZE_INV ) ? ( Data.LightColor ? Data.LightColor : Proto->LightColor ) : 0; }
-    uint  GetColorContour() { return COLOR_XRGB(Data.ColorContour[0], Data.ColorContour[1], Data.ColorContour[2]); }
+    uint  GetColorContour(uchar alpha) { return COLOR_ARGB(alpha, Data.ColorContour[0], Data.ColorContour[1], Data.ColorContour[2]); }
 
     // Light
     bool IsLight() { return FLAG( Data.Flags, ITEM_LIGHT ); }
