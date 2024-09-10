@@ -347,11 +347,6 @@ bool HexManager::AddItem( uint id, ushort pid, ushort hx, ushort hy, bool is_add
             if( !item->IsNoLightInfluence() && !( item->IsFlat() && item->IsScenOrGrid() ) )
                 spr.SetLight( hexLight, maxHexX, maxHexY );
             item->SetSprite( &spr );
-			
-			
-			#ifdef FONLINE_CLIENT
-			item->UpdateContour( &spr );
-			#endif
         }
 
         if( item->IsLight() || !item->IsLightThru() )
@@ -976,41 +971,17 @@ void HexManager::RebuildMap( int rx, int ry )
                         continue;
                     #endif
 
-					#ifdef FONLINE_CLIENT
-					if( item->IsWall() ) //HOTRINGWALLS
-					{
-						Sprite& spr = mainTree.AddSprite( DRAW_ORDER_ITEM_AUTO( item ), nx, ny + item->Proto->DrawOrderOffsetHexY, item->SpriteCut,
-                        f.ScrX + HEX_OX, f.ScrY + HEX_OY, 0, &item->SprId, &item->ScrX, &item->ScrY, &GameOpt.WallAlpha, &item->SprDrawValid, 1.0f);
-						if( !item->IsNoLightInfluence() && !( item->IsFlat() && item->IsScenOrGrid() ) )
-						spr.SetLight( hexLight, maxHexX, maxHexY );
-						item->SetSprite( &spr );
-						item->UpdateContour( &spr );
-					}
-					else if (!item->IsItem())
-					{
-						Sprite& spr = mainTree.AddSprite( DRAW_ORDER_ITEM_AUTO( item ), nx, ny + item->Proto->DrawOrderOffsetHexY, item->SpriteCut,
-                        f.ScrX + HEX_OX, f.ScrY + HEX_OY, 0, &item->SprId, &item->ScrX, &item->ScrY, &item->Alpha, &item->SprDrawValid, 1.0f);
-						if( !item->IsNoLightInfluence() && !( item->IsFlat() && item->IsScenOrGrid() ) )
-                        spr.SetLight( hexLight, maxHexX, maxHexY );
-						item->SetSprite( &spr );
-						item->UpdateContour( &spr );
-					}
-					else if ( item->IsItem() && !item->IsWall() && !item->IsScen() && !item->IsScenOrGrid() && !item->IsGrid())
-					{
-						Sprite& spr = mainTree.AddSprite( DRAW_ORDER_ITEM_AUTO( item ), nx, ny + item->Proto->DrawOrderOffsetHexY, item->SpriteCut,
-                        f.ScrX + HEX_OX, f.ScrY + HEX_OY, 0, &item->SprId, &item->ScrX, &item->ScrY, &item->Alpha, &item->SprDrawValid, 1.0f);
-						if( !item->IsNoLightInfluence() && !( item->IsFlat() && item->IsScenOrGrid() ) )
-                        spr.SetLight( hexLight, maxHexX, maxHexY );
-						item->SetSprite( &spr );
-						item->UpdateContour( &spr );
-					}
-					#else
+					uchar* alpha = &item->Alpha;
+                    if( item->IsWall() )
+                    {
+                        alpha = &GameOpt.WallAlpha;
+                    }
+
                     Sprite& spr = mainTree.AddSprite( DRAW_ORDER_ITEM_AUTO( item ), nx, ny + item->Proto->DrawOrderOffsetHexY, item->SpriteCut,
-                                                      f.ScrX + HEX_OX, f.ScrY + HEX_OY, 0, &item->SprId, &item->ScrX, &item->ScrY, &item->Alpha, &item->SprDrawValid );
+                        f.ScrX + HEX_OX, f.ScrY + HEX_OY, 0, &item->SprId, &item->ScrX, &item->ScrY, alpha, &item->SprDrawValid, 1.0f);
                     if( !item->IsNoLightInfluence() && !( item->IsFlat() && item->IsScenOrGrid() ) )
                         spr.SetLight( hexLight, maxHexX, maxHexY );
                     item->SetSprite( &spr );
-					#endif
                 }
             }
 

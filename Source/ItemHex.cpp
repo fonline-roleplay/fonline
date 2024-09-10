@@ -249,6 +249,93 @@ void ItemHex::RefreshAnim()
     }
 }
 
+void SetColorEnable(ItemHex* item, Sprite* spr)
+{
+	uint color = 0;
+    uint alpha = 0xFF;
+
+    if( item->GetColorContour(0) )
+    {
+        color = item->GetColorContour(alpha);
+    }
+    else if( item->Proto->GetColorContour(0) )
+    {
+        color = item->Proto->GetColorContour(alpha);
+    }
+    else
+    {
+        color = COLOR_ARGB(alpha, 64, 192, 64 );
+    }
+
+    spr->SetContour( CONTOUR_CUSTOM, color );
+}
+
+bool ShouldDrawContour( ItemHex* item ) {
+    ProtoItem* proto = item->Proto;
+
+    if(proto->IsWall()) // walls
+    {
+        return GameOpt.ShowContourWalls;
+    }
+    if (proto->IsScen() || (proto->IsMisc() && !item->IsUsable())) // scenery
+    {
+       return GameOpt.ShowContourScenery;
+    }
+    if (proto->IsDoor()) // doors
+    {
+        return GameOpt.ShowContourDoors;
+    }
+    if (!proto->IsContainer() && !proto->IsDoor()&& !proto->IsWall() && !proto->IsScen() && item->IsUsable()) // items
+    {
+        return GameOpt.ShowContourItems;
+    }
+    if ( proto->IsContainer() && item->SprDrawValid ) // containers
+    {
+        return GameOpt.ShowContourContainer;
+    }
+    return false;
+}
+
+void UpdateContourInner( ItemHex* item, Sprite* spr)
+{
+    if( !item || !spr || spr->ContourType == CONTOUR_RED ||  spr->ContourType == CONTOUR_YELLOW )
+    {
+        return;
+    }
+
+    if (ShouldDrawContour(item))
+    {
+        SetColorEnable(item, spr);
+    }
+    else {
+        spr->SetContour(0);
+    }
+}
+
+void ItemHex::UpdateContour()
+{
+	UpdateContourInner(this, SprDraw);
+}
+
+void ItemHex::HighlightContour(bool highlight)
+{
+    bool should_draw = ShouldDrawContour(this);
+    if( highlight )
+    {
+        if( IsDrawContour() || should_draw )
+        {
+            SprDraw->SetContour(CONTOUR_YELLOW);
+            return;
+        }
+    }
+    else if( should_draw )
+    {
+        SetColorEnable(this, SprDraw);
+        return;
+    }
+    SprDraw->SetContour(0);
+}
+
 void ItemHex::SetSprite( Sprite* spr )
 {
     if( spr )
@@ -258,7 +345,15 @@ void ItemHex::SetSprite( Sprite* spr )
         SprDraw->SetColor( IsColorize() ? GetColor() : 0 );
         SprDraw->SetEgg( GetEggType() );
         if( IsBadItem() )
+        {
             SprDraw->SetContour( CONTOUR_RED );
+        }
+        #ifdef FONLINE_CLIENT
+        else
+        {
+            UpdateContourInner( this, SprDraw );
+        }
+        #endif
     }
 }
 
@@ -391,68 +486,4 @@ void ItemHex::SetHideAnim()
         animBegSpr = Anim->CntFrm - 1;
         animEndSpr = Anim->CntFrm - 1;
     }
-}
-
-
-void SetColorEnable(ItemHex* item, Sprite* spr, uint highlight, bool needSetColor)
-{
-	uint color = 0;
-	uint item_color = item->GetColorContour();
-	uint proto_color = item->Proto->GetColorContour();
-
-    if( highlight != 0 )
-    {
-        color = highlight;
-    }
-    else if( item_color )
-    {
-        color = item_color;
-    }
-    else if( proto_color )
-    {
-        color = proto_color;
-    }
-
-    spr->SetContour( CONTOUR_CUSTOM, color );
-    if (needSetColor) spr->SetColor(color);
-}
-
-void ItemHex::UpdateContour( Sprite* spr, uint highlight )
-{
-    bool needSetColor = false;
-    bool setContour = false;
-
-    if(Proto->IsWall()) // walls
-    {
-        setContour = GameOpt.ShowContourWalls;
-        //needSetColor = true;
-    }
-    else if (Proto->IsScen() || (Proto->IsMisc() && !IsUsable())) // scenery
-    {
-        setContour = GameOpt.ShowContourScenery;
-        //needSetColor = true;
-    }
-    else if (Proto->IsDoor()) // doors
-    {
-        setContour = GameOpt.ShowContourDoors;
-        //needSetColor = true;
-    }
-    else if (!Proto->IsContainer() && !Proto->IsDoor()&& !Proto->IsWall() && !Proto->IsScen() && IsUsable()) // items
-    {
-        setContour = GameOpt.ShowContourItems;
-    }
-    else if ( Proto->IsContainer() && SprDrawValid ) // containers
-    {
-        setContour = GameOpt.ShowContourContainer;
-    }
-
-    if (setContour)
-    {
-        SetColorEnable(this, spr, highlight, needSetColor);
-    }
-}
-
-void ItemHex::UpdateContour(uint highlight)
-{
-	UpdateContour(SprDraw, highlight);
 }
