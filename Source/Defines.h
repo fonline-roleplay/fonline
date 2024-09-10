@@ -41,7 +41,8 @@
 #define WORLD_SAVE_V12               ( 0x01AB0F12 )
 #define WORLD_SAVE_V13               ( 0x01AB0F13 )
 #define WORLD_SAVE_V14               ( 0x01AB0F14 )
-#define WORLD_SAVE_LAST              WORLD_SAVE_V14
+#define WORLD_SAVE_V15               ( 0x01AB0F15 )
+#define WORLD_SAVE_LAST              WORLD_SAVE_V15
 
 // Client save
 #define CLIENT_SAVE_V1               ( 1 ) // Corrupted
@@ -66,6 +67,7 @@ const char ClientSaveSignature[ 4 ] = { 'F', 'O', 0, CLIENT_SAVE_LAST };
 // Script pragma bindfield sizes
 #define PROTO_ITEM_USER_DATA_SIZE    ( 500 )
 #define CRITTER_USER_DATA_SIZE       ( 400 )
+#define ITEM_DATA_SIZE               ( 120 )
 
 // Critters
 #define GENDER_MALE                  ( 0 )

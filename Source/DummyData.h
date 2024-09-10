@@ -149,6 +149,7 @@ struct ProtoItem
     int  LightFlags;
     int  LightDistance;
     int  LightIntensity;
+    int  ColorContour[ 3 ];
     int  LightColor;
     int  AnimWaitBase;
     int  AnimWaitRndMin;
@@ -211,7 +212,6 @@ struct ProtoItem
     int  Car_FuelConsumption;
     int  Car_Entrance;
     int  Car_MovementType;
-	int  ColorContour;
     void AddRef()  {}
     void Release() {}
 };
@@ -228,7 +228,6 @@ struct Item
     int Reserved11;
     int Lexems;
     int IsNotValid;
-	int ColorContour;
 	
     struct
     {
@@ -288,7 +287,7 @@ struct Item
         int OffsetX;
         int OffsetY;
         int Dir;
-        int Reserved[ 10 ];	
+        int ColorContour[ 3 ];
     } Data;
 
     int  RefCounter;

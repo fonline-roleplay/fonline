@@ -136,10 +136,10 @@ bool FOClient::Init()
     STATIC_ASSERT( sizeof( char ) == 1 );
     STATIC_ASSERT( sizeof( bool ) == 1 );
     #if defined ( FO_X86 )
-    STATIC_ASSERT( sizeof( Item::ItemData ) == 120 );
+    STATIC_ASSERT( sizeof( Item::ItemData ) == ITEM_DATA_SIZE );
     STATIC_ASSERT( sizeof( GmapLocation ) == 16 );
     STATIC_ASSERT( sizeof( SceneryCl ) == 32 );
-    STATIC_ASSERT( sizeof( ProtoItem ) == 912 );
+    STATIC_ASSERT( sizeof( ProtoItem ) == 908 );
     STATIC_ASSERT( sizeof( Field ) == 76 );
     STATIC_ASSERT( sizeof( CScriptArray ) == 28 );
     STATIC_ASSERT( offsetof( CritterCl, ItemSlotArmor ) == 4280 );
@@ -5317,11 +5317,9 @@ void FOClient::Net_OnChosenAddItem()
     uint   item_id;
     ushort pid;
     uchar  slot;
-	int    CColorContour;
     Bin >> item_id;
     Bin >> pid;
     Bin >> slot;
-	Bin >> CColorContour;
     Item* item = NULL;
     uchar prev_slot = SLOT_INV;
     uint  prev_light_hash = 0;
@@ -5356,7 +5354,6 @@ void FOClient::Net_OnChosenAddItem()
     Bin.Pop( (char*) &item->Data, sizeof( item->Data ) );
     item->Accessory = ITEM_ACCESSORY_CRITTER;
     item->AccCritter.Slot = slot;
-	item->ColorContour = CColorContour;
     if( item != Chosen->ItemSlotMain || !item->IsWeapon() )
         item->SetMode( item->Data.Mode );
     Chosen->AddItem( item );
@@ -5412,25 +5409,18 @@ void FOClient::Net_OnAddItemOnMap()
     ushort         item_pid;
     ushort         item_x;
     ushort         item_y;
-		int           CColorContour;
     uchar          is_added;
     Item::ItemData data;
     Bin >> item_id;
     Bin >> item_pid;
     Bin >> item_x;
     Bin >> item_y;
-	Bin >> CColorContour;
     Bin >> is_added;
     Bin.Pop( (char*) &data, sizeof( data ) );
 
     if( HexMngr.IsMapLoaded() )
     {
         HexMngr.AddItem( item_id, item_pid, item_x, item_y, is_added != 0, &data );
-		Item* item = HexMngr.GetItemById( item_id );
-		if (item)
-		{
-			item->ColorContour = CColorContour;
-		}
     }
     else     // Global map car
     {

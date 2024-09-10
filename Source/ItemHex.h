@@ -70,6 +70,8 @@ public:
     void   RefreshAlpha() { maxAlpha = ( IsColorize() ? GetAlpha() : 0xFF ); }
     void   SetSprite( Sprite* spr );
     int    GetEggType();
+    void   UpdateContour( Sprite* spr, uint highlight = 0);
+    void   UpdateContour( uint highlight = 0);
 
     // Finish
 private:

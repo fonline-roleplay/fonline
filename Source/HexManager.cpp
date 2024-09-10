@@ -350,7 +350,7 @@ bool HexManager::AddItem( uint id, ushort pid, ushort hx, ushort hy, bool is_add
 			
 			
 			#ifdef FONLINE_CLIENT
-			ContourEnable( item,spr );
+			item->UpdateContour( &spr );
 			#endif
         }
 
@@ -482,7 +482,7 @@ void HexManager::ProcessItems()
                         item->SprDraw->SetLight( hexLight, maxHexX, maxHexY );
 
 					#ifdef FONLINE_CLIENT
-					ContourEnable( item );
+					item->UpdateContour();
 					#endif
                 }
                 item->SetAnimOffs();
@@ -984,7 +984,7 @@ void HexManager::RebuildMap( int rx, int ry )
 						if( !item->IsNoLightInfluence() && !( item->IsFlat() && item->IsScenOrGrid() ) )
 						spr.SetLight( hexLight, maxHexX, maxHexY );
 						item->SetSprite( &spr );
-						ContourEnable( item,spr );
+						item->UpdateContour( &spr );
 					}
 					else if (!item->IsItem())
 					{
@@ -993,7 +993,7 @@ void HexManager::RebuildMap( int rx, int ry )
 						if( !item->IsNoLightInfluence() && !( item->IsFlat() && item->IsScenOrGrid() ) )
                         spr.SetLight( hexLight, maxHexX, maxHexY );
 						item->SetSprite( &spr );
-						ContourEnable( item,spr );
+						item->UpdateContour( &spr );
 					}
 					else if ( item->IsItem() && !item->IsWall() && !item->IsScen() && !item->IsScenOrGrid() && !item->IsGrid())
 					{
@@ -1002,7 +1002,7 @@ void HexManager::RebuildMap( int rx, int ry )
 						if( !item->IsNoLightInfluence() && !( item->IsFlat() && item->IsScenOrGrid() ) )
                         spr.SetLight( hexLight, maxHexX, maxHexY );
 						item->SetSprite( &spr );
-						ContourEnable( item,spr );
+						item->UpdateContour( &spr );
 					}
 					#else
                     Sprite& spr = mainTree.AddSprite( DRAW_ORDER_ITEM_AUTO( item ), nx, ny + item->Proto->DrawOrderOffsetHexY, item->SpriteCut,
@@ -1051,10 +1051,6 @@ void HexManager::RebuildMap( int rx, int ry )
                     spr.SetLight( hexLight, maxHexX, maxHexY );
 					
 					//dead critters containers					
-					# define COLOR_ARGB( a, r, g, b )         ( (uint) ( ( ( ( a ) & 0xff ) << 24 ) | ( ( ( r ) & 0xff ) << 16 ) | ( ( ( g ) & 0xff ) << 8 ) | ( ( b ) & 0xff ) ) )
-						# define COLOR_XRGB( r, g, b )            COLOR_ARGB( 0xff, r, g, b )
-						#define COLOR_ORANGE            ( COLOR_XRGB( 255, 165, 0 ) )	
-					//cr->ContourColor = COLOR_ORANGE;
 					if ( GameOpt.ShowContourDeadCritters && !cr->IsRawParam( MODE_NO_LOOT ) )
 					{
 						spr.SetContour( CONTOUR_CUSTOM, cr->ContourColor );					
@@ -4810,174 +4806,4 @@ stringstream ss;
 	sstrBBlue >> Blue;
 }
 
-
-void HexManager::SetColorEnable(ItemHex* item,Sprite& spr,bool needSetColor)
-{
-	#define COLOR_ARGB( a, r, g, b )         ( (uint) ( ( ( ( a ) & 0xff ) << 24 ) | ( ( ( r ) & 0xff ) << 16 ) | ( ( ( g ) & 0xff ) << 8 ) | ( ( b ) & 0xff ) ) )
-	#define COLOR_XRGB( r, g, b )            COLOR_ARGB( 0xff, r, g, b )
-	#define COLOR_ORANGE            ( COLOR_XRGB( 255, 165, 0 ) )
-	#define COLOR_CONTOUR_YELLOW    ( COLOR_XRGB( 150, 150, 0 ) )
-	#define COLOR_BLUE              ( COLOR_XRGB( 0, 0, 0xC8 ) )
-	ProtoItem*     proto = item->Proto;
-	if (proto->ColorContour>0 && item->ColorContour==0)
-	{
-		int RedColor = 0;
-		int GreenColor = 0;
-		int BlueColor = 0;
-		SplitColorRGB( proto->ColorContour, RedColor,  GreenColor,  BlueColor);
-		spr.SetContour( CONTOUR_CUSTOM, COLOR_XRGB(RedColor,GreenColor,BlueColor ));
-		if (needSetColor)spr.SetColor(COLOR_XRGB(RedColor,GreenColor,BlueColor ));
-	}
-	else if (proto->ColorContour==0 && item->ColorContour==0)// && ( (item->IsUsable() && !proto->IsWall() && !proto->IsScen()) || proto->IsWall() && proto->IsScen()) )//&& item->IsUsable() && !proto->IsWall() && !proto->IsScen())
-	{
-		//if( item->IsDrawContour()&& item->SprDrawValid )
-			spr.SetContour( CONTOUR_CUSTOM, COLOR_CONTOUR_YELLOW );
-			if (needSetColor)spr.SetColor(COLOR_CONTOUR_YELLOW);
-			
-	}
-	else if (proto->ColorContour>=0 && item->ColorContour!=0 && item->ColorContour!=-1)
-	{
-		//if( item->IsDrawContour() && item->SprDrawValid )
-			spr.SetContour( CONTOUR_CUSTOM, item->ColorContour );
-			if (needSetColor)spr.SetColor(item->ColorContour);
-	}
-	else if (proto->ColorContour==-1 && item->ColorContour!=0 )
-	{
-		spr.SetContour( CONTOUR_CUSTOM, item->ColorContour );
-	}
-}
-
-
-void HexManager::SetColorEnable(ItemHex* item,bool needSetColor)
-{
-	#define COLOR_ARGB( a, r, g, b )         ( (uint) ( ( ( ( a ) & 0xff ) << 24 ) | ( ( ( r ) & 0xff ) << 16 ) | ( ( ( g ) & 0xff ) << 8 ) | ( ( b ) & 0xff ) ) )
-	#define COLOR_XRGB( r, g, b )            COLOR_ARGB( 0xff, r, g, b )
-	#define COLOR_ORANGE            ( COLOR_XRGB( 255, 165, 0 ) )
-	#define COLOR_CONTOUR_YELLOW    ( COLOR_XRGB( 150, 150, 0 ) )
-	#define COLOR_BLUE              ( COLOR_XRGB( 0, 0, 0xC8 ) )
-	ProtoItem*     proto = item->Proto;
-	if (proto->ColorContour>0 && item->ColorContour==0)
-	{
-		int RedColor = 0;
-		int GreenColor = 0;
-		int BlueColor = 0;
-		SplitColorRGB( proto->ColorContour, RedColor,  GreenColor,  BlueColor);	
-		item->SprDraw->SetContour( COLOR_XRGB(RedColor,GreenColor,BlueColor));
-		if (needSetColor)item->SprDraw->SetColor(COLOR_XRGB(RedColor,GreenColor,BlueColor ));
-	}
-	else if (proto->ColorContour==0 && item->ColorContour==0 )//&& ( (item->IsUsable() && !proto->IsWall() && !proto->IsScen()) || proto->IsWall() && proto->IsScen()) )
-	{
-			item->SprDraw->SetContour( COLOR_CONTOUR_YELLOW );
-			if (needSetColor)item->SprDraw->SetColor(COLOR_CONTOUR_YELLOW);
-	}
-	else if (proto->ColorContour>=0 && item->ColorContour!=0 && item->ColorContour!=-1)
-	{
-			item->SprDraw->SetContour( item->ColorContour );
-			if (needSetColor)item->SprDraw->SetColor(item->ColorContour);
-	}
-	else if (proto->ColorContour==-1 && item->ColorContour!=0 )
-	{
-		item->SprDraw->SetContour( item->ColorContour );
-	}
-}
-							
-void HexManager::ContourEnable( ItemHex* item,Sprite& spr )
-{
-	ProtoItem*     proto = item->Proto;
-	
-	if (GameOpt.ShowContourWalls) //Walls
-	{
-		if(proto->IsWall())
-		{
-			SetColorEnable(item,spr,true);				
-		}
-	}
-	if (GameOpt.ShowContourScenery) //Scenery
-	{//&& !proto->IsCanPickUp()))  //
-		if(proto->IsScen() || (proto->IsMisc() && !item->IsUsable()))//& (!item->IsCanUse() && !item->IsCanPickUp() && !item->IsCanUseOnSmth())))// !proto->IsCanPickUp()))
-		//if(proto->IsScen() || (proto->IsMisc()  && (!item->IsCanUse() && !item->IsCanPickUp() && !item->IsCanUseOnSmth())))// !proto->IsCanPickUp()))
-		{
-			SetColorEnable(item,spr,true);				
-		}
-	}
-	
-	//if(proto->IsScen())
-	//{
-	//	item->SprDraw->SetContour( COLOR_CONTOUR_YELLOW );
-	//	item->SprDraw->SetColor(COLOR_CONTOUR_YELLOW);
-	//}
-	
-	
-	
-	if (GameOpt.ShowContourDoors) //Doors
-	{
-		if(proto->IsDoor())
-		{
-			SetColorEnable(item,spr,true);				
-		}
-	}//&& !proto->IsWall() && !proto->IsScen()
-	if (GameOpt.ShowContourItems) //items
-	{	
-		if(!proto->IsContainer() && !proto->IsDoor()&& !proto->IsWall() && !proto->IsScen() && item->IsUsable()) //proto->IsCanPickUp())
-		{	
-			SetColorEnable(item,spr,false);
-		}
-	}
-	if (GameOpt.ShowContourContainer) //containers
-	{
-		if( proto->IsContainer() && item->SprDrawValid )
-		{
-			SetColorEnable(item,spr,false);							
-		}							
-	}
-}
-
-
-void HexManager::ContourEnable( ItemHex* item )
-{
-	ProtoItem*     proto = item->Proto;
-	if (GameOpt.ShowContourWalls) //Walls
-	{
-		if(proto->IsWall())
-		{
-			SetColorEnable(item,true);				
-		}
-	}
-	if (GameOpt.ShowContourScenery) //Scenery
-	{// !proto->IsCanPickUp()))  //&&
-		if(proto->IsScen() || (proto->IsMisc()&& !item->IsUsable())) //&& (!item->IsCanUse() && !item->IsCanPickUp() && !item->IsCanUseOnSmth())))// !proto->IsCanPickUp()))
-		{
-			SetColorEnable(item,true);				
-		}
-	}
-	//	if(proto->IsScen())
-	//{
-	//	item->SprDraw->SetContour( COLOR_CONTOUR_YELLOW );
-	//	item->SprDraw->SetColor(COLOR_CONTOUR_YELLOW);
-	//}
-	
-	if (GameOpt.ShowContourDoors) //Doors
-	{
-		if(proto->IsDoor())
-		{
-			SetColorEnable(item,true);				
-		}
-	}
-	if (GameOpt.ShowContourItems) //items
-	{//&& !item->IsWall() && !item->IsScen()
-		//if(!proto->IsContainer() && !proto->IsDoor() )
-		if(!proto->IsContainer() && !proto->IsDoor()&& !proto->IsWall() && !proto->IsScen() && item->IsUsable())//( proto->IsCanPickUp()))
-		
-		{	
-			SetColorEnable(item,false);
-		}
-	}
-	if (GameOpt.ShowContourContainer) //containers
-	{
-		if( proto->IsContainer() && item->SprDrawValid )
-		{
-			SetColorEnable(item,false);							
-		}							
-	}			
-}
 #endif // FONLINE_CLIENT

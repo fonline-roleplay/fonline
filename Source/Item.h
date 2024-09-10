@@ -210,6 +210,7 @@ public:
     uchar  LightFlags;
     uchar  LightDistance;
     char   LightIntensity;
+    uchar  ColorContour[ 3 ];
     uint   LightColor;
     bool   DisableEgg;
     ushort AnimWaitBase;
@@ -233,7 +234,6 @@ public:
     uchar  BlockLines[ ITEM_MAX_BLOCK_LINES ];
     ushort ChildPid[ ITEM_MAX_CHILDS ];
     uchar  ChildLines[ ITEM_MAX_CHILDS ][ ITEM_MAX_CHILD_LINES ];
-    int    ColorContour;
     // User data, binded with 'bindfield' pragma
 	union
 	{
@@ -347,6 +347,8 @@ public:
     }
     bool IsCanPickUp() { return FLAG( Flags, ITEM_CAN_PICKUP ); }
 
+    uint GetColorContour() { return COLOR_XRGB(ColorContour[0], ColorContour[1], ColorContour[2]); }
+
     bool operator==( const ushort& _r ) { return ( ProtoId == _r ); }
     ProtoItem() { Clear(); }
 
@@ -388,7 +390,6 @@ public:
     uchar      Accessory;
     bool       ViewPlaceOnMap;
     short      Reserved0;
-	int ColorContour;
     union     // 8
     {
         struct
@@ -413,9 +414,9 @@ public:
         char AccBuffer[ 8 ];
     };
 
-    struct ItemData     // 120, size used in NetProto.h
+    struct ItemData     // ITEM_DATA_SIZE, size used in NetProto.h
     {
-        static char SendMask[ ITEM_DATA_MASK_MAX ][ 120 ];
+        static char SendMask[ ITEM_DATA_MASK_MAX ][ ITEM_DATA_SIZE ];
 
         ushort      SortValue;
         uchar       Info;
@@ -453,8 +454,8 @@ public:
         ushort      Charge;
         short       OffsetX;
         short       OffsetY;
-        short       Dir;
-        char        Reserved[ 2 ];
+        uchar       Dir;
+        uchar       ColorContour [ 3 ];
     } Data;
 
     short RefCounter;
@@ -636,6 +637,7 @@ public:
     uint  GetColor()    { return ( Data.LightColor ? Data.LightColor : Proto->LightColor ) & 0xFFFFFF; }
     uchar GetAlpha()    { return ( Data.LightColor ? Data.LightColor : Proto->LightColor ) >> 24; }
     uint  GetInvColor() { return FLAG( Data.Flags, ITEM_COLORIZE_INV ) ? ( Data.LightColor ? Data.LightColor : Proto->LightColor ) : 0; }
+    uint  GetColorContour() { return COLOR_XRGB(Data.ColorContour[0], Data.ColorContour[1], Data.ColorContour[2]); }
 
     // Light
     bool IsLight() { return FLAG( Data.Flags, ITEM_LIGHT ); }

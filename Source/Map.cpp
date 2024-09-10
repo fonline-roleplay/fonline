@@ -229,7 +229,6 @@ bool Map::Generate()
     {
         MapObject& mobj = *( *it );
         ushort     pid = mobj.ProtoId;
-		//int ColorContourM = mobj.ColorContourM;
         ProtoItem* proto = ItemMngr.GetProtoItem( pid );
         if( !proto )
         {
@@ -266,9 +265,6 @@ bool Map::Generate()
             if( mobj.MItem.Val[ i ] )
                 item->Data.ScriptValues[ i ] = mobj.MItem.Val[ i ];
 
-		//ColorContourM
-		item->ColorContour = mobj.MItem.ColorContour;
-		//int ColorContourM = mobj.ColorContourM;
         // Deterioration
         if( item->IsDeteriorable() )
         {
@@ -293,7 +289,7 @@ bool Map::Generate()
             item->Data.TrapValue = mobj.MItem.TrapValue;
 
         // Other values
-        item->Data.Dir = mobj.Dir;
+        item->Data.Dir = (uchar) mobj.Dir;
         item->Data.OffsetX = mobj.MItem.OffsetX;
         item->Data.OffsetY = mobj.MItem.OffsetY;
         item->Data.AmmoPid = mobj.MItem.AmmoPid;
