@@ -79,7 +79,6 @@ public:
             short  TrapValue;
 
             int    Val[ 10 ];
-			int    ColorContour;
         } MItem;
 
         struct

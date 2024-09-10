@@ -392,3 +392,67 @@ void ItemHex::SetHideAnim()
         animEndSpr = Anim->CntFrm - 1;
     }
 }
+
+
+void SetColorEnable(ItemHex* item, Sprite* spr, uint highlight, bool needSetColor)
+{
+	uint color = 0;
+	uint item_color = item->GetColorContour();
+	uint proto_color = item->Proto->GetColorContour();
+
+    if( highlight != 0 )
+    {
+        color = highlight;
+    }
+    else if( item_color )
+    {
+        color = item_color;
+    }
+    else if( proto_color )
+    {
+        color = proto_color;
+    }
+
+    spr->SetContour( CONTOUR_CUSTOM, color );
+    if (needSetColor) spr->SetColor(color);
+}
+
+void ItemHex::UpdateContour( Sprite* spr, uint highlight )
+{
+    bool needSetColor = false;
+    bool setContour = false;
+
+    if(Proto->IsWall()) // walls
+    {
+        setContour = GameOpt.ShowContourWalls;
+        //needSetColor = true;
+    }
+    else if (Proto->IsScen() || (Proto->IsMisc() && !IsUsable())) // scenery
+    {
+        setContour = GameOpt.ShowContourScenery;
+        //needSetColor = true;
+    }
+    else if (Proto->IsDoor()) // doors
+    {
+        setContour = GameOpt.ShowContourDoors;
+        //needSetColor = true;
+    }
+    else if (!Proto->IsContainer() && !Proto->IsDoor()&& !Proto->IsWall() && !Proto->IsScen() && IsUsable()) // items
+    {
+        setContour = GameOpt.ShowContourItems;
+    }
+    else if ( Proto->IsContainer() && SprDrawValid ) // containers
+    {
+        setContour = GameOpt.ShowContourContainer;
+    }
+
+    if (setContour)
+    {
+        SetColorEnable(this, spr, highlight, needSetColor);
+    }
+}
+
+void ItemHex::UpdateContour(uint highlight)
+{
+	UpdateContour(SprDraw, highlight);
+}

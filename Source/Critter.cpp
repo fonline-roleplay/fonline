@@ -4109,7 +4109,6 @@ void Client::Send_AddItemOnMap( Item* item )
     Bout << item->GetProtoId();
     Bout << item->AccHex.HexX;
     Bout << item->AccHex.HexY;
-	Bout << item->ColorContour;
     Bout << is_added;
     Bout.Push( (char*) &item->Data, Item::ItemData::SendMask[ ITEM_DATA_MASK_MAP ], sizeof( item->Data ) );
     BOUT_END( this );
@@ -4170,7 +4169,6 @@ void Client::Send_AddItem( Item* item )
     Bout << item->GetId();
     Bout << item->GetProtoId();
     Bout << item->AccCritter.Slot;
-	Bout << item->ColorContour;
     Bout.Push( (char*) &item->Data, Item::ItemData::SendMask[ ITEM_DATA_MASK_CHOSEN ], sizeof( item->Data ) );
     BOUT_END( this );
 

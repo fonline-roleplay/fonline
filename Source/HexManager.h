@@ -147,11 +147,7 @@ public:
     char&  GetHexTrack( ushort hx, ushort hy )  { return hexTrack[ hy * maxHexX + hx ]; }
     ushort GetMaxHexX()                         { return maxHexX; }
     ushort GetMaxHexY()                         { return maxHexY; }
-	void   ContourEnable( ItemHex* item,Sprite& spr );
-	void   ContourEnable( ItemHex* item );
 	void   SplitColorRGB( int Color,int& Red, int& Green, int& Blue );
-	void   SetColorEnable(ItemHex* item,Sprite& spr, bool needSetColor);
-	void   SetColorEnable(ItemHex* item, bool needSetColor );
     void   ClearHexToDraw()                     { memzero( hexToDraw, maxHexX * maxHexY * sizeof( bool ) ); }
     void   ClearHexTrack()                      { memzero( hexTrack, maxHexX * maxHexY * sizeof( char ) ); }
     void   SwitchShowTrack();

@@ -173,14 +173,15 @@ struct ScoreType
     int  Value;
 };
 
+# define COLOR_ARGB( a, r, g, b )         ( ( ( ( uint( a ) & 0xff ) << 24 ) | ( ( uint( r ) & 0xff ) << 16 ) | ( ( uint( g ) & 0xff ) << 8 ) | ( uint( b ) & 0xff ) ) )
+# define COLOR_XRGB( r, g, b )            COLOR_ARGB( 0xff, r, g, b )
+
 /************************************************************************/
 /* Client & Mapper                                                      */
 /************************************************************************/
 #if defined ( FONLINE_CLIENT ) || defined ( FONLINE_MAPPER )
 
 # define PI_VALUE             ( 3.141592654f )
-# define COLOR_ARGB( a, r, g, b )         ( (uint) ( ( ( ( a ) & 0xff ) << 24 ) | ( ( ( r ) & 0xff ) << 16 ) | ( ( ( g ) & 0xff ) << 8 ) | ( ( b ) & 0xff ) ) )
-# define COLOR_XRGB( r, g, b )            COLOR_ARGB( 0xff, r, g, b )
 
 # include "FL/Fl.H"
 # include "FL/Fl_Window.H"
