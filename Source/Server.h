@@ -557,6 +557,7 @@ public:
         static uint CraftItem_GetNeedTools( CraftItem* craft, CScriptArray* pids, CScriptArray* vals, CScriptArray* ors );
         static uint CraftItem_GetNeedItems( CraftItem* craft, CScriptArray* pids, CScriptArray* vals, CScriptArray* ors );
         static uint CraftItem_GetOutItems( CraftItem* craft, CScriptArray* pids, CScriptArray* vals );
+		static ScriptString* CraftItem_GetScriptName(CraftItem* craft);
 
         static bool         Crit_IsPlayer( Critter* cr );
         static bool         Crit_IsNpc( Critter* cr );

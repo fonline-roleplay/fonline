@@ -384,6 +384,7 @@ BIND_ASSERT( engine->RegisterObjectMethod( "CraftItem", "uint GetNeedParams(arra
 BIND_ASSERT( engine->RegisterObjectMethod( "CraftItem", "uint GetNeedTools(array<uint16>@+ pids, array<uint>@+ values, array<bool>@+ ors)", asFUNCTION( BIND_CLASS CraftItem_GetNeedTools ), asCALL_CDECL_OBJFIRST ) );
 BIND_ASSERT( engine->RegisterObjectMethod( "CraftItem", "uint GetNeedItems(array<uint16>@+ pids, array<uint>@+ values, array<bool>@+ ors)", asFUNCTION( BIND_CLASS CraftItem_GetNeedItems ), asCALL_CDECL_OBJFIRST ) );
 BIND_ASSERT( engine->RegisterObjectMethod( "CraftItem", "uint GetOutItems(array<uint16>@+ pids, array<uint>@+ values)", asFUNCTION( BIND_CLASS CraftItem_GetOutItems ), asCALL_CDECL_OBJFIRST ) );
+BIND_ASSERT( engine->RegisterObjectMethod( "CraftItem", "string@+ GetScriptName()", asFUNCTION( BIND_CLASS CraftItem_GetScriptName ), asCALL_CDECL_OBJFIRST ) );
 
 /************************************************************************/
 /* Scenery                                                              */

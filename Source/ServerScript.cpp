@@ -6545,6 +6545,12 @@ void FOServer::SScriptFunc::Crit_SendFileToClient( Critter* critter, ScriptStrin
     file->Release( );
 }
 
+ScriptString* FOServer::SScriptFunc::CraftItem_GetScriptName(CraftItem* craft)
+{
+	const char* c_str = craft->Script.c_str();
+	return new ScriptString(c_str);
+}
+
 /************************************************************************/
 /*                                                                      */
 /************************************************************************/
