@@ -885,6 +885,16 @@ bool FOServer::AI_Attack( Npc* npc, Map* map, uchar mode, uint targ_id )
 bool FOServer::AI_PickItem( Npc* npc, Map* map, ushort hx, ushort hy, ushort pid, uint use_item_id )
 {
     CHECK_NPC_AP_R0( npc, map, npc->GetApCostPickItem() );
+	if (use_item_id != 0)
+	{
+		Item* pick_item = map->GetItemHex(hx, hy, pid, NULL);
+		if (!pick_item)
+		{
+			WriteLog("AI_PickItem: Can't Find use_item_id.\n");
+			return false;
+		}
+		return Act_Use(npc, use_item_id, -1, TARGET_ITEM, pick_item->GetId(), pid, 0);
+	}
     return Act_PickItem( npc, hx, hy, pid );
 }
 
