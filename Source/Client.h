@@ -743,8 +743,8 @@ public:
     ItemVec BarterCont1o, BarterCont2, BarterCont2o;
     ItemVec PupCont2;
 
-    uint  GetCurContainerItemId( const Rect& pos, int height, int scroll, ItemVec& cont );
-    void  ContainerDraw( const Rect& pos, int height, int scroll, ItemVec& cont, uint skip_id );
+    uint  GetCurContainerItemId( const Rect& pos, int height, int scroll, ItemVec& cont, int column, int padX);
+    void  ContainerDraw( const Rect& pos, int height, int scroll, ItemVec& cont, uint skip_id, int column, int padX);
     Item* GetContainerItem( ItemVec& cont, uint id );
     void  CollectContItems();
     void  ProcessItemsCollection( int collection, ItemVec& init_items, ItemVec& result );
@@ -787,6 +787,8 @@ public:
     Rect       InvBScrUp, InvBScrDn, InvBOk;
     Rect       InvWText;
     int        InvVectX, InvVectY;
+	int        InvColumns;
+	int        InvItemPadX;
     // Extended slots
     struct SlotExt
     {
