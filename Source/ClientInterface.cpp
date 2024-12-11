@@ -1431,7 +1431,7 @@ void FOClient::ContainerDraw( const Rect& pos, int height, int scroll, ItemVec& 
         {
             AnyFrames* anim = ResMngr.GetInvAnim( item.GetPicInv() );
             if( anim )
-                SprMngr.DrawSpriteSize( anim->GetCurSprId(), pos.L + (col * (pos.W() / column + padX)), pos.T + (row * height ) - (scroll * height), (float) (pos.W() / column), (float) height, false, column == 1, item.GetInvColor() );
+                SprMngr.DrawSpriteSize( anim->GetCurSprId(), pos.L + (col * (pos.W() / column + padX)), pos.T + (row * height ) - (scroll * height), (float) ((pos.W() / column) - padX), (float) height, false, true, item.GetInvColor() );
         }
 		if (++col >= column)
 		{
