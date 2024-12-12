@@ -339,6 +339,8 @@ bool FOClient::Init()
         return false;
     if( !SprMngr.LoadFontFO( FONT_BIG, "Big" ) )
         return false;
+	if( !SprMngr.LoadFontFO(FONT_CHAT, "Chat" ) )
+		return false;
     SprMngr.SetDefaultFont( FONT_DEFAULT, COLOR_TEXT );
     Effect* font_effect = GraphicLoader::LoadEffect( SprMngr.GetDevice(), "Font_Default.fx", true );
     if( font_effect )
@@ -352,6 +354,7 @@ bool FOClient::Init()
         SprMngr.SetFontEffect( FONT_THIN, font_effect );
         SprMngr.SetFontEffect( FONT_FAT, font_effect );
         SprMngr.SetFontEffect( FONT_BIG, font_effect );
+		SprMngr.SetFontEffect( FONT_CHAT, font_effect );
     }
 
     // Sound manager

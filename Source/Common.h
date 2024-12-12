@@ -885,6 +885,7 @@ struct GameOptions
     uint         ( * GetAttackDistantion )( void*, void*, uchar );
 	
 	bool		 SpritesFiltering;
+	bool		 NewChatFont;
 
     GameOptions();
 } extern GameOpt;

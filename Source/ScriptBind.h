@@ -1662,6 +1662,7 @@ BIND_ASSERT( engine->RegisterGlobalProperty( "bool __ShowContourScenery", &GameO
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __ShowContourWalls", &GameOpt.ShowContourWalls ) );
 //===================================================================
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __SpritesFiltering", &GameOpt.SpritesFiltering ) );
+BIND_ASSERT(engine->RegisterGlobalProperty("bool __NewChatFont", &GameOpt.NewChatFont));
 
 #endif
 

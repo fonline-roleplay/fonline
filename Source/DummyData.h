@@ -1504,4 +1504,5 @@ struct GameOptions
     int SplitTilesCollection;
 
 	bool SpritesFiltering;
+	bool NewChatFont;
 } GameOpt;

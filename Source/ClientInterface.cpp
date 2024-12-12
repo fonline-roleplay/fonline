@@ -3162,7 +3162,7 @@ void FOClient::MessBoxGenerate()
         return;
 
     Rect ir = MessBoxCurRectDraw();
-    int max_lines = SprMngr.GetLinesCount( 0, ir.H(), NULL );
+    int max_lines = SprMngr.GetLinesCount( 0, ir.H(), NULL, (GameOpt.NewChatFont ? FONT_CHAT : FONT_DEFAULT ));
 
     if( ir.IsZero() || max_lines <= 0 )
     {
@@ -3185,7 +3185,7 @@ void FOClient::MessBoxGenerate()
 
         // Skip scrolled lines
         int lines_ = lines;
-        lines += SprMngr.GetLinesCount( ir.W(), 0, m.Mess.c_str() );
+        lines += SprMngr.GetLinesCount( ir.W(), 0, m.Mess.c_str(), (GameOpt.NewChatFont ? FONT_CHAT : FONT_DEFAULT));
         if( MessBoxScrollLines < 0 )
         {
             if( lines <= MessBoxScroll )
@@ -3222,7 +3222,7 @@ void FOClient::MessBoxDraw()
     if( ir.IsZero() )
         return;
 
-    SprMngr.DrawStr( ir, MessBoxCurText.c_str(), flags | ( GameOpt.MsgboxInvert ? FT_SKIPLINES( MessBoxScrollLines ) : FT_SKIPLINES_END( MessBoxScrollLines ) ) );
+    SprMngr.DrawStr( ir, MessBoxCurText.c_str(), flags | ( GameOpt.MsgboxInvert ? FT_SKIPLINES( MessBoxScrollLines ) : FT_SKIPLINES_END( MessBoxScrollLines ) ), 0, (GameOpt.NewChatFont ? FONT_CHAT : FONT_DEFAULT));
 }
 
 Rect FOClient::MessBoxCurRectDraw()

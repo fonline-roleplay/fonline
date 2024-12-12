@@ -1836,6 +1836,7 @@ public:
 #define FONT_THIN                      ( 6 )
 #define FONT_FAT                       ( 7 )
 #define FONT_BIG                       ( 8 )
+#define FONT_CHAT					   ( 9 )
 
 // Screens
 #define SCREEN_NONE                    ( 0 )
