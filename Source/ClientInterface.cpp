@@ -7067,7 +7067,7 @@ void FOClient::CreditsDraw()
 const int ShowStats[] =
 {
     ST_ARMOR_CLASS, ST_ACTION_POINTS, ST_CARRY_WEIGHT, ST_MELEE_DAMAGE, ST_NORMAL_RESIST,
-    ST_POISON_RESISTANCE, ST_RADIATION_RESISTANCE, ST_SEQUENCE, ST_HEALING_RATE, ST_CRITICAL_CHANCE
+    ST_POISON_RESISTANCE, ST_RADIATION_RESISTANCE, ST_APREGEN, ST_HEALING_RATE, ST_CRITICAL_CHANCE
 };
 const int ShowStatsCnt = sizeof( ShowStats ) / sizeof( ShowStats[ 0 ] );
 
@@ -7444,6 +7444,9 @@ void FOClient::ChaDraw( bool is_reg )
         case ST_CRITICAL_CHANCE:
             str = Str::FormatBuf( "%d%%", val );
             break;
+		case ST_APREGEN:
+			str = Str::FormatBuf("%f", float(val) / 100);
+			break;
         default:
             str = Str::FormatBuf( "%d", val );
             break;
