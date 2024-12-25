@@ -1566,7 +1566,7 @@ void HexManager::RebuildTiles()
                 #ifdef FONLINE_MAPPER
                 {
                     ProtoMap::TileVec& tiles = CurProtoMap->GetTiles( hx, hy, false );
-                    tilesTree.AddSprite( DRAW_ORDER_TILE + tile.Layer, hx, hy, 0, ox, oy, spr_id, NULL, NULL, NULL, tiles[ i ].IsSelected ? (uchar*) &SELECT_ALPHA : NULL, NULL );
+                    tilesTree.AddSprite( DRAW_ORDER_TILE + tile.Layer, hx, hy, 0, ox, oy, spr_id, NULL, NULL, NULL, tiles[ i ].IsSelected ? (uchar*) &SELECT_ALPHA : NULL, NULL, 1.0f);
                 }
                 #else
                     tilesTree.AddSprite( DRAW_ORDER_TILE + tile.Layer, hx, hy, 0, ox, oy, spr_id, NULL, NULL, NULL, NULL, NULL, 1.0f );
@@ -1618,7 +1618,7 @@ void HexManager::RebuildRoof()
                     #ifdef FONLINE_MAPPER
                     {
                         ProtoMap::TileVec& roofs = CurProtoMap->GetTiles( hx, hy, true );
-                        roofTree.AddSprite( DRAW_ORDER_TILE + roof.Layer, hx, hy, 0, ox, oy, spr_id, NULL, NULL, NULL, roofs[ i ].IsSelected ? (uchar*) &SELECT_ALPHA : &GameOpt.RoofAlpha, NULL ).SetEgg( EGG_ALWAYS );
+                        roofTree.AddSprite( DRAW_ORDER_TILE + roof.Layer, hx, hy, 0, ox, oy, spr_id, NULL, NULL, NULL, roofs[ i ].IsSelected ? (uchar*) &SELECT_ALPHA : &GameOpt.RoofAlpha, NULL, 1.0f).SetEgg( EGG_ALWAYS );
                     }
                     #else
                         roofTree.AddSprite( DRAW_ORDER_TILE + roof.Layer, hx, hy, 0, ox, oy, spr_id, NULL, NULL, NULL, &GameOpt.RoofAlpha, NULL, 1.0f ).SetEgg( EGG_ALWAYS );

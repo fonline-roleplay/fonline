@@ -94,6 +94,7 @@ private:
     }
 };
 
+#ifndef FONLINE_MAPPER
 struct FileSendBuffer
 {
 private:
@@ -373,5 +374,7 @@ public:
 	}
 
 };
+
+#endif // ! FONLINE_MAPPER
 
 #endif // __BUFFER_MANAGER__

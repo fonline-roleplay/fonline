@@ -1555,7 +1555,9 @@ BIND_ASSERT( engine->RegisterGlobalProperty( "bool __ShowDrawOrder", &GameOpt.Sh
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __SplitTilesCollection", &GameOpt.SplitTilesCollection ) );
 #endif
 
+#ifndef BIND_MAPPER
 BIND_ASSERT( engine->RegisterGlobalFunction( "int RunAllFunctions( string&in funcName )", asFUNCTION( BIND_CLASS Global_RunAllFunctions ), asCALL_CDECL ) );
+#endif
 
 #if defined ( BIND_CLIENT ) || defined ( BIND_MAPPER )
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __Quit", &GameOpt.Quit ) );
@@ -1691,7 +1693,9 @@ BIND_ASSERT( engine->RegisterGlobalFunction( "uint GetTick()", asFUNCTION( BIND_
 BIND_ASSERT( engine->RegisterGlobalFunction( "uint GetAngelScriptProperty(int property)", asFUNCTION( BIND_CLASS Global_GetAngelScriptProperty ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "void SetAngelScriptProperty(int property, uint value)", asFUNCTION( BIND_CLASS Global_SetAngelScriptProperty ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "uint GetStrHash(string@+ str)", asFUNCTION( BIND_CLASS Global_GetStrHash ), asCALL_CDECL ) );
+#ifndef BIND_MAPPER
 BIND_ASSERT( engine->RegisterGlobalFunction( "string@+ GetHashStr( uint hash )", asFUNCTION( BIND_CLASS Global_GetHashStr ), asCALL_CDECL ) );
+#endif
 BIND_ASSERT( engine->RegisterGlobalFunction( "bool LoadDataFile(string& dataFileName)", asFUNCTION( BIND_CLASS Global_LoadDataFile ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "int GetConstantValue(int constCollection, string@+ name)", asFUNCTION( BIND_CLASS Global_GetConstantValue ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "string@ GetConstantName(int constCollection, int value)", asFUNCTION( BIND_CLASS Global_GetConstantName ), asCALL_CDECL ) );

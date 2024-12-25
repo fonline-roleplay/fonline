@@ -84,9 +84,13 @@ struct CritData
     uchar      Reserved21;
     uchar      BagSize;
     NpcBagItem Bag[ MAX_NPC_BAGS ];
+#ifndef FONLINE_MAPPER
     LookData   Look;
     uint       Reserved22[88];
     uchar      Reserved23[2];
+#else
+	uint       Reserved22[100];
+#endif //FONLINE_MAPPER
 };
 
 struct CritDataExt
