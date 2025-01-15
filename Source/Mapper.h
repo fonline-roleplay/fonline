@@ -426,6 +426,7 @@ public:
     void FinishScriptSystem();
     void RunStartScript();
     void DrawIfaceLayer( uint layer );
+	void SaveMapFile(string map_name);
 
     struct SScriptFunc
     {

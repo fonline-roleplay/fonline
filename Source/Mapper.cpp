@@ -977,6 +977,9 @@ void FOMapper::ParseKeyboard()
             case DIK_NUMPAD4:
                 TileLayer = 4;
                 break;
+			case DIK_S:
+				GameOpt.ScrollCheck = !GameOpt.ScrollCheck;
+				break;
             default:
                 break;
             }
@@ -999,7 +1002,7 @@ void FOMapper::ParseKeyboard()
                 SelectAll();
                 break;
             case DIK_S:
-                GameOpt.ScrollCheck = !GameOpt.ScrollCheck;
+				SaveMapFile(HexMngr.CurProtoMap->GetName());
                 break;
             case DIK_B:
                 HexMngr.MarkPassedHexes();
@@ -2079,12 +2082,14 @@ void FOMapper::IntDraw()
                              "Hex %d %d\n"
                              "Time %u : %u\n"
                              "Fps %u\n"
+							 "Zoom %d\n"
                              "Tile layer %d\n"
                              "%s",
                              HexMngr.CurProtoMap->GetName(),
                              hex_thru ? hx : -1, hex_thru ? hy : -1,
                              DayTime / 60 % 24, DayTime % 60,
                              FPS,
+							 (int)(1.0f / GameOpt.SpritesZoom * 100.0f),
                              TileLayer,
                              GameOpt.ScrollCheck ? "Scroll check" : "" ),
                          FT_NOBREAK_LINE );
@@ -4871,26 +4876,7 @@ void FOMapper::ParseCommand( const char* cmd )
 
         char map_name[ MAX_FOTEXT ];
         Str::CopyWord( map_name, cmd, ' ', false );
-        if( !map_name[ 0 ] )
-        {
-            AddMess( "Error parse map name." );
-            return;
-        }
-
-        if( !CurProtoMap )
-        {
-            AddMess( "Map not loaded." );
-            return;
-        }
-
-        SelectClear();
-        HexMngr.RefreshMap();
-        FileManager::SetDataPath( GameOpt.ServerPath.c_str() );
-        if( CurProtoMap->Save( map_name, PT_SERVER_MAPS ) )
-            AddMess( "Save map success." );
-        else
-            AddMess( "Save map fail, see log." );
-        FileManager::SetDataPath( ( GameOpt.ClientPath.c_std_str() + GameOpt.FoDataPath.c_std_str() ).c_str() );
+		SaveMapFile(map_name);
     }
     // Run script
     else if( *cmd == '#' )
@@ -5395,6 +5381,31 @@ void FOMapper::DrawIfaceLayer( uint layer )
         SpritesCanDraw = false;
     }
 }
+
+void FOMapper::SaveMapFile(string map_name)
+{
+	if (!map_name[0])
+	{
+		AddMess("Error parse map name.");
+		return;
+	}
+
+	if (!CurProtoMap)
+	{
+		AddMess("Map not loaded.");
+		return;
+	}
+
+	SelectClear();
+	HexMngr.RefreshMap();
+	FileManager::SetDataPath(GameOpt.ServerPath.c_str());
+	if (CurProtoMap->Save(map_name.c_str(), PT_SERVER_MAPS))
+		AddMess("Save map success.");
+	else
+		AddMess("Save map fail, see log.");
+	FileManager::SetDataPath((GameOpt.ClientPath.c_std_str() + GameOpt.FoDataPath.c_std_str()).c_str());
+}
+
 
 #define SCRIPT_ERROR( error )          do { ScriptLastError = error; Script::LogError( _FUNC_, error ); } while( 0 )
 #define SCRIPT_ERROR_RX( error, x )    do { ScriptLastError = error; Script::LogError( _FUNC_, error ); return x; } while( 0 )
