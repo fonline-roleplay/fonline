@@ -371,6 +371,8 @@ public:
     uint ConsoleKeyTick;
     int  ConsoleAccelerate;
 
+	uint NextAutosaveCall;
+
     void ConsoleDraw();
     void ConsoleKeyDown( uchar dik );
     void ConsoleKeyUp( uchar dik );

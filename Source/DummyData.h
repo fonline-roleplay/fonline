@@ -1505,4 +1505,6 @@ struct GameOptions
 
 	bool SpritesFiltering;
 	bool NewChatFont;
+
+	int MapperAutosave;
 } GameOpt;

@@ -30,7 +30,7 @@ bool FOMapper::Init()
     #if defined ( FO_X86 )
     STATIC_ASSERT( sizeof( SpriteInfo ) == 36 );
     STATIC_ASSERT( sizeof( Sprite ) == 116 );
-    STATIC_ASSERT( sizeof( GameOptions ) == 1324 );
+    STATIC_ASSERT( sizeof( GameOptions ) == 1328 );
     #endif
 
     // Register dll script data
@@ -353,7 +353,8 @@ bool FOMapper::Init()
     RefreshCurProtos();
 
     IsMapperStarted = true;
-    WriteLog( "Mapper initialization complete.\n" );
+	NextAutosaveCall = Timer::FastTick() + GameOpt.MapperAutosave;    
+	WriteLog( "Mapper initialization complete.\n" );
     return true;
 }
 
@@ -1487,6 +1488,13 @@ void FOMapper::MainLoop()
 
     if( HexMngr.IsMapLoaded() )
     {
+		if (GameOpt.MapperAutosave && Timer::FastTick() >= NextAutosaveCall)
+		{
+			uint wait_tick = GameOpt.MapperAutosave;
+			SaveMapFile(HexMngr.CurProtoMap->GetName());
+			NextAutosaveCall = Timer::FastTick() + wait_tick;
+		}
+
         for( auto it = HexMngr.GetCritters().begin(), end = HexMngr.GetCritters().end(); it != end; ++it )
         {
             CritterCl* cr = ( *it ).second;
@@ -3011,6 +3019,7 @@ void FOMapper::IntLMouseDown()
                 if( HexMngr.SetProtoMap( *LoadedProtoMaps[ ind ] ) )
                 {
                     CurProtoMap = LoadedProtoMaps[ ind ];
+					NextAutosaveCall = Timer::FastTick() + GameOpt.MapperAutosave;
                     HexMngr.FindSetCenter( CurProtoMap->Header.WorkHexX, CurProtoMap->Header.WorkHexY );
                 }
             }

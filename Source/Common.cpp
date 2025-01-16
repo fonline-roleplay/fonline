@@ -1808,6 +1808,7 @@ GameOptions::GameOptions()
     ShowSpriteCuts = false;
     ShowDrawOrder = false;
     SplitTilesCollection = true;
+	MapperAutosave = 0;
 
     // Engine data
     CritterChangeParameter = NULL;
