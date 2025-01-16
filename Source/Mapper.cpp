@@ -353,7 +353,7 @@ bool FOMapper::Init()
     RefreshCurProtos();
 
     IsMapperStarted = true;
-	NextAutosaveCall = Timer::FastTick() + GameOpt.MapperAutosave;    
+	NextAutosaveCall = Timer::FastTick() + (GameOpt.MapperAutosave * 60000);
 	WriteLog( "Mapper initialization complete.\n" );
     return true;
 }
@@ -1490,9 +1490,8 @@ void FOMapper::MainLoop()
     {
 		if (GameOpt.MapperAutosave && Timer::FastTick() >= NextAutosaveCall)
 		{
-			uint wait_tick = GameOpt.MapperAutosave;
 			SaveMapFile(HexMngr.CurProtoMap->GetName());
-			NextAutosaveCall = Timer::FastTick() + wait_tick;
+			NextAutosaveCall = Timer::FastTick() + (GameOpt.MapperAutosave * 60000);
 		}
 
         for( auto it = HexMngr.GetCritters().begin(), end = HexMngr.GetCritters().end(); it != end; ++it )
@@ -3019,7 +3018,7 @@ void FOMapper::IntLMouseDown()
                 if( HexMngr.SetProtoMap( *LoadedProtoMaps[ ind ] ) )
                 {
                     CurProtoMap = LoadedProtoMaps[ ind ];
-					NextAutosaveCall = Timer::FastTick() + GameOpt.MapperAutosave;
+					NextAutosaveCall = Timer::FastTick() + (GameOpt.MapperAutosave * 60000);
                     HexMngr.FindSetCenter( CurProtoMap->Header.WorkHexX, CurProtoMap->Header.WorkHexY );
                 }
             }

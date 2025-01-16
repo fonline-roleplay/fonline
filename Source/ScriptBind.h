@@ -1553,7 +1553,6 @@ BIND_ASSERT( engine->RegisterGlobalProperty( "bool __ShowCorners", &GameOpt.Show
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __ShowSpriteCuts", &GameOpt.ShowSpriteCuts ) );
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __ShowDrawOrder", &GameOpt.ShowDrawOrder ) );
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __SplitTilesCollection", &GameOpt.SplitTilesCollection ) );
-BIND_ASSERT( engine->RegisterGlobalProperty( "int __MapperAutosave", &GameOpt.MapperAutosave ) );
 #endif
 
 #ifndef BIND_MAPPER

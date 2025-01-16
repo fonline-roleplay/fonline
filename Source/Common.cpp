@@ -1397,6 +1397,9 @@ void GetClientOptions()
     Script::SetGarbageCollectTime( 120000 );
     # endif
     # ifdef FONLINE_MAPPER
+	GameOpt.MapperAutosave = cfg_mapper.GetInt("MapperAutosave", 0);
+	GETOPTIONS_CMD_LINE_INT(GameOpt.MapperAutosave, "-MapperAutosave");
+	GETOPTIONS_CHECK(GameOpt.MapperAutosave, 0, 240, 0);
     Script::SetRunTimeout( 0, 0 );
     # endif
 }
