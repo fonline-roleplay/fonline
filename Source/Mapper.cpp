@@ -4321,7 +4321,7 @@ void FOMapper::ParseNpc( ushort pid, ushort hx, ushort hy )
     mobj->MCritter.Cond = COND_LIFE;
     CurProtoMap->MObjects.push_back( mobj );
 
-    CritterCl* cr = new CritterCl();
+    CritterCl* cr = new CritterClFORP();
     cr->SetBaseType( pnpc->BaseType );
     cr->DefItemSlotHand->Init( ItemMngr.GetProtoItem( ITEM_DEF_SLOT ) );
     cr->DefItemSlotArmor->Init( ItemMngr.GetProtoItem( ITEM_DEF_ARMOR ) );
@@ -4368,7 +4368,7 @@ MapObject* FOMapper::ParseMapObj( MapObject* mobj )
         mobj->RunTime.FromMap = CurProtoMap;
         mobj->RunTime.MapObjId = ++AnyId;
 
-        CritterCl* cr = new CritterCl();
+        CritterCl* cr = new CritterClFORP();
         cr->SetBaseType( pnpc->BaseType );
         cr->DefItemSlotHand->Init( ItemMngr.GetProtoItem( ITEM_DEF_SLOT ) );
         cr->DefItemSlotArmor->Init( ItemMngr.GetProtoItem( ITEM_DEF_ARMOR ) );
