@@ -564,6 +564,7 @@ public:
         static uint          Global_GetCritterAlias( uint cr_type );
         static ScriptString* Global_GetCritterTypeName( uint cr_type );
         static ScriptString* Global_GetCritterSoundName( uint cr_type );
+		static ScriptString* Global_WindowsExplorer_OpenFileName(ScriptString& filter);
     };
 };
 

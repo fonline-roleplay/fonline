@@ -7126,3 +7126,13 @@ ScriptString* FOMapper::SScriptFunc::Global_GetCritterSoundName( uint cr_type )
         SCRIPT_ERROR_RX( "Invalid critter type arg.", new ScriptString( "" ) );
     return new ScriptString( CritType::GetSoundName( cr_type ) );
 }
+
+extern string WindowsExplorer_OpenFileName(const char* filter);
+
+ScriptString* FOMapper::SScriptFunc::Global_WindowsExplorer_OpenFileName(ScriptString& filter)
+{
+	string str = WindowsExplorer_OpenFileName(filter.c_str());
+	if (!str.empty())
+		return new ScriptString(str);
+	return nullptr;
+}

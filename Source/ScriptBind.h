@@ -1138,8 +1138,6 @@ BIND_ASSERT( engine->RegisterGlobalFunction( "void OpenWebLink(string& text)", a
 BIND_ASSERT( engine->RegisterGlobalFunction( "void ChosenRefreshMap()", asFUNCTION( BIND_CLASS Global_ChosenRefreshMap ), asCALL_CDECL ) );
 //===================================================================
 
-BIND_ASSERT( engine->RegisterGlobalFunction( "string@+ WindowsExplorer_OpenFile( string& filters )", asFUNCTION( BIND_CLASS Global_WindowsExplorer_OpenFileName ), asCALL_CDECL ) );
-
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __ConsoleActive", &BIND_CLASS ConsoleActive ) );
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __GmapActive", &BIND_CLASS GmapActive ) );
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __GmapWait", &BIND_CLASS GmapWait ) );
@@ -1664,7 +1662,9 @@ BIND_ASSERT( engine->RegisterGlobalProperty( "bool __ShowContourScenery", &GameO
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __ShowContourWalls", &GameOpt.ShowContourWalls ) );
 //===================================================================
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __SpritesFiltering", &GameOpt.SpritesFiltering ) );
-BIND_ASSERT(engine->RegisterGlobalProperty("bool __NewChatFont", &GameOpt.NewChatFont));
+BIND_ASSERT( engine->RegisterGlobalProperty( "bool __NewChatFont", &GameOpt.NewChatFont ) );
+BIND_ASSERT( engine->RegisterGlobalFunction( "string@+ WindowsExplorer_OpenFile( string& filters )", asFUNCTION( BIND_CLASS Global_WindowsExplorer_OpenFileName ), asCALL_CDECL ) );
+
 
 #endif
 
