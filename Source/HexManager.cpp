@@ -972,10 +972,12 @@ void HexManager::RebuildMap( int rx, int ry )
                     #endif
 
 					uchar* alpha = &item->Alpha;
-                    if( item->IsWall() )
+#ifndef FONLINE_MAPPER
+					if( item->IsWall() )
                     {
                         alpha = &GameOpt.WallAlpha;
                     }
+#endif // FONLINE_MAPPER
 
                     Sprite& spr = mainTree.AddSprite( DRAW_ORDER_ITEM_AUTO( item ), nx, ny + item->Proto->DrawOrderOffsetHexY, item->SpriteCut,
                         f.ScrX + HEX_OX, f.ScrY + HEX_OY, 0, &item->SprId, &item->ScrX, &item->ScrY, alpha, &item->SprDrawValid, 1.0f);
