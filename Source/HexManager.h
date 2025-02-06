@@ -135,7 +135,9 @@ private:
     char*      hexTrack;
     AnyFrames* picTrack1, * picTrack2;
     AnyFrames* picHexMask;
+	AnyFrames* picTileMask;
     bool       isShowTrack;
+	bool       isTileTrack;
     bool       isShowHex;
     AnyFrames* picHex[ 3 ];
     string     curDataPrefix;
@@ -151,7 +153,9 @@ public:
     void   ClearHexToDraw()                     { memzero( hexToDraw, maxHexX * maxHexY * sizeof( bool ) ); }
     void   ClearHexTrack()                      { memzero( hexTrack, maxHexX * maxHexY * sizeof( char ) ); }
     void   SwitchShowTrack();
+	void   SetTileTrack(bool val);
     bool   IsShowTrack() { return isShowTrack; };
+	bool   IsTileTrack() { return isTileTrack; };
 
     bool FindPath( CritterCl* cr, ushort start_x, ushort start_y, ushort& end_x, ushort& end_y, UCharVec& steps, int cut );
     bool CutPath( CritterCl* cr, ushort start_x, ushort start_y, ushort& end_x, ushort& end_y, int cut );

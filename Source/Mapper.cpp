@@ -921,7 +921,9 @@ void FOMapper::ParseKeyboard()
                 }
                 break;
             case DIK_TAB:
-                SelectType = ( SelectType == SELECT_TYPE_OLD ? SELECT_TYPE_NEW : SELECT_TYPE_OLD );
+				SelectType++;
+				if (SelectType >= SELECT_TYPE_MAX) SelectType = SELECT_TYPE_OLD;
+				HexMngr.SetTileTrack(SelectType == SELECT_TYPE_TILES);
                 break;
             default:
                 break;
@@ -3223,7 +3225,7 @@ void FOMapper::IntLMouseUp()
                 HexMngr.ClearHexTrack();
                 UShortPairVec h;
 
-                if( SelectType == SELECT_TYPE_OLD )
+                if( SelectType == SELECT_TYPE_OLD || SelectType == SELECT_TYPE_TILES )
                 {
                     int fx = min( SelectHX1, SelectHX2 );
                     int tx = max( SelectHX1, SelectHX2 );
@@ -3334,7 +3336,7 @@ void FOMapper::IntMouseMove()
         {
             if( SelectHX1 != SelectHX2 || SelectHY1 != SelectHY2 )
             {
-                if( SelectType == SELECT_TYPE_OLD )
+                if( SelectType == SELECT_TYPE_OLD || SelectType == SELECT_TYPE_TILES )
                 {
                     int fx = min( SelectHX1, SelectHX2 );
                     int tx = max( SelectHX1, SelectHX2 );
@@ -3342,8 +3344,11 @@ void FOMapper::IntMouseMove()
                     int ty = max( SelectHY1, SelectHY2 );
 
                     for( int i = fx; i <= tx; i++ )
-                        for( int j = fy; j <= ty; j++ )
-                            HexMngr.GetHexTrack( i, j ) = 1;
+						for (int j = fy; j <= ty; j++)
+						{
+							if (SelectType == SELECT_TYPE_TILES && (i % 2 != 0 || j % 2 != 0)) continue;
+							HexMngr.GetHexTrack(i, j) = 1;
+						}
                 }
                 else if( SelectType == SELECT_TYPE_NEW )
                 {

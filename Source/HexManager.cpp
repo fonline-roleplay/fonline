@@ -164,7 +164,7 @@ HexManager::HexManager()
     dayColor[ 11 ] = 29;
     picRainDrop = NULL;
     memzero( picRainDropA, sizeof( picRainDropA ) );
-    picTrack1 = picTrack2 = picHexMask = NULL;
+    picTrack1 = picTrack2 = picHexMask = picTileMask = NULL;
 }
 
 bool HexManager::Init()
@@ -187,6 +187,7 @@ bool HexManager::Init()
     #endif
 
     isShowTrack = false;
+	isTileTrack = false;
     curPidMap = 0;
     curMapTime = -1;
     curHashTiles = 0;
@@ -249,6 +250,7 @@ void HexManager::ReloadSprites()
     cursorXPic = SprMngr.LoadAnimation( ( curDataPrefix + "move_x.png" ).c_str(), PT_DATA, ANIM_USE_DUMMY );
     picTrack1 = SprMngr.LoadAnimation( ( curDataPrefix + "track1.png" ).c_str(), PT_DATA, ANIM_USE_DUMMY );
     picTrack2 = SprMngr.LoadAnimation( ( curDataPrefix + "track2.png" ).c_str(), PT_DATA, ANIM_USE_DUMMY );
+	picTileMask = SprMngr.LoadAnimation( (curDataPrefix + "tile_mask.png").c_str(), PT_DATA, ANIM_USE_DUMMY );
 
     // May be nullsdsd
     picHexMask = SprMngr.LoadAnimation( ( curDataPrefix + "hex_mask.png" ).c_str(), PT_DATA );
@@ -851,9 +853,13 @@ void HexManager::RebuildMap( int rx, int ry )
             // Track
             if( isShowTrack && GetHexTrack( nx, ny ) )
             {
-                uint        spr_id = ( GetHexTrack( nx, ny ) == 1 ? picTrack1->GetCurSprId() : picTrack2->GetCurSprId() );
+                uint        spr_id = (isTileTrack ? picTileMask->GetCurSprId() : ( GetHexTrack( nx, ny ) == 1 ? picTrack1->GetCurSprId() : picTrack2->GetCurSprId() ) );
                 SpriteInfo* si = SprMngr.GetSpriteInfo( spr_id );
-                mainTree.AddSprite( DRAW_ORDER_TRACK, nx, ny, 0, f.ScrX + HEX_OX, f.ScrY + HEX_OY + ( si ? si->Height / 2 : 0 ), spr_id, NULL, NULL, NULL, NULL, NULL, 1.0f );
+
+				if(isTileTrack)
+					mainTree.AddSprite( DRAW_ORDER_TRACK, nx, ny, 0, f.ScrX + TILE_OX, f.ScrY + TILE_OY, spr_id, NULL, NULL, NULL, NULL, NULL, 1.0f );
+				else
+					mainTree.AddSprite(DRAW_ORDER_TRACK, nx, ny, 0, f.ScrX + HEX_OX, f.ScrY + HEX_OY + (si ? si->Height / 2 : 0), spr_id, NULL, NULL, NULL, NULL, NULL, 1.0f);
             }
 
             // Hex Lines
@@ -1785,6 +1791,12 @@ void HexManager::SwitchShowTrack()
     if( !isShowTrack )
         ClearHexTrack();
     RefreshMap();
+}
+
+void HexManager::SetTileTrack(bool val)
+{
+	isTileTrack = val;
+	RefreshMap();
 }
 
 void HexManager::InitView( int cx, int cy )

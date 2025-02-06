@@ -164,8 +164,13 @@ public:
     ushort     SelectHX1, SelectHY1, SelectHX2, SelectHY2;
     int        SelectX, SelectY;
 
-    #define SELECT_TYPE_OLD            ( 0 )
-    #define SELECT_TYPE_NEW            ( 1 )
+	enum SelectTypes {
+		SELECT_TYPE_OLD = 0,
+		SELECT_TYPE_NEW,
+		SELECT_TYPE_TILES,
+		SELECT_TYPE_MAX
+	};
+
     int  SelectType;
 
     bool IntVisible, IntFix;
