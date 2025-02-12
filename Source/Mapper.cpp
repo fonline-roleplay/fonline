@@ -923,7 +923,6 @@ void FOMapper::ParseKeyboard()
             case DIK_TAB:
 				SelectType++;
 				if (SelectType >= SELECT_TYPE_MAX) SelectType = SELECT_TYPE_OLD;
-				HexMngr.SetTileTrack(SelectType == SELECT_TYPE_TILES);
                 break;
             default:
                 break;
@@ -3338,6 +3337,7 @@ void FOMapper::IntMouseMove()
             {
                 if( SelectType == SELECT_TYPE_OLD || SelectType == SELECT_TYPE_TILES )
                 {
+					HexMngr.SetTileTrack(SelectType == SELECT_TYPE_TILES);
                     int fx = min( SelectHX1, SelectHX2 );
                     int tx = max( SelectHX1, SelectHX2 );
                     int fy = min( SelectHY1, SelectHY2 );

@@ -4586,6 +4586,7 @@ void HexManager::GetHexesRect( const Rect& rect, UShortPairVec& hexes )
 
 void HexManager::MarkPassedHexes()
 {
+	SetTileTrack(false);
     for( int hx = 0; hx < maxHexX; hx++ )
     {
         for( int hy = 0; hy < maxHexY; hy++ )
