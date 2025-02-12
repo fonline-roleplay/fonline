@@ -2871,7 +2871,7 @@ void HexManager::GetSmthPixel( int pix_x, int pix_y, ItemHex*& item, CritterCl*&
 
     if( cr && item )
     {
-        if( item->IsTransparent() || item_egg )
+        if( item->IsTransparent() || item_egg || (item->IsWall() && !GameOpt.ShowWall ) )
             item = NULL;
         else
         {
