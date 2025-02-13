@@ -3435,7 +3435,7 @@ int Critter::GetFreeWeight()
 int Critter::GetFreeVolume()
 {
     int cur_volume = GetItemsVolume();
-    int max_volume = CRITTER_INV_VOLUME;
+    int max_volume = GetParam(ST_MAX_VOLUME );
     return max_volume - cur_volume;
 }
 
