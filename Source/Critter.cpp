@@ -1704,7 +1704,7 @@ bool Critter::MoveItem( uchar from_slot, uchar to_slot, uint item_id, uint count
         }
         else
         {
-            EraseItem( item, false );
+            EraseItem( item, true );
             if( !GetMap() )
             {
                 ItemMngr.ItemToGarbage( item );

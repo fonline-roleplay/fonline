@@ -2364,7 +2364,8 @@ bool FOServer::SScriptFunc::Crit_MoveItem( Critter* cr, uint item_id, uint count
     bool result = cr->MoveItem( item->AccCritter.Slot, to_slot, item_id, count );
     if( !result )
         return false;             // SCRIPT_ERROR_R0("Fail to move item.");
-    cr->Send_AddItem( item );
+	if(to_slot != SLOT_GROUND)
+		cr->Send_AddItem( item );
     return true;
 }
 
