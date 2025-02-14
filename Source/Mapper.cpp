@@ -2087,21 +2087,21 @@ void FOMapper::IntDraw()
         SprMngr.DrawStr( Rect( MODE_WIDTH - 100, 0, MODE_WIDTH, MODE_HEIGHT ),
                          Str::FormatBuf(
                              "Map '%s'\n"
-                             "Hex %d %d\n"
                              "Time %u : %u\n"
                              "Fps %u\n"
 							 "Zoom %d\n"
                              "Tile layer %d\n"
                              "%s",
                              HexMngr.CurProtoMap->GetName(),
-                             hex_thru ? hx : -1, hex_thru ? hy : -1,
                              DayTime / 60 % 24, DayTime % 60,
                              FPS,
 							 (int)(1.0f / GameOpt.SpritesZoom * 100.0f),
                              TileLayer,
                              GameOpt.ScrollCheck ? "Scroll check" : "" ),
                          FT_NOBREAK_LINE );
-    }
+		SprMngr.DrawStr(Rect(GameOpt.MouseX + 30, GameOpt.MouseY, MODE_WIDTH, MODE_HEIGHT),
+			Str::FormatBuf("%d:%d\n", hex_thru ? hx : -1, hex_thru ? hy : -1), FT_NOBREAK_LINE, COLOR_XRGB(0xF8, 0xF9, 0x93));
+	}
 }
 
 void FOMapper::ObjDraw()
