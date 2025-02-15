@@ -1408,7 +1408,9 @@ uint FOClient::GetCurContainerItemId( const Rect& pos, int height, int scroll, I
     if( !IsCurInRect( pos ) )
         return 0;
     auto it = cont.begin();
-	int  pos_cur = (((GameOpt.MouseY - pos.T) / height) * column) + (column != 1 ? scroll : 0) + ((GameOpt.MouseX - pos.L) / (pos.W() / column + padX));
+
+	int itemWidth = (pos.W() - (padX * (column - 1))) / column;
+	int  pos_cur = (((GameOpt.MouseY - pos.T) / height) * column) + (column != 1 ? scroll : 0) + ((GameOpt.MouseX - pos.L) / (itemWidth + padX));
     for( int i = 0; it != cont.end(); ++it, ++i )
     {
 		if (i - scroll != pos_cur)
@@ -1430,8 +1432,15 @@ void FOClient::ContainerDraw( const Rect& pos, int height, int scroll, ItemVec& 
         if(row >= scroll && row < scroll + pos.H() / height)
         {
             AnyFrames* anim = ResMngr.GetInvAnim( item.GetPicInv() );
+
             if( anim )
-                SprMngr.DrawSpriteSize( anim->GetCurSprId(), pos.L + (col * (pos.W() / column + padX)), pos.T + (row * height ) - (scroll * height), (float) ((pos.W() / column) - padX), (float) height, false, true, item.GetInvColor() );
+			{
+				int itemWidth = (pos.W() - (padX * (column - 1))) / column;
+				int x = pos.L + (col * (itemWidth + padX));
+				int y = pos.T + (row * height) - (scroll * height);
+
+                SprMngr.DrawSpriteSize( anim->GetCurSprId(), x, y, (float) itemWidth, (float) height, false, true, item.GetInvColor() );
+			}
         }
 		if (++col >= column)
 		{
@@ -1451,8 +1460,14 @@ void FOClient::ContainerDraw( const Rect& pos, int height, int scroll, ItemVec& 
         if(row >= scroll && row < scroll + pos.H() / height)
         {
             if( item.GetCount() > 1 )
-                SprMngr.DrawStr( Rect( pos.L + (col * (pos.W() / column + padX)), pos.T + (row * height ) - (scroll * height), pos.R, pos.T + (row * height ) - (scroll * height) + height ), Str::FormatBuf( "x%u", item.GetCount() ), 0, COLOR_TEXT_WHITE );
-        }
+			{
+				int itemWidth = (pos.W() - (padX * (column - 1))) / column;
+				int x = pos.L + (col * (itemWidth + padX));
+				int y = pos.T + (row * height) - (scroll * height);
+
+                SprMngr.DrawStr( Rect( x, y, pos.R, pos.T + (row * height ) - (scroll * height) + height ), Str::FormatBuf( "x%u", item.GetCount() ), 0, COLOR_TEXT_WHITE );
+			}
+		}
 		if (++col >= column)
 		{
 			col = 0;
