@@ -630,7 +630,7 @@ void FOClient::EraseCritter( uint remid )
 
 void FOClient::LookBordersPrepare( )
 {
-    ChosenLookBorder.Prepare( Chosen->GetDir( ), Chosen->GetHexX( ), Chosen->GetHexY( ), COLOR_ARGB( 80, 0, 255, 0 ), COLOR_TEXT_GREEN_RED );
+    ChosenLookBorder.Prepare( Chosen->GetDir( ), Chosen->GetHexX( ), Chosen->GetHexY( ), COLOR_ARGB( 255, 0, 255, 0 ), COLOR_TEXT_GREEN_RED );
 
     {
         ushort hx = 0, hy = 0;
