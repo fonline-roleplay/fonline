@@ -59,7 +59,7 @@ struct TraceData
     UShortPair* Block;
     UShortPair* LastPassed;
     bool        IsFullTrace;
-    bool        IsCritterFounded;
+    bool        IsCritterFound;
     bool        IsHaveLastPassed;
     bool        IsTeammateFounded;
 

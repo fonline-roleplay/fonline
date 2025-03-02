@@ -605,6 +605,9 @@ bool FOServer::Act_Attack( Critter* cr, uchar rate_weap, uint target_id )
     }
 
     uint max_dist = cr->GetAttackDist( weap, use ) + t_cr->GetMultihex();
+	if( max_dist > 2 )
+		max_dist *= 2;
+
     if( !CheckDist( hx, hy, tx, ty, max_dist ) && !( Timer::GameTick() < t_cr->PrevHexTick + 500 && CheckDist( hx, hy, t_cr->PrevHexX, t_cr->PrevHexY, max_dist ) ) )
     {
         cr->Send_XY( cr );
@@ -621,7 +624,7 @@ bool FOServer::Act_Attack( Critter* cr, uchar rate_weap, uint target_id )
     trace.Dist = ( weap->Proto->Weapon_MaxDist[ use ] > 2 ? max_dist : 0 );
     trace.FindCr = t_cr;
     MapMngr.TraceBullet( trace );
-    if( !trace.IsCritterFounded )
+    if( !trace.IsCritterFound )
     {
         cr->Send_XY( cr );
         cr->Send_XY( t_cr );

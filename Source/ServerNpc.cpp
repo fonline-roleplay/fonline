@@ -412,7 +412,6 @@ void FOServer::ProcessAI( Npc* npc )
             /************************************************************************/
             /* Step 0: Check for success plane and continue target timeout          */
             /************************************************************************/
-
             if( plane->Attack.IsGag && ( targ->GetHexX() != plane->Attack.GagHexX || targ->GetHexY() != plane->Attack.GagHexY ) )
             {
                 npc->NextPlane( REASON_SUCCESS );
@@ -431,11 +430,14 @@ void FOServer::ProcessAI( Npc* npc )
                 plane->IsMove = false;
                 npc->SendA_XY();
             }
+
             plane->Attack.LastHexX = targ->GetHexX();
             plane->Attack.LastHexY = targ->GetHexY();
 
             if( is_busy )
+			{
                 break;
+			}
 
             /************************************************************************/
             /* Step 1: Choose weapon                                                */
@@ -443,15 +445,21 @@ void FOServer::ProcessAI( Npc* npc )
             // Get battle weapon
             int   use;
             Item* weap = NULL;
-            uint  r0 = targ->GetId(), r1 = 0, r2 = 0;
+            uint r0 = targ->GetId();
+			uint r1 = 0;
+			uint r2 = 0;
             int   sss = 0;
+
             if( !npc->RunPlane( REASON_ATTACK_WEAPON, r0, r1, r2 ) )
             {
                 WriteLog( "REASON_ATTACK_WEAPON fail. Skip attack.\n" );
                 break;
             }
+
             if( plane != npc->GetCurPlane() )
+			{
                 break;                                               // Validate plane
+			}
 
             if( r0 )
             {
@@ -518,19 +526,25 @@ void FOServer::ProcessAI( Npc* npc )
             /* Step 2: Move to target                                               */
             /************************************************************************/
             bool is_can_walk = CritType::IsCanWalk( npc->GetCrType() );
-            uint best_dist = 0, min_dist = 0, max_dist = 0;
-            r0 = targ->GetId(), r1 = 0, r2 = 0;
+
+            uint best_dist = 0;
+			uint min_dist = 0;
+			uint max_dist = 0;
+            
+			r0 = targ->GetId();
+			r1 = 0;
+			r2 = 0;
+
             if( !npc->RunPlane( REASON_ATTACK_DISTANTION, r0, r1, r2 ) )
             {
                 WriteLog( "REASON_ATTACK_DISTANTION fail. Skip attack.\n" );
                 break;
             }
-            if( plane != npc->GetCurPlane() )
-                break;                                               // Validate plane
 
-            best_dist = r0;
-            min_dist = r1;
-            max_dist = r2;
+            if( plane != npc->GetCurPlane() )
+			{
+                break;                                               // Validate plane
+			}
 
             if( r2 <= 0 )                 // Run away
             {
@@ -538,18 +552,20 @@ void FOServer::ProcessAI( Npc* npc )
                 break;
             }
 
-            if( max_dist <= 0 )
-            {
-                uint look = npc->GetLook();
-                max_dist = npc->GetAttackDist( weap, use );
-                if( max_dist > look )
-                    max_dist = look;
-            }
+			best_dist = r0;
+            min_dist = r1;
+            max_dist = r2;
+
             if( min_dist <= 0 )
+			{
                 min_dist = 1;
+			}
 
             if( min_dist > max_dist )
+			{
                 min_dist = max_dist;
+			}
+
             best_dist = CLAMP( best_dist, min_dist, max_dist );
 
             ushort    hx = npc->GetHexX();
@@ -572,7 +588,7 @@ void FOServer::ProcessAI( Npc* npc )
 
             // Dirt
             MapMngr.TraceBullet( trace );
-            if( !trace.IsCritterFounded )
+            if( !trace.IsCritterFound )
             {
                 if( is_can_walk )
                     AI_MoveToCrit( npc, targ->GetId(), is_range ? 1 + npc->GetMultihex() : max_dist, max_dist + ( is_range ? 0 : 5 ), is_run );
@@ -593,7 +609,7 @@ void FOServer::ProcessAI( Npc* npc )
                 trace.IsCheckTeam = true;
                 trace.BaseCrTeamId = npc->Data.Params[ ST_TEAM_ID ];
                 MapMngr.TraceBullet( trace );
-                if( !trace.IsCritterFounded )
+                if( !trace.IsCritterFound )
                 {
                     UShortPair last_passed;
                     trace.LastPassed = &last_passed;
@@ -670,7 +686,6 @@ void FOServer::ProcessAI( Npc* npc )
             /************************************************************************/
             /* Step 3: Attack                                                       */
             /************************************************************************/
-
             r0 = targ->GetId();
             r1 = 0;
             r2 = 0;
@@ -687,11 +702,15 @@ void FOServer::ProcessAI( Npc* npc )
             }
 
             if( r0 != (uint) use && weap->WeapIsUseAviable( r0 ) )
+			{
                 use = r0;
+			}
 
             int aim = r1;
             if( !( CritType::IsCanAim( npc->GetCrType() ) && !npc->IsRawParam( MODE_NO_AIM ) && weap->WeapIsCanAim( use ) ) )
+			{
                 aim = 0;
+			}
 
             weap->SetMode( MAKE_ITEM_MODE( use, aim ) );
             AI_Attack( npc, map, MAKE_ITEM_MODE( use, aim ), targ->GetId() );
@@ -877,8 +896,11 @@ bool FOServer::AI_Attack( Npc* npc, Map* map, uchar mode, uint targ_id )
 
     Critter* targ = npc->GetCritSelf( targ_id, false );
     if( !targ || !Act_Attack( npc, mode, targ_id ) )
+	{
+		//WriteLog( "AI_Attack false \n" );
         return false;
-
+	}
+	//WriteLog( "AI_Attack true \n" );
     return true;
 }
 
@@ -1353,7 +1375,7 @@ void FOServer::Dialog_Begin( Client* cl, Npc* npc, uint dlg_pack_id, ushort hx, 
             trace.Dist = talk_dist;
             trace.FindCr = npc;
             MapMngr.TraceBullet( trace );
-            if( !trace.IsCritterFounded )
+            if( !trace.IsCritterFound )
             {
                 cl->Send_TextMsg( cl, STR_FINDPATH_AIMBLOCK, SAY_NETMSG, TEXTMSG_GAME );
                 return;
