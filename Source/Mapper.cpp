@@ -745,7 +745,7 @@ void FOMapper::AnimFree( int res_type )
 void FOMapper::ParseKeyboard()
 {
     // Stop processing if window not active
-    if( !MainWindow->active() )
+    if( !MainWindow->focused )
     {
 		MainWindow->KeyboardEventsLocker.Lock( );
 		MainWindow->KeyboardEvents.clear( );
@@ -1152,7 +1152,7 @@ void FOMapper::ParseMouse()
     GameOpt.MouseY = CLAMP( GameOpt.MouseY, 0, MODE_HEIGHT - 1 );
 
     // Stop processing if window not active
-    if( !MainWindow->active() )
+    if( !MainWindow->focused )
     {
 		MainWindow->ClearMouseEvents( );
 

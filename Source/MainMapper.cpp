@@ -147,33 +147,49 @@ int FOWindow::handle( int event )
 	if( !Mapper || GameOpt.Quit )
 		return 0;
 
+	//WriteLog( "win event %i\n", event );
+
 	// Keyboard
 	if( event == FL_KEYDOWN || event == FL_KEYUP )
 	{
-		int event_key = Fl::event_key( );
-		KeyboardEventsLocker.Lock( );
-		KeyboardEvents.push_back( event );
-		KeyboardEvents.push_back( event_key );
-		KeyboardEventsLocker.Unlock( );
+		//Lock( );
+		int event_key = Fl::event_key();
+		//Unlock( );
+		KeyboardEventsLocker.Lock();
+		KeyboardEvents.push_back(event);
+		KeyboardEvents.push_back(event_key);
+		KeyboardEventsLocker.Unlock();
 		return 1;
 	}
 	// Mouse
-	else if( event == FL_PUSH || event == FL_RELEASE || ( event == FL_MOUSEWHEEL && Fl::event_dy( ) != 0 ) )
+	else
 	{
-		int event_button = Fl::event_button( );
-		int event_dy = Fl::event_dy( );
-		MouseEventsLocker.Lock( );
-		MouseEvents.push_back( event );
-		MouseEvents.push_back( event_button );
-		MouseEvents.push_back( event_dy );
-		MouseEventsLocker.Unlock( );
-		return 1;
+		//Lock( );
+		if (event == FL_PUSH || event == FL_RELEASE || (event == FL_MOUSEWHEEL && Fl::event_dy() != 0))
+		{
+			int event_button = Fl::event_button();
+			int event_dy = Fl::event_dy();
+			//Unlock( );
+			MouseEventsLocker.Lock();
+			MouseEvents.push_back(event);
+			MouseEvents.push_back(event_button);
+			MouseEvents.push_back(event_dy);
+			MouseEventsLocker.Unlock();
+			return 1;
+		}
+		//Unlock( );
 	}
 
-	if( event == FL_FOCUS )
-		MainWindow->focused = true;
-	if( event == FL_UNFOCUS )
-		MainWindow->focused = false;
-
+	// Focus
+	if (event == FL_FOCUS)
+	{
+		//WriteLog( "focus\n" );
+		focused = true;
+	}
+	else if (event == FL_UNFOCUS)
+	{
+		//WriteLog( "unfocus\n" );
+		focused = false;
+	}
 	return 0;
 }
