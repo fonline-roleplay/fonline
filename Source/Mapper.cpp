@@ -4277,7 +4277,7 @@ MapObject* FOMapper::ParseProto( ushort pid, ushort hx, ushort hy, MapObject* ow
     {
         SelectAdd( mobj );
         HexMngr.RefreshMap();
-        CurMode = CUR_MODE_DEFAULT;
+        //CurMode = CUR_MODE_D	EFAULT;
     }
     else
     {
@@ -4295,7 +4295,7 @@ void FOMapper::ParseTile( uint name_hash, ushort hx, ushort hy, short ox, short 
     SelectClear();
 
     HexMngr.SetTile( name_hash, hx, hy, ox, oy, layer, is_roof, false );
-    CurMode = CUR_MODE_DEFAULT;
+    //CurMode = CUR_MODE_DEFAULT;
 }
 
 void FOMapper::ParseNpc( ushort pid, ushort hx, ushort hy )
@@ -4352,7 +4352,7 @@ void FOMapper::ParseNpc( ushort pid, ushort hx, ushort hy )
     SelectAdd( mobj );
 
     HexMngr.RefreshMap();
-    CurMode = CUR_MODE_DEFAULT;
+	//CurMode = CUR_MODE_DEFAULT;
 }
 
 MapObject* FOMapper::ParseMapObj( MapObject* mobj )
