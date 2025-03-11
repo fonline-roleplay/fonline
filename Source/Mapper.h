@@ -172,6 +172,7 @@ public:
 	};
 
     int  SelectType;
+	bool StrictTilePlasing;
 
     bool IntVisible, IntFix;
 

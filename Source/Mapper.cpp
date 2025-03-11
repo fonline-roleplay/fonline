@@ -453,6 +453,7 @@ int FOMapper::InitIface()
     IntVectX = 0;
     IntVectY = 0;
     SelectType = SELECT_TYPE_NEW;
+	StrictTilePlasing = false;
 
     SubTabsActive = false;
     SubTabsActiveTab = 0;
@@ -1026,6 +1027,8 @@ void FOMapper::ParseKeyboard()
             case DIK_L:
                 SaveLogFile();
                 break;
+			case DIK_T:
+				StrictTilePlasing = !StrictTilePlasing;
             default:
                 break;
             }
@@ -2733,6 +2736,12 @@ void FOMapper::IntLMouseDown()
 
         if( !HexMngr.GetHexPixel( GameOpt.MouseX, GameOpt.MouseY, SelectHX1, SelectHY1 ) )
             return;
+		if (IsTileMode() && StrictTilePlasing)
+		{
+			SelectHX1 = SelectHX1 - (SelectHX1 % 2);
+			SelectHY1 = SelectHY1 - (SelectHY1 % 2);
+		}
+
         SelectHX2 = SelectHX1;
         SelectHY2 = SelectHY1;
         SelectX = GameOpt.MouseX;
@@ -4575,6 +4584,12 @@ void FOMapper::CurDraw()
             SpriteInfo* si = SprMngr.GetSpriteInfo( anim->GetCurSprId() );
             if( si )
             {
+				if (StrictTilePlasing)
+				{
+					hx = hx - (hx % 2);
+					hy = hy - (hy % 2);
+				}
+
                 int x = HexMngr.GetField( hx, hy ).ScrX - ( si->Width / 2 ) + si->OffsX;
                 int y = HexMngr.GetField( hx, hy ).ScrY - si->Height + si->OffsY;
                 if( !DrawRoof )
