@@ -1027,7 +1027,7 @@ void FOMapper::ParseKeyboard()
             case DIK_L:
                 SaveLogFile();
                 break;
-			case DIK_T:
+			case DIK_G:
 				StrictTilePlasing = !StrictTilePlasing;
             default:
                 break;
