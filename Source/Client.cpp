@@ -1380,13 +1380,14 @@ void FOClient::ParseKeyboard()
                     break;
                 case DIK_P:
                     if( GetActiveScreen() == SCREEN__PIP_BOY )
-                    {
-                        if( PipMode == PIP__NONE )
+					{
+                        /*if( PipMode == PIP__NONE )
                             PipMode = PIP__STATUS;
                         else
-                            TryExit();
+                            TryExit();Anuri said to block possibility to open statistics window in pipboy - APAMk2*/ 
+						TryExit();
                         continue;
-                    }
+                    }  
                 case DIK_F:
                     if( GetActiveScreen() == SCREEN__FIX_BOY )
                     {

@@ -8553,7 +8553,7 @@ void FOClient::PipDraw()
         SprMngr.DrawSprite( PipPWMonitor, PipWMonitor[ 0 ] + ( PipWMonitor[ 2 ] - PipWMonitor[ 0 ] - si->Width ) / 2 + PipX, PipWMonitor[ 1 ] + ( PipWMonitor[ 3 ] - PipWMonitor[ 1 ] - si->Height ) / 2 + PipY );
     }
     break;
-    case PIP__STATUS:
+	/*case PIP__STATUS:
     {
         // Status
         PIP_DRAW_TEXT( FmtGameText( STR_PIP_STATUS ), FT_CENTERX, COLOR_TEXT_DGREEN );
@@ -8656,7 +8656,7 @@ void FOClient::PipDraw()
             scr++;
         }
     }
-    break;
+    break;*/
 //	case PIP__GAMES:
 //		break;
     case PIP__AUTOMAPS:
@@ -8816,7 +8816,7 @@ void FOClient::PipLMouseDown()
     {
         switch( PipMode )
         {
-        case PIP__STATUS:
+        /*case PIP__STATUS:
         {
             scr += 8;
             for( uint j = TIMEOUT_END; j >= TIMEOUT_BEGIN; j-- )
@@ -8852,7 +8852,7 @@ void FOClient::PipLMouseDown()
                 }
             }
         }
-        break;
+        break;*/
 //		case PIP__GAMES:
 //			PipMode=PIP__STATUS;
 //			break;
@@ -8931,11 +8931,11 @@ void FOClient::PipLMouseUp()
 {
     switch( IfaceHold )
     {
-    case IFACE_PIP_STATUS:
+    /*case IFACE_PIP_STATUS:
         if( !IsCurInRect( PipBStatus, PipX, PipY ) )
             break;
         PipMode = PIP__STATUS;
-        break;
+        break;*/
 //	case IFACE_PIP_GAMES:
 //		if(!IsCurInRect(PipBGames,PipX,PipY)) break;
 //		PipMode=PIP__GAMES;
@@ -8968,12 +8968,12 @@ void FOClient::PipRMouseDown()
     {
         switch( PipMode )
         {
-        case PIP__STATUS_QUESTS:
+        /*case PIP__STATUS_QUESTS:
             PipMode = PIP__STATUS;
             break;
         case PIP__STATUS_SCORES:
             PipMode = PIP__STATUS;
-            break;
+            break;*/
         case PIP__AUTOMAPS_LOC:
             PipMode = PIP__AUTOMAPS;
             break;
