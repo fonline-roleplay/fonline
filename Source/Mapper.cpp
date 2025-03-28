@@ -4534,7 +4534,10 @@ void FOMapper::BufferPaste( int hx, int hy )
 
 void FOMapper::CurDraw()
 {
-    switch( CurMode )
+	int currCurMode = CurMode;
+	if (IsCurInRect(IntWMain, IntX, IntY)) currCurMode = CUR_MODE_DEFAULT;
+
+    switch(currCurMode)
     {
     case CUR_MODE_DEFAULT:
     case CUR_MODE_MOVE_SELECTION:
