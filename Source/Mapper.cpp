@@ -2800,6 +2800,7 @@ void FOMapper::IntLMouseDown()
                 ParseTile( ( *CurTileHashes )[ GetTabIndex() ], SelectHX1, SelectHY1, 0, 0, TileLayer, DrawRoof );
             else if( IsCritMode() && CurNpcProtos->size() )
                 ParseNpc( ( *CurNpcProtos )[ GetTabIndex() ]->ProtoId, SelectHX1, SelectHY1 );
+			NextCursorEnabling = Timer::FastTick() + 400;
         }
 
         return;
@@ -4552,6 +4553,7 @@ void FOMapper::CurDraw()
     }
     break;
     case CUR_MODE_PLACE_OBJECT:
+		if(NextCursorEnabling > Timer::FastTick()) break;
         if( IsObjectMode() && ( *CurItemProtos ).size() )
         {
             ProtoItem& proto_item = ( *CurItemProtos )[ GetTabIndex() ];

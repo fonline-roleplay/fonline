@@ -378,6 +378,7 @@ public:
     int  ConsoleAccelerate;
 
 	uint NextAutosaveCall;
+	uint NextCursorEnabling;
 
     void ConsoleDraw();
     void ConsoleKeyDown( uchar dik );
