@@ -1710,7 +1710,7 @@ void FOClient::InvLMouseDown()
     if( !Chosen )
         return;
 
-    if( IsCurInRect( InvWMain, InvX, InvY ) )
+    if( IsCurInRect( InvWMain, InvX, InvY ) || IsCurInRect(IntBItem, 0, 0) )
     {
         if( IsCurInRect( InvWInv, InvX, InvY ) )
         {
@@ -1718,7 +1718,7 @@ void FOClient::InvLMouseDown()
             if( InvHoldId )
                 IfaceHold = IFACE_INV_INV;
         }
-        else if( IsCurInRect( InvWSlot1, InvX, InvY ) && Chosen->ItemSlotMain->GetId() )
+        else if( ( IsCurInRect( InvWSlot1, InvX, InvY ) || IsCurInRect(IntBItem, 0, 0) ) && Chosen->ItemSlotMain->GetId() )
         {
             InvHoldId = Chosen->ItemSlotMain->GetId();
             IfaceHold = IFACE_INV_SLOT1;
@@ -1790,7 +1790,7 @@ void FOClient::InvLMouseUp()
         Item* to_weap = NULL;
         if( IsCurInRect( InvWInv, InvX, InvY ) )
             to_slot = SLOT_INV;
-        else if( IsCurInRect( InvWSlot1, InvX, InvY ) )
+        else if( IsCurInRect( InvWSlot1, InvX, InvY ) || IsCurInRect(IntBItem, 0, 0) )
         {
             to_slot = SLOT_HAND1;
             if( Chosen->ItemSlotMain->GetId() )
