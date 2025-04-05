@@ -1784,7 +1784,7 @@ void FOClient::InvLMouseUp()
 {
     if( !Chosen )
         return;
-    if( IsCurMode( CUR_HAND ) && ( IfaceHold == IFACE_INV_INV || IfaceHold == IFACE_INV_SLOT1 || IfaceHold == IFACE_INV_SLOT2 || IfaceHold == IFACE_INV_ARMOR || IfaceHold == IFACE_INV_SLOTS_EXT ) )
+    if( (IsCurMode( CUR_HAND ) || Keyb::ShiftDwn) && ( IfaceHold == IFACE_INV_INV || IfaceHold == IFACE_INV_SLOT1 || IfaceHold == IFACE_INV_SLOT2 || IfaceHold == IFACE_INV_ARMOR || IfaceHold == IFACE_INV_SLOTS_EXT ) )
     {
         int   to_slot = -1;
         Item* to_weap = NULL;
@@ -1827,6 +1827,8 @@ void FOClient::InvLMouseUp()
             return;
         }
 
+		Item* item = Chosen->GetItem(InvHoldId);
+
         if( to_weap && !to_weap->IsWeapon() )
             to_weap = NULL;
 
@@ -1847,7 +1849,6 @@ void FOClient::InvLMouseUp()
             break;
         default:         // IFACE_INV_SLOTS_EXT:
         {
-            Item* item = Chosen->GetItem( InvHoldId );
             if( item )
                 from_slot = item->AccCritter.Slot;
         }
@@ -1855,10 +1856,19 @@ void FOClient::InvLMouseUp()
         }
         IfaceHold = IFACE_NONE;
 
-        if( from_slot == -1 || from_slot == to_slot )
-            return;
+		if (item && Keyb::ShiftDwn)
+		{
+			if(from_slot != SLOT_INV)
+				to_slot = SLOT_INV;
+			else if(from_slot == SLOT_INV && item->Proto->Slot == SLOT_INV)
+				to_slot = SLOT_HAND1;
+			else if(from_slot == SLOT_INV && item->Proto->Slot != SLOT_INV)
+				to_slot = item->Proto->Slot;
+		}
 
-        Item* item = Chosen->GetItem( InvHoldId );
+		if (from_slot == -1 || from_slot == to_slot)
+			return;
+
         InvHoldId = 0;
         if( !item || item->AccCritter.Slot != from_slot )
             return;
