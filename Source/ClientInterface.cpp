@@ -4715,9 +4715,9 @@ void FOClient::LMenuCollect()
         break;
         case SCREEN__PICKUP:
         {
-            uint item_id = GetCurContainerItemId( Rect( PupWCont1, PupX, PupY ), PupHeightItem1, PupScroll1, PupCont1 );
+            uint item_id = GetCurContainerItemId( Rect( PupWCont1, PupX, PupY ), PupHeightItem1, PupScroll1, PupCont1, PupColumns1, PupItemPadX1 );
             if( !item_id )
-                item_id = GetCurContainerItemId( Rect( PupWCont2, PupX, PupY ), PupHeightItem2, PupScroll2, PupCont2 );
+                item_id = GetCurContainerItemId( Rect( PupWCont2, PupX, PupY ), PupHeightItem2, PupScroll2, PupCont2, PupColumns2, PupItemPadX2 );
             if( !item_id )
                 break;
 
@@ -4921,6 +4921,7 @@ void FOClient::LMenuSet( uchar set_lmenu )
         }
         else
         {
+			LMenuNodes.push_back( LMENU_NODE_DROP );
             // Items in another containers
         }
 
@@ -5248,6 +5249,12 @@ void FOClient::LMenuMouseUp()
                 break;
             if( !Chosen->IsLife() || !Chosen->IsFree() )
                 break;
+			if( GetActiveScreen() == SCREEN__PICKUP && !Chosen->GetItem(cont_item->GetId()) )
+			{
+				SetAction(CHOSEN_MOVE_ITEM_CONT, cont_item->GetId(), IFACE_PUP_CONT2, cont_item->GetCount());
+				AddActionBack(CHOSEN_MOVE_ITEM, cont_item->GetId(), cont_item->GetCount(), SLOT_GROUND, TargetSmth.GetParam() ? 1 : 0);
+				break;
+			}
             if( cont_item->IsStackable() && cont_item->GetCount() > 1 )
                 SplitStart( cont_item, SLOT_GROUND | ( ( TargetSmth.GetParam() ? 1 : 0 ) << 16 ) );
             else
