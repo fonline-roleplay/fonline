@@ -708,10 +708,15 @@ int FOClient::InitIface()
     IfaceLoadRect( PupBScrDw2, "PupScrDw2" );
     IfaceLoadRect( PupBNextCritLeft, "PupNextCritLeft" );
     IfaceLoadRect( PupBNextCritRight, "PupNextCritRight" );
+	IfaceLoadRect( PupContName, "PupContName" );
     PupX = ( MODE_WIDTH - PupWMain.W() ) / 2;
     PupY = ( MODE_HEIGHT - PupWMain.H() ) / 2;
     PupHeightItem1 = IfaceIni.GetInt( "PupHeightCont1", 0 );
     PupHeightItem2 = IfaceIni.GetInt( "PupHeightCont2", 0 );
+	PupColumns1 = IfaceIni.GetInt("PupColumns1", 2);
+	PupColumns2 = IfaceIni.GetInt("PupColumns2", 2);
+	PupItemPadX1 = IfaceIni.GetInt("PupItemPadX1", 10);
+	PupItemPadX2 = IfaceIni.GetInt("PupItemPadX2", 10);
     PupHoldId = 0;
     PupScroll1 = 0;
     PupScroll2 = 0;
@@ -9242,13 +9247,17 @@ void FOClient::PupDraw()
             AnyFrames* anim = ResMngr.GetItemAnim( proto_item->PicMap, proto_item->Dir );
             if( anim )
                 SprMngr.DrawSpriteSize( anim->GetSprId( anim->GetCnt() - 1 ), PupWInfo[ 0 ] + PupX, PupWInfo[ 1 ] + PupY, (float) PupWInfo.W(), (float) PupWInfo.H(), false, true );
+			SprMngr.DrawStr( Rect(PupContName, PupX, PupY), MsgItem->GetStr(PupContPid * 100), FT_CENTERX | FT_CENTERY | FT_NOBREAK, COLOR_TEXT_GREEN );
         }
     }
     else if( PupTransferType == TRANSFER_CRIT_STEAL || PupTransferType == TRANSFER_CRIT_LOOT || PupTransferType == TRANSFER_FAR_CRIT )
     {
         CritterCl* cr = HexMngr.GetCritter( PupContId );
-        if( cr )
-            cr->DrawStay( Rect( PupWInfo, PupX, PupY ) );
+		if (cr)
+		{
+			cr->DrawStay(Rect(PupWInfo, PupX, PupY));
+			SprMngr.DrawStr(Rect(PupContName, PupX, PupY), MsgDlg->GetStr(STR_NPC_PROTO_NAME_(cr->Pid)), FT_CENTERX | FT_CENTERY | FT_NOBREAK, COLOR_TEXT_GREEN);
+		}
     }
 
     // Button Ok
@@ -9298,8 +9307,8 @@ void FOClient::PupDraw()
     }
 
     // Items
-    ContainerDraw( Rect( PupWCont1, PupX, PupY ), PupHeightItem1, PupScroll1, PupCont1, IfaceHold == IFACE_PUP_CONT1 ? PupHoldId : 0 );
-    ContainerDraw( Rect( PupWCont2, PupX, PupY ), PupHeightItem2, PupScroll2, PupCont2, IfaceHold == IFACE_PUP_CONT2 ? PupHoldId : 0 );
+    ContainerDraw( Rect( PupWCont1, PupX, PupY ), PupHeightItem1, PupScroll1, PupCont1, IfaceHold == IFACE_PUP_CONT1 ? PupHoldId : 0, PupColumns1, PupItemPadX1 );
+    ContainerDraw( Rect( PupWCont2, PupX, PupY ), PupHeightItem2, PupScroll2, PupCont2, IfaceHold == IFACE_PUP_CONT2 ? PupHoldId : 0, PupColumns2, PupItemPadX2 );
 }
 
 void FOClient::PupLMouseDown()
@@ -9311,13 +9320,13 @@ void FOClient::PupLMouseDown()
 
     if( IsCurInRect( PupWCont1, PupX, PupY ) )
     {
-        PupHoldId = GetCurContainerItemId( Rect( PupWCont1, PupX, PupY ), PupHeightItem1, PupScroll1, PupCont1 );
+        PupHoldId = GetCurContainerItemId( Rect( PupWCont1, PupX, PupY ), PupHeightItem1, PupScroll1, PupCont1, PupColumns1, PupItemPadX1 );
         if( PupHoldId )
             IfaceHold = IFACE_PUP_CONT1;
     }
     else if( IsCurInRect( PupWCont2, PupX, PupY ) )
     {
-        PupHoldId = GetCurContainerItemId( Rect( PupWCont2, PupX, PupY ), PupHeightItem2, PupScroll2, PupCont2 );
+        PupHoldId = GetCurContainerItemId( Rect( PupWCont2, PupX, PupY ), PupHeightItem2, PupScroll2, PupCont2, PupColumns2, PupItemPadX2 );
         if( PupHoldId )
             IfaceHold = IFACE_PUP_CONT2;
     }

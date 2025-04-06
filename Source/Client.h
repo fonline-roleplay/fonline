@@ -1420,7 +1420,7 @@ public:
     int    PupX, PupY;
     int    PupVectX, PupVectY;
     Rect   PupWMain, PupWInfo, PupWCont1, PupWCont2, PupBTakeAll, PupBOk,
-           PupBScrUp1, PupBScrDw1, PupBScrUp2, PupBScrDw2, PupBNextCritLeft, PupBNextCritRight;
+           PupBScrUp1, PupBScrDw1, PupBScrUp2, PupBScrDw2, PupBNextCritLeft, PupBNextCritRight, PupContName;
     int    PupHeightItem1, PupHeightItem2;
     uchar  PupTransferType;
     uint   PupContId, PupClosedContId, PupLastPutId;
@@ -1428,6 +1428,8 @@ public:
     uint   PupCount;
     ushort PupSize;
     uint   PupWeight;
+	int    PupColumns1, PupColumns2;
+	int    PupItemPadX1, PupItemPadX2;
 
     void       PupDraw();
     void       PupMouseMove();
