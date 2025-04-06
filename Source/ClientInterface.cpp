@@ -1789,7 +1789,7 @@ void FOClient::InvLMouseUp()
 {
     if( !Chosen )
         return;
-    if( (IsCurMode( CUR_HAND ) || Keyb::ShiftDwn) && ( IfaceHold == IFACE_INV_INV || IfaceHold == IFACE_INV_SLOT1 || IfaceHold == IFACE_INV_SLOT2 || IfaceHold == IFACE_INV_ARMOR || IfaceHold == IFACE_INV_SLOTS_EXT ) )
+    if( (IsCurMode( CUR_HAND ) || Keyb::ShiftDwn || Keyb::CtrlDwn) && ( IfaceHold == IFACE_INV_INV || IfaceHold == IFACE_INV_SLOT1 || IfaceHold == IFACE_INV_SLOT2 || IfaceHold == IFACE_INV_ARMOR || IfaceHold == IFACE_INV_SLOTS_EXT ) )
     {
         int   to_slot = -1;
         Item* to_weap = NULL;
@@ -1869,6 +1869,12 @@ void FOClient::InvLMouseUp()
 				to_slot = SLOT_HAND1;
 			else if(from_slot == SLOT_INV && item->Proto->Slot != SLOT_INV)
 				to_slot = item->Proto->Slot;
+		}
+
+		if (item && Keyb::CtrlDwn)
+		{
+			AddActionBack(CHOSEN_MOVE_ITEM, item->GetId(), item->GetCount(), SLOT_GROUND, 0);
+			return;
 		}
 
 		if (from_slot == -1 || from_slot == to_slot)
