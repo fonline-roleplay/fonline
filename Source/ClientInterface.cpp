@@ -9384,7 +9384,7 @@ void FOClient::PupLMouseDown()
         IfaceHold = IFACE_PUP_MAIN;
     }
 
-    if( IsCurMode( CUR_DEFAULT ) && ( IfaceHold == IFACE_PUP_CONT1 || IfaceHold == IFACE_PUP_CONT2 ) )
+    if( IsCurMode( CUR_DEFAULT ) && ( IfaceHold == IFACE_PUP_CONT1 || IfaceHold == IFACE_PUP_CONT2 ) && !Keyb::ShiftDwn && !Keyb::CtrlDwn)
     {
         IfaceHold = IFACE_NONE;
         LMenuTryActivate();
@@ -9400,30 +9400,35 @@ void FOClient::PupLMouseUp()
     {
     case IFACE_PUP_CONT2:
     {
-        if( !IsCurInRect( PupWCont1, PupX, PupY ) )
+        if( !IsCurInRect( PupWCont1, PupX, PupY ) && !Keyb::ShiftDwn && !Keyb::CtrlDwn )
             break;
 
         auto it = std::find( PupCont2.begin(), PupCont2.end(), PupHoldId );
         if( it != PupCont2.end() )
         {
             Item& item = *it;
-            if( item.GetCount() > 1 )
+            if( item.GetCount() > 1 && !Keyb::ShiftDwn && !Keyb::CtrlDwn)
                 SplitStart( &item, IFACE_PUP_CONT2 );
-            else
+            else if(!Keyb::CtrlDwn)
                 SetAction( CHOSEN_MOVE_ITEM_CONT, PupHoldId, IFACE_PUP_CONT2, 1 );
+			else
+			{
+				SetAction(CHOSEN_MOVE_ITEM_CONT, PupHoldId, IFACE_PUP_CONT2, 1);
+				AddActionBack(CHOSEN_MOVE_ITEM, PupHoldId, item.GetCount(), SLOT_GROUND, 0);
+			}
         }
     }
     break;
     case IFACE_PUP_CONT1:
     {
-        if( !IsCurInRect( PupWCont2, PupX, PupY ) )
+        if( !IsCurInRect( PupWCont2, PupX, PupY ) && !Keyb::ShiftDwn)
             break;
 
         auto it = std::find( PupCont1.begin(), PupCont1.end(), PupHoldId );
         if( it != PupCont1.end() )
         {
             Item& item = *it;
-            if( item.GetCount() > 1 )
+            if( item.GetCount() > 1 && !Keyb::ShiftDwn )
                 SplitStart( &item, IFACE_PUP_CONT1 );
             else
                 SetAction( CHOSEN_MOVE_ITEM_CONT, PupHoldId, IFACE_PUP_CONT1, 1 );
