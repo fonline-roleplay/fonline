@@ -1789,7 +1789,7 @@ void FOClient::InvLMouseUp()
 {
     if( !Chosen )
         return;
-    if( (IsCurMode( CUR_HAND ) || Keyb::ShiftDwn || Keyb::CtrlDwn) && ( IfaceHold == IFACE_INV_INV || IfaceHold == IFACE_INV_SLOT1 || IfaceHold == IFACE_INV_SLOT2 || IfaceHold == IFACE_INV_ARMOR || IfaceHold == IFACE_INV_SLOTS_EXT ) )
+    if( (IsCurMode( CUR_HAND ) || Keyb::ShiftDwn || Keyb::CtrlDwn || Keyb::AltDwn) && ( IfaceHold == IFACE_INV_INV || IfaceHold == IFACE_INV_SLOT1 || IfaceHold == IFACE_INV_SLOT2 || IfaceHold == IFACE_INV_ARMOR || IfaceHold == IFACE_INV_SLOTS_EXT ) )
     {
         int   to_slot = -1;
         Item* to_weap = NULL;
@@ -1874,6 +1874,12 @@ void FOClient::InvLMouseUp()
 		if (item && Keyb::CtrlDwn)
 		{
 			AddActionBack(CHOSEN_MOVE_ITEM, item->GetId(), item->GetCount(), SLOT_GROUND, 0);
+			return;
+		}
+
+		if (item && Keyb::AltDwn)
+		{
+			SetAction(CHOSEN_USE_ITEM, item->GetId(), 0, TARGET_SELF, 0, USE_USE);
 			return;
 		}
 
@@ -9410,10 +9416,10 @@ void FOClient::PupLMouseUp()
             if( item.GetCount() > 1 && !Keyb::ShiftDwn && !Keyb::CtrlDwn)
                 SplitStart( &item, IFACE_PUP_CONT2 );
             else if(!Keyb::CtrlDwn)
-                SetAction( CHOSEN_MOVE_ITEM_CONT, PupHoldId, IFACE_PUP_CONT2, 1 );
+                SetAction( CHOSEN_MOVE_ITEM_CONT, PupHoldId, IFACE_PUP_CONT2, item.GetCount() );
 			else
 			{
-				SetAction(CHOSEN_MOVE_ITEM_CONT, PupHoldId, IFACE_PUP_CONT2, 1);
+				SetAction(CHOSEN_MOVE_ITEM_CONT, PupHoldId, IFACE_PUP_CONT2, item.GetCount() );
 				AddActionBack(CHOSEN_MOVE_ITEM, PupHoldId, item.GetCount(), SLOT_GROUND, 0);
 			}
         }
@@ -9431,7 +9437,7 @@ void FOClient::PupLMouseUp()
             if( item.GetCount() > 1 && !Keyb::ShiftDwn )
                 SplitStart( &item, IFACE_PUP_CONT1 );
             else
-                SetAction( CHOSEN_MOVE_ITEM_CONT, PupHoldId, IFACE_PUP_CONT1, 1 );
+                SetAction( CHOSEN_MOVE_ITEM_CONT, PupHoldId, IFACE_PUP_CONT1, item.GetCount() );
         }
     }
     break;

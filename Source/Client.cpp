@@ -1237,8 +1237,8 @@ void FOClient::ParseKeyboard()
         // Disable keyboard events
         if( script_result || GameOpt.DisableKeyboardEvents )
         {
-            if( dikdw == DIK_ESCAPE && Keyb::ShiftDwn )
-                GameOpt.Quit = true;
+            //if( dikdw == DIK_ESCAPE && Keyb::ShiftDwn )
+            //    GameOpt.Quit = true; Cvet pidarass - APAMk2
             continue;
         }
 
@@ -1469,8 +1469,8 @@ void FOClient::ParseKeyboard()
                 break;
             // Escape
             case DIK_ESCAPE:
-                if( Keyb::ShiftDwn )
-                    GameOpt.Quit = true;
+                //if( Keyb::ShiftDwn )
+                //    GameOpt.Quit = true;  // Cvet pidarass - APAMk2
                 break;
             // Switch fullscreen
             case DIK_RETURN:
