@@ -8531,11 +8531,11 @@ label_EndMove:
                 {
                     if( IsTurnBased )
                         break;
-                    bool is_run = ( GameOpt.AlwaysRun && dist >= GameOpt.AlwaysRunUseDist );
+                    //bool is_run = ( GameOpt.AlwaysRun && dist >= GameOpt.AlwaysRunUseDist );
                     if( target_cr )
-                        SetAction( CHOSEN_MOVE_TO_CRIT, target_cr->GetId(), 0, is_run, max_dist );
+                        SetAction( CHOSEN_MOVE_TO_CRIT, target_cr->GetId(), 0, true, max_dist );
                     else
-                        SetAction( CHOSEN_MOVE, hx, hy, is_run, max_dist, 0 );
+                        SetAction( CHOSEN_MOVE, hx, hy, true, max_dist, 0 );
                     if( HexMngr.CutPath( Chosen, Chosen->GetHexX(), Chosen->GetHexY(), hx, hy, max_dist ) )
                         AddActionBack( act );
                     return;
