@@ -377,8 +377,10 @@ public:
     uint ConsoleKeyTick;
     int  ConsoleAccelerate;
 
-	uint NextAutosaveCall;
+	uint LastSaveCall;
 	uint NextCursorEnabling;
+	bool SaveLogoFade;
+	int  SaveLogoHeight;
 
     void ConsoleDraw();
     void ConsoleKeyDown( uchar dik );

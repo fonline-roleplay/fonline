@@ -353,7 +353,9 @@ bool FOMapper::Init()
     RefreshCurProtos();
 
     IsMapperStarted = true;
-	NextAutosaveCall = Timer::FastTick() + (GameOpt.MapperAutosave * 60000);
+	LastSaveCall = Timer::FastTick();
+	SaveLogoFade = false;
+	SaveLogoHeight = SprMngr.GetLinesHeight(0, 0, "Saved...", FONT_BIG);
 	WriteLog( "Mapper initialization complete.\n" );
     return true;
 }
@@ -1492,10 +1494,9 @@ void FOMapper::MainLoop()
 
     if( HexMngr.IsMapLoaded() )
     {
-		if (GameOpt.MapperAutosave && Timer::FastTick() >= NextAutosaveCall)
+		if (GameOpt.MapperAutosave && LastSaveCall + (GameOpt.MapperAutosave * 60000) < Timer::FastTick())
 		{
 			SaveMapFile(HexMngr.CurProtoMap->GetName());
-			NextAutosaveCall = Timer::FastTick() + (GameOpt.MapperAutosave * 60000);
 		}
 
         for( auto it = HexMngr.GetCritters().begin(), end = HexMngr.GetCritters().end(); it != end; ++it )
@@ -2105,6 +2106,23 @@ void FOMapper::IntDraw()
 		SprMngr.DrawStr(Rect(GameOpt.MouseX + 30, GameOpt.MouseY, MODE_WIDTH, MODE_HEIGHT),
 			Str::FormatBuf("%d:%d\n", hex_thru ? hx : -1, hex_thru ? hy : -1), FT_NOBREAK_LINE, COLOR_XRGB(0xF8, 0xF9, 0x93));
 	}
+
+	if (SaveLogoFade)
+	{
+		int fading_proc = 100 - Procent(FADING_PERIOD, Timer::FastTick() - LastSaveCall);
+		fading_proc = CLAMP(fading_proc, 0, 100);
+		if (fading_proc <= 0)
+		{
+			SaveLogoFade = false;
+		}
+
+		int alpha = (fading_proc * 0xFF) / 100;
+		if (alpha > 255)
+			alpha = 255;
+
+		SprMngr.DrawStr(Rect(IntX, IntY - SaveLogoHeight, MODE_WIDTH, MODE_HEIGHT), "Saved...", FT_NOBREAK_LINE, COLOR_ARGB(alpha, 0xF8, 0xF9, 0x93), FONT_BIG);
+	}
+
 }
 
 void FOMapper::ObjDraw()
@@ -3029,7 +3047,7 @@ void FOMapper::IntLMouseDown()
                 if( HexMngr.SetProtoMap( *LoadedProtoMaps[ ind ] ) )
                 {
                     CurProtoMap = LoadedProtoMaps[ ind ];
-					NextAutosaveCall = Timer::FastTick() + (GameOpt.MapperAutosave * 60000);
+					LastSaveCall = Timer::FastTick();
                     HexMngr.FindSetCenter( CurProtoMap->Header.WorkHexX, CurProtoMap->Header.WorkHexY );
                 }
             }
@@ -5436,6 +5454,10 @@ void FOMapper::SaveMapFile(string map_name)
 		AddMess("Save map success.");
 	else
 		AddMess("Save map fail, see log.");
+
+	LastSaveCall = Timer::FastTick();
+	SaveLogoFade = true;
+
 	FileManager::SetDataPath((GameOpt.ClientPath.c_std_str() + GameOpt.FoDataPath.c_std_str()).c_str());
 }
 
