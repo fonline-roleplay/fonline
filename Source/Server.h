@@ -662,6 +662,7 @@ public:
         static void Cl_ShowScreen( Critter* cl, int screen_type, uint param, ScriptString* func_name );
         static void Cl_RunClientScript( Critter* cl, ScriptString& func_name, int p0, int p1, int p2, ScriptString* p3, CScriptArray* p4 );
         static void Cl_Disconnect( Critter* cl );
+		static bool Cl_IsOnline( Critter* cl );
 
         static bool   Crit_SetScript( Critter* cr, ScriptString* script );
         static uint   Crit_GetScriptId( Critter* cr );

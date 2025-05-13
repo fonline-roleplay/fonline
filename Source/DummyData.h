@@ -694,6 +694,7 @@ struct BindClass
     static void Cl_ShowScreen()      {}
     static void Cl_RunClientScript() {}
     static void Cl_Disconnect()      {}
+	static void Cl_IsOnline()		 {}
 
     static void Crit_SetScript()         {}
     static void Crit_GetScriptId()       {}
