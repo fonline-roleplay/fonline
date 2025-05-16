@@ -541,6 +541,15 @@ uint CritterCl::GetAttackDist()
     return GameOpt.GetAttackDistantion ? GameOpt.GetAttackDistantion( this, weap, use ) : 1;
 }
 
+uint CritterCl::GetWeaponSkill()
+{
+	uchar use;
+	Item* weap = GetSlotUse(SLOT_HAND1, use);
+	if (!weap->IsWeapon())
+		return 0;
+	return weap->Proto->Weapon_Skill[use];
+}
+
 uint CritterCl::GetUseDist()
 {
     return 1 + GetMultihex();

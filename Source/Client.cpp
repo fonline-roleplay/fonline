@@ -8516,13 +8516,16 @@ label_EndMove:
             }
 
             uint max_dist = ( is_attack ? Chosen->GetAttackDist() : Chosen->GetUseDist() ) + ( target_cr ? target_cr->GetMultihex() : 0 );
+			uint weap_skill = ( is_attack ? Chosen->GetWeaponSkill() : 0 );
+			bool is_hth_attack = proto_item->Weapon_IsUnarmed || weap_skill == 203 || weap_skill == 204;
 
             // Target find
             bool need_move = false;
-            if( is_attack )
+            if( is_attack && is_hth_attack )
                 need_move = !HexMngr.TraceBullet( Chosen->GetHexX(), Chosen->GetHexY(), hx, hy, max_dist, 0.0f, target_cr, false, NULL, 0, NULL, NULL, NULL, true, nullptr);
-            else
+            else if(!is_attack)
                 need_move = !CheckDist( Chosen->GetHexX(), Chosen->GetHexY(), hx, hy, max_dist );
+
             if( need_move )
             {
                 // If target too far, then move to it

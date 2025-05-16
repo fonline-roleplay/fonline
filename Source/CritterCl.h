@@ -105,6 +105,7 @@ public:
     uint GetLook();
     uint GetTalkDistance();
     uint GetAttackDist();
+	uint GetWeaponSkill();
     uint GetUseDist();
     uint GetMultihex();
 
