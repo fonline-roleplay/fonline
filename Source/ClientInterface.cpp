@@ -7494,7 +7494,7 @@ void FOClient::ChaDraw( bool is_reg )
             str = Str::FormatBuf( "%d%%", val );
             break;
 		case ST_APREGEN:
-			str = Str::FormatBuf("%d.%d", int(floor(val / 100.0f)), val % 100 );
+			str = Str::FormatBuf("%d.%d", val / 100, val % 100 );
 			break;
         default:
             str = Str::FormatBuf( "%d", val );
