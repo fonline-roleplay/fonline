@@ -2209,7 +2209,7 @@ void FOClient::ConsoleKeyDown( uchar dik )
     if( !IsMainScreen( SCREEN_GAME ) && !IsMainScreen( SCREEN_GLOBAL_MAP ) )
         return;
 
-    if( dik == DIK_RETURN || dik == DIK_NUMPADENTER )
+    if( dik == DIK_RETURN || dik == DIK_NUMPADENTER || dik == DIK_T )
     {
         if( !ConsoleActive )
         {
@@ -2554,9 +2554,6 @@ void FOClient::GameKeyDown( uchar dik )
             break;
         case DIK_G:
             TryPickItemOnGround();
-            break;
-        case DIK_T:
-            GameOpt.ShowGroups = !GameOpt.ShowGroups;
             break;
         case DIK_I:
             ShowScreen( SCREEN__INVENTORY );
