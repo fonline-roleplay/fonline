@@ -2209,7 +2209,7 @@ void FOClient::ConsoleKeyDown( uchar dik )
     if( !IsMainScreen( SCREEN_GAME ) && !IsMainScreen( SCREEN_GLOBAL_MAP ) )
         return;
 
-    if( dik == DIK_RETURN || dik == DIK_NUMPADENTER || dik == DIK_T )
+    if( dik == DIK_RETURN || dik == DIK_NUMPADENTER || ( dik == DIK_T && !ConsoleActive ) )
     {
         if( !ConsoleActive )
         {
