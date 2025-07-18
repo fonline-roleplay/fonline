@@ -273,6 +273,7 @@ void HexManager::PlaceItemBlocks( ushort hx, ushort hy, ProtoItem* proto_item )
     bool raked = FLAG( proto_item->Flags, ITEM_SHOOT_THRU );
     FOREACH_PROTO_ITEM_LINES( proto_item->BlockLines, hx, hy, GetMaxHexX(), GetMaxHexY(),
                               GetField( hx, hy ).IsNotPassed = true;
+	                          GetField( hx, hy ).IsMultihex = true;
                               if( !raked )
                                   GetField( hx, hy ).IsNotRaked = true;
                               );
@@ -285,6 +286,7 @@ void HexManager::ReplaceItemBlocks( ushort hx, ushort hy, ProtoItem* proto_item 
 
     bool raked = FLAG( proto_item->Flags, ITEM_SHOOT_THRU );
     FOREACH_PROTO_ITEM_LINES( proto_item->BlockLines, hx, hy, GetMaxHexX(), GetMaxHexY(),
+	                          GetField( hx, hy ).IsMultihex = false;
                               GetField( hx, hy ).ProcessCache();
                               );
 }
