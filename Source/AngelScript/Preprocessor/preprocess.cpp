@@ -853,7 +853,7 @@ static void recursivePreprocess(
 				std::string file_name;
 				parseIf(directive,file_name);
 				file_name = removeQuotes(file_name);
-				stlp_std::vector<std::string> names;
+				std::vector<std::string> names;
 				/*
 				HANDLE hFind = FindFirstFile(__SERVER_PATH(scripts\\Mk2\\*.hash), &ffd);
 				if (INVALID_HANDLE_VALUE != hFind)
