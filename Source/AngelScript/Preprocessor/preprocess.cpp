@@ -731,8 +731,6 @@ static void setFileMacro(DefineTable& define_table, const std::string& file)
 	define_table["__FILE__"] = def;
 }
 
-#include <Windows.h>
-
 static void recursivePreprocess(
 	std::string filename,
 	FileSource& file_source,
@@ -854,20 +852,6 @@ static void recursivePreprocess(
 				parseIf(directive,file_name);
 				file_name = removeQuotes(file_name);
 				std::vector<std::string> names;
-				/*
-				HANDLE hFind = FindFirstFile(__SERVER_PATH(scripts\\Mk2\\*.hash), &ffd);
-				if (INVALID_HANDLE_VALUE != hFind)
-				{
-					do
-					{
-						if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-							continue;
-
-						ProccesHashFiles();
-					} while (FindNextFile(hFind, &ffd) != 0);
-				}
-				FindClose();
-				*/
 				names.push_back(file_name);
 
 				for (size_t i = 0, iend = names.size(); i < iend; i++)
