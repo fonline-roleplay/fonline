@@ -217,7 +217,7 @@ public:
             {
                 if( realsize != 0 )
                 {
-                    delete[ realsize ] buffer;
+                    delete[] buffer;
                 }
                 realsize = newsize + 1;
                 buffer = new char[ realsize ];
@@ -252,7 +252,7 @@ public:
 			Drop( );
 			if( buffer )
 			{
-				delete[ realsize ] buffer;
+				delete[] buffer;
 				buffer = nullptr;
 			}
 			realsize = 0;

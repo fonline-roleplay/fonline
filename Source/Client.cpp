@@ -7511,7 +7511,7 @@ void FOClient::Net_OnPrepareSendFileToClient()
 		md5chars[sizemd5] = 0;
 		Bin.Pop(md5chars, sizemd5);
 		md5 = md5chars;
-		delete[sizemd5 + 1] md5chars;
+		delete[] md5chars;
 	}
 
 	Bin >> sizeextension;
@@ -7522,7 +7522,7 @@ void FOClient::Net_OnPrepareSendFileToClient()
 		extensionchars[sizeextension] = 0;
 		Bin.Pop(extensionchars, sizeextension);
 		extension = extensionchars;
-		delete[sizeextension + 1] extensionchars;
+		delete[] extensionchars;
 	}
 
 	CHECK_IN_BUFF_ERROR;

@@ -4420,7 +4420,7 @@ void FOServer::Process_PrepareSendFileToServer( Client* cl )
 		md5chars[ sizemd5 ] = 0;
         cl->Bin.Pop( md5chars, sizemd5 );
         md5 = md5chars;
-        delete[ sizemd5 + 1 ] md5chars;
+        delete[] md5chars;
     }
 
 	cl->Bin >> sizeextension;
@@ -4431,7 +4431,7 @@ void FOServer::Process_PrepareSendFileToServer( Client* cl )
 		extensionchars[sizeextension] = 0;
 		cl->Bin.Pop(extensionchars, sizeextension);
 		extension = extensionchars;
-		delete[sizeextension + 1] extensionchars;
+		delete[] extensionchars;
 	}
 
 	CHECK_IN_BUFF_ERROR( cl );

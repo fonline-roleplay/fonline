@@ -17,7 +17,7 @@ CollectionFile::~CollectionFile( )
 {
     if( Buffer )
     {
-        delete[ Size ] Buffer;
+        delete[] Buffer;
         Buffer = nullptr;
     }
 }

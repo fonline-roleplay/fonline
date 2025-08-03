@@ -5306,7 +5306,7 @@ void Client::Send_WorkCollectionFileContext( )
     Bout.Push( buffer, size );
     BOUT_END( this );
 
-    delete[ size ] buffer;*/
+    delete[] buffer;*/
 }
 
 bool Client::Send_PrepareCollectionFileContext( const CollectionFile* file, uint packet_size )
