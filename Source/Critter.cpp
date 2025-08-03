@@ -5326,7 +5326,7 @@ bool Client::Send_PrepareCollectionFileContext( const CollectionFile* file, uint
     Bout << file->GetSize( );
     Bout << packet_size;
     Bout << file_name.size( );// ushort text_len
-    Bout.Push( file_name.begin( ), file_name.size( ) ); // char file_name[text_len]
+    Bout.Push( file_name.c_str( ), file_name.size( ) ); // char file_name[text_len]
     BOUT_END( this );
     return true;
 }
