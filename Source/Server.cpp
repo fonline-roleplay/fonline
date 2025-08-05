@@ -1,6 +1,9 @@
 #include "StdAfx.h"
 #include "Server.h"
+
+#ifndef SERVER_LIB
 #include "FL/Fl.H"
+#endif // SERVER_LIB
 
 #include "md5.h"
 
