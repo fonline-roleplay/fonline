@@ -1,6 +1,13 @@
 #include "StdAfx.h"
 #include "Common.h"
 #include "Exception.h"
+
+#ifdef DISABLE_EXCEPTION_HANDLING
+
+void CatchExceptions( const string& app_name, int app_ver ) {}
+void CreateDump( const string& appendix, const string& message ) {}
+
+#else // DISABLE_EXCEPTION_HANDLING
 #include "Script.h"
 #include "Version.h"
 
@@ -716,3 +723,4 @@ bool RaiseAssert( const string& message, const string& file, int line )
 	ExitProcess( 1 );
 	return true;
 }
+#endif // DISABLE_EXCEPTION_HANDLING
