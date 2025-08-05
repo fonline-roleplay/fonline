@@ -2800,12 +2800,14 @@ void Critter::Send_LookData()
         ((Client*)this)->Send_LookData();
 }
 
+#ifndef DISABLE_AVATARS
 void Critter::Send_CollectionFile(FileSendBuffer * filebuffer, int collection_type, int p0, int p1, int p2)
 {
 	if (IsPlayer())
 		((Client*)this)->Send_CollectionFile(filebuffer, collection_type, p0, p1, p2);
 
 }
+#endif // DISABLE_AVATARS
 
 void Critter::SendA_Move( uint move_params )
 {
@@ -5182,6 +5184,7 @@ void Client::Send_LookData()
     BOUT_END(this);
 }
 
+#ifndef DISABLE_AVATARS
 void Client::Send_CollectionFile(FileSendBuffer * filebuffer, int collection_type, int p0, int p1, int p2)
 {
 	if (!filebuffer)
@@ -5268,6 +5271,7 @@ void Client::Send_CollectionFile(FileSendBuffer * filebuffer, int collection_typ
     //WriteLog("Extension cool\n");
     BOUT_END(this);
 }
+#endif // DISABLE_AVATARS
 
 void Client::Send_WorkCollectionFileContext( )
 {

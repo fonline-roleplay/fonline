@@ -76,8 +76,10 @@ public:
     BufferManager& operator>>( char& i );
     BufferManager& operator<<( bool i );
     BufferManager& operator>>( bool& i );
+#ifndef DISABLE_AVATARS
 	BufferManager& operator>>( string& i);
 	BufferManager& operator<<(string& i);
+#endif
 
 private:
     inline uint EncryptKey( int move )
@@ -94,7 +96,7 @@ private:
     }
 };
 
-#ifndef FONLINE_MAPPER
+#if !defined(FONLINE_MAPPER) && !defined(DISABLE_AVATARS)
 struct FileSendBuffer
 {
 private:
@@ -375,6 +377,6 @@ public:
 
 };
 
-#endif // ! FONLINE_MAPPER
+#endif // ! FONLINE_MAPPER && ! DISABLE_AVATARS
 
 #endif // __BUFFER_MANAGER__

@@ -1,5 +1,7 @@
 #include "md5.h"
 
+#ifndef DISABLE_AVATARS
+
 typedef void ( __stdcall * PMD5Init )( MD5_CTX* context );
 typedef void ( __stdcall * PMD5Update )( MD5_CTX* context, const unsigned char* input, unsigned int inlen );
 typedef void ( __stdcall * PMD5Final )( MD5_CTX* context );
@@ -70,3 +72,5 @@ TMD5 GetMD5( PUCHAR Buffer, DWORD dwSize )
     memcpy( Result.digest, context.digest, 16 );
     return Result;
 }
+
+#endif // DISABLE_AVATARS

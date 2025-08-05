@@ -3638,6 +3638,7 @@ void FOServer::SScriptFunc::Crit_EventSmthTurnBasedProcess( Critter* cr, Critter
 
 void FOServer::SScriptFunc::Crit_SendCollectionFile(Critter * cr, uint hash, int type, int p0, int p1, int p2, asIScriptFunction* func )
 {
+#ifndef DISABLE_AVATARS
 	if (cr->IsNotValid)
 		SCRIPT_ERROR_R("This nullptr.");
 
@@ -3675,6 +3676,7 @@ void FOServer::SScriptFunc::Crit_SendCollectionFile(Critter * cr, uint hash, int
 	buffer->Extension = FileManager::GetExtension(fileName);
 
 	cr->Send_CollectionFile(buffer, type, p0, p1, p2);
+#endif // DISABLE_AVATARS
 }
 
 GameVar* FOServer::SScriptFunc::Global_GetGlobalVar( ushort tvar_id )

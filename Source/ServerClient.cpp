@@ -4398,6 +4398,7 @@ void FOServer::Process_KarmaVoting( Client* cl )
     }
 }
 
+#ifndef DISABLE_AVATARS
 void FOServer::Process_PrepareSendFileToServer( Client* cl )
 {
     int collection_type;
@@ -4588,6 +4589,7 @@ void FOServer::Proccess_SendFilePartToClient(Client* cl)
 		CurrentFileSend->Release();
 	}
 }
+#endif // DISABLE_AVATARS
 
 void FOServer::Process_GiveGlobalInfo( Client* cl )
 {

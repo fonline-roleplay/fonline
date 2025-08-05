@@ -367,6 +367,7 @@ void FOServer::RemoveClient( Client* cl )
             DeleteClientFile( cl->Name );
         }
 
+#ifndef DISABLE_AVATARS
 		auto file = FileSendBuffer::GetDownloadFileBuffer( id );
 		if( file )
 		{
@@ -381,6 +382,7 @@ void FOServer::RemoveClient( Client* cl )
 			file->FreeUpload(id);
 			file = nullptr;
 		}
+#endif // DISABLE_AVATARS
         Job::DeferredRelease( cl );
     }
     else
@@ -1866,6 +1868,7 @@ void FOServer::Process( ClientPtr& cl )
                 BIN_END( cl );
                 continue;
             }
+#ifndef DISABLE_AVATARS
             case NETMSG_PREPARE_SEND_FILE_TO_SERVER:
             {
                 Process_PrepareSendFileToServer( cl );
@@ -1884,6 +1887,7 @@ void FOServer::Process( ClientPtr& cl )
 				BIN_END(cl);
 				continue;
 			}
+#endif // DISABLE_AVATARS
             default:
             {
                 cl->Bin.SkipMsg( msg );
@@ -3593,9 +3597,10 @@ bool FOServer::InitReal()
     FileManager::CreateDirectoryTree( FileManager::GetFullPath( "", PT_SERVER_DUMPS ) );
     FileManager::CreateDirectoryTree( FileManager::GetFullPath( "", PT_SERVER_PROFILER ) );
 
-
+#ifndef DISABLE_AVATARS
 	WriteLog("Init MD5...\n");
 	InitMD5();
+#endif
 
     ConstantsManager::Initialize( PT_SERVER_DATA ); // Generate name of defines
     if( !InitScriptSystem() )
