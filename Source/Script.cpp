@@ -554,8 +554,12 @@ void* Script::LoadDynamicLibrary( const char* dll_name )
     void* dll = DLL_Load( dll_path );
 	if( !dll )
 	{
-		
+        #if defined ( FO_WINDOWS )		
 		WriteLog( "Dll nullptr <%s> error: %u\n", dll_path, GetLastError( ) );
+        #else
+        WriteLog( "Dll nullptr <%s> error: %s\n", dll_path, dlerror() );
+        #endif
+
 		return NULL;
 	}
 	WriteLog( "Dll loading <%s>\n", dll_path );
