@@ -95,26 +95,7 @@ struct CritData
 
 struct CritDataExt
 {
-	union
-	{
-		uint   Reserved23[ 10 ];
-		/*struct FileCollectionData
-		{
-            CollectionFile* File;
-            uint PacketSize;
-            uint PacketNumber;
-            union
-            {
-                bool IsBusy;
-                struct
-                {
-                    bool IsPrepared : 1;
-                    bool IsSend : 1;
-                } Flags;
-            };
-		} FileCollectionContext;*/
-	};
-
+	uint   Reserved23[ 10 ];
     uchar  GlobalMapFog[ GM_ZONES_FOG_SIZE ];
     ushort Reserved24;
     ushort LocationsCount;
@@ -123,7 +104,6 @@ struct CritDataExt
     uint   PlayIp[ MAX_STORED_IP ];
     ushort PlayPort[ MAX_STORED_IP ];
     uint   CurrentIp;
-    //std::queue<CollectionFile*> QueueFileRecive;
     uint   Reserved26[ 29 ];
 };
 
