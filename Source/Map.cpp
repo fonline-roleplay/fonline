@@ -1883,11 +1883,6 @@ void Map::SetLoopTime( uint loop_num, uint ms )
     LoopWaitTick[ loop_num ] = ms;
 }
 
-uchar Map::GetRain()
-{
-    return Data.MapRain;
-}
-
 void Map::SetRain( uchar capacity )
 {
     if( Data.MapRain == capacity )
@@ -1901,11 +1896,6 @@ void Map::SetRain( uchar capacity )
         Client* cl = *it;
         cl->Send_GameInfo( this );
     }
-}
-
-int Map::GetTime()
-{
-    return Data.MapTime;
 }
 
 void Map::SetTime( int time )
