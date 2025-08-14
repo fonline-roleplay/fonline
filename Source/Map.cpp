@@ -651,7 +651,7 @@ bool Map::AddItem( Item* item, ushort hx, ushort hy )
     if( hx >= GetMaxHexX() || hy >= GetMaxHexY() )
         return false;
 
-    Script::StartCallStack( "CheckLook", false );
+    START_CALLSTACK( "CheckLook", false );
     SetItem( item, hx, hy);
 
     // Process critters view
@@ -706,7 +706,7 @@ bool Map::AddItem( Item* item, ushort hx, ushort hy )
         }
     }
     item->ViewPlaceOnMap = false;
-    Script::CallStackInfoWriteAndClose( );
+    CLOSE_CALLSTACK();
     return true;
 }
 
@@ -833,7 +833,7 @@ void Map::ChangeDataItem( Item* item )
 
 void Map::ChangeViewItem( Item* item )
 {
-    Script::StartCallStack( "CheckLook", false );
+    START_CALLSTACK( "CheckLook", false );
     CrVec critters;
     GetCritters( critters, true );
 
@@ -919,7 +919,7 @@ void Map::ChangeViewItem( Item* item )
             cr->EventShowItemOnMap( item, false, NULL );
         }
     }
-    Script::CallStackInfoWriteAndClose( );
+    CLOSE_CALLSTACK();
 }
 
 void Map::AnimateItem( Item* item, uchar from_frm, uchar to_frm )

@@ -6528,9 +6528,9 @@ bool FOServer::SScriptFunc::CheckLook( Map& map, LookData& look, LookData& hide,
     mixHide.isruning = hide.isruning;
     mixHide.access = hide.access;
 
-    Script::StartCallStack( "CheckLook", false );
+    START_CALLSTACK( "CheckLook", false );
     auto result = LookData::CheckLook( map, mixLook, mixHide, isDebug );
-    Script::CallStackInfoWriteAndClose( );
+    CLOSE_CALLSTACK();
     isView = result.IsView;
     isHear = result.IsHear;
     return result.IsLook;

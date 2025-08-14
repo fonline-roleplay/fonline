@@ -660,7 +660,7 @@ void FOServer::Logic_Work( void* data )
         sync_mngr->UnlockAll();
         CurrentJob = Job::PopFront();
 
-        Script::StartCallStack( jobNames[CurrentJob.Type], false );
+        START_CALLSTACK( jobNames[CurrentJob.Type], false );
         if( CurrentJob.Type == JOB_CLIENT )
         {
             Client* cl = (Client*)CurrentJob.Data;
@@ -710,7 +710,7 @@ void FOServer::Logic_Work( void* data )
                 ConnectedClientsLocker.Unlock();
 
                 Job::DeferredRelease( cl );
-                Script::CallStackInfoWriteAndClose( );
+                CLOSE_CALLSTACK();
                 continue;
             }
 
@@ -723,7 +723,7 @@ void FOServer::Logic_Work( void* data )
         {
             if( !Logic_CritterProccess( ( Critter* )CurrentJob.Data ) )
             {
-                Script::CallStackInfoWriteAndClose( );
+                CLOSE_CALLSTACK();
                 continue;
             }
         }
@@ -735,7 +735,7 @@ void FOServer::Logic_Work( void* data )
             // Check for removing
             if( map->IsNotValid )
             {
-                Script::CallStackInfoWriteAndClose( );
+                CLOSE_CALLSTACK();
                 continue;
             }
             if( map->IsRefreshVision( ) )
@@ -750,7 +750,7 @@ void FOServer::Logic_Work( void* data )
             }
 
 			// Npc proccess:
-            Script::StartCallStack( "NpcProccess", false );
+            START_CALLSTACK( "NpcProccess", false );
 			if( map->GetPlayersCount() != 0 || ( map->Data.ProccessSleep == 0 || map->Data.ProccessTick-- == 0 ) )
 			{
 				map->Data.ProccessTick = map->Data.ProccessSleep;
@@ -761,7 +761,7 @@ void FOServer::Logic_Work( void* data )
 					Logic_CritterProccess(npcs[i]);
                 npcs.clear( );
 			}
-            Script::CallStackInfoWriteAndClose( );
+            CLOSE_CALLSTACK();
             // Process logic
             map->Process();
         }
@@ -833,8 +833,10 @@ void FOServer::Logic_Work( void* data )
         }
         else if( CurrentJob.Type == JOB_THREAD_LOOP )
         {
-            Script::CallStackInfoWriteAndClose( );
+            CLOSE_CALLSTACK();
+            #ifndef DISABLE_CALLSTACK
             Script::CallStackNextCycle( );
+            #endif
 
             // Sleep
             uint sleep_time = Timer::FastTick( );
@@ -918,12 +920,14 @@ void FOServer::Logic_Work( void* data )
         else         // JOB_NOP
         {
             Sleep( 100 );
-            Script::CallStackInfoWriteAndClose( );
+            CLOSE_CALLSTACK();
             continue;
         }
 
 		if( CurrentJob.Type != JOB_THREAD_LOOP )
-            Script::CallStackInfoWriteAndClose( );
+        {
+            CLOSE_CALLSTACK();
+        }
 
         // Add job to back
         uint job_count = Job::PushBack( CurrentJob );
@@ -3574,9 +3578,11 @@ bool FOServer::InitReal()
         sample_time = 0;
     Script::Profiler::SetData( sample_time, ( ( profiler_mode & 1 ) != 0 ) ? 300000 : 0, ( ( profiler_mode & 2 ) != 0 ) );
 
+    #ifndef DISABLE_CALLSTACK
     // DetailedCallStackInfo
     Script::CallStackInfo::CallStackInfoMode = cfg.GetInt( "DetailedCallStackInfo", 0 );
     Script::CallStackInfo::CallStackInfoMode = CLAMP( Script::CallStackInfo::CallStackInfoMode, 0, 2 );
+    #endif
 
     // Threading
     LogicThreadSetAffinity = cfg.GetInt( "LogicThreadSetAffinity", 0 ) != 0;

@@ -110,7 +110,7 @@ static LONG WINAPI TopLevelFilterReadableDump( EXCEPTION_POINTERS* except )
 		fprintf( f, "\tTimestamp   %04d.%02d.%02d %02d:%02d:%02d\n", dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second );
 		fprintf( f, "\n" );
 
-#ifdef FONLINE_SERVER
+#if defined(FONLINE_SERVER) && !defined(DISABLE_CALLSTACK)
 		fprintf( f, "\nCallStack:\n%s\n", Script::FormatCallstackInfo( true ).c_str() );
 #endif
 		// Exception information

@@ -622,7 +622,9 @@ void UpdateInfo()
             break;
 		case 7:
 		{
+            #ifndef DISABLE_CALLSTACK
             std_str = Script::FormatCallstackInfo( );
+            #endif
 			/*static char* jobNames[ ] = { "none", "clients", "critters", "maps", "time events", "garbage items", "garbage critters", "garbage locations", "garbage sript", "garbage vars", "deferred release", "game time", "bans", "loop script", "thread loop", "thread synchronize", "finish" };
 			std_str = "Jobs:\n";
 			char buf[ MAX_FOTEXT ] = { 0 };

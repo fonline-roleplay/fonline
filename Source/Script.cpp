@@ -54,6 +54,10 @@ bool             LogDebugInfo = true;
 StrVec           WrongGlobalObjects;
 
 #ifdef FONLINE_SERVER
+
+void RegistrationScriptCustomCallStack( asIScriptEngine* engine );
+
+#ifndef DISABLE_CALLSTACK
 Script::CallStackInfo* CallStackInfoRoot[ 2 ] = { new Script::CallStackInfo( "FOnline", false, nullptr ), new Script::CallStackInfo( "FOnline", false, nullptr ) };
 Script::CallStackInfo* CurrentCallStack = CallStackInfoRoot[0];
 
@@ -122,6 +126,7 @@ std::string Script::FormatCallstackInfo( bool iscurrent /* = false */ )
     }
     return stream.str();
 }
+#endif // DISABLE_CALLSTACK
 
 uint   GarbagerCycle = 120000;
 uint   EvaluationCycle = 120000;
@@ -1031,7 +1036,7 @@ asIScriptEngine* Script::CreateEngine( Preprocessor::PragmaCallback* pragma_call
 #ifdef FONLINE_SERVER
     if( Str::Compare( dll_target, "SERVER" ) )
     {
-        CallStackInfo::RegistrationScriptCustomCallStack( engine );
+        RegistrationScriptCustomCallStack( engine );
     }
 #endif
 
@@ -1089,8 +1094,10 @@ asIScriptContext* Script::CreateContext()
 
     Str::Copy( buf, CONTEXT_BUFFER_SIZE, "<error>" );
     ctx->SetUserData( buf );
+#ifndef DISABLE_CALLSTACK
     char* buf2 = new char[ CONTEXT_BUFFER_SIZE ];
     ctx->SetUserData( buf2, 1 );
+#endif
     return ctx;
 }
 
@@ -2467,7 +2474,7 @@ bool Script::PrepareContext( int bind_id, const char* call_func, const char* ctx
     CurrentArg = 0;
 
 #ifdef FONLINE_SERVER
-    StartCallStack( call_func, false );
+    START_CALLSTACK( call_func, false );
 #endif
 
     return true;
@@ -2734,7 +2741,7 @@ bool Script::RunPrepared()
             ctx->Abort();
             EndExecution();
 #ifdef FONLINE_SERVER
-            CallStackInfoWriteAndClose( );
+            CLOSE_CALLSTACK();
 #endif
             return false;
         }
@@ -2748,7 +2755,7 @@ bool Script::RunPrepared()
             WriteLogF( _FUNC_, " - Context<%s> execute error<%d>, state<%s>.\n", ctx->GetUserData(), result, ContextStatesStr[ (int) state ] );
             EndExecution();
 #ifdef FONLINE_SERVER
-            CallStackInfoWriteAndClose( );
+            CLOSE_CALLSTACK();
 #endif
             return false;
         }
@@ -2767,7 +2774,7 @@ bool Script::RunPrepared()
     EndExecution();
 
 #ifdef FONLINE_SERVER
-    CallStackInfoWriteAndClose( );
+    CLOSE_CALLSTACK();
 #endif
     return true;
 }
@@ -3048,6 +3055,7 @@ CScriptArray *Script::CreateArray( const char* type )
 /*                                                                      */
 /************************************************************************/
 #ifdef FONLINE_SERVER
+#ifndef DISABLE_CALLSTACK
 Script::CallStackInfo::CallStackInfo( const std::string _key, bool _isscript, Script::CallStackInfo* _parent, bool isabs ):
     RootData( nullptr ), name( _key ), CurrentTime( 0 ), AllTime(0), absolutle( nullptr ), parent( _parent ),
     MaxTime( 0 ), CurrentTimeOne( 0 ), MaxTimeOne( 0 ), childs( ), CycleDelta( 0 ),
@@ -3201,8 +3209,8 @@ void Script::CallStackInfo::SynchronizeCallStacksChilds( CallStackInfo* info0, C
     for( auto it = info1->childs.begin( ); it != info1->childs.end( ); it++ )
         SynchronizeCallStacksChilds( info0->GetOrCreateChild( it->first, it->second->isscript ), it->second );
 }
-
-void Script::CallStackInfo::RegistrationScriptCustomCallStack( asIScriptEngine* engine )
+#endif // DISABLE_CALLSTACK
+void RegistrationScriptCustomCallStack( asIScriptEngine* engine )
 {
     class CustomCallStack
     {
@@ -3210,24 +3218,32 @@ void Script::CallStackInfo::RegistrationScriptCustomCallStack( asIScriptEngine* 
 
         static void Open( ScriptString& name )
         {
-            Script::StartCallStack( Str::FormatBuf( "Script_%s", name.c_str( ) ), true );
+            START_CALLSTACK( Str::FormatBuf( "Script_%s", name.c_str( ) ), true );
         }
 
         static void Close( )
         {
+            #ifndef DISABLE_CALLSTACK
             if( CurrentCallStack->IsScript( ) )
                 Script::CallStackInfoWriteAndClose( );
             else WriteLogF( __FUNCTION__, "wrong script close callstack\n" );
+            #endif
         }
 
         static uint GetCallStackInfoMode( )
         {
-            return Script::CallStackInfo::CallStackInfoMode;
+            #ifndef DISABLE_CALLSTACK
+                return Script::CallStackInfo::CallStackInfoMode;
+            #else
+                return 0;
+            #endif
         }
 
         static void SetCallStackInfoMode( uint value )
         {
+            #ifndef DISABLE_CALLSTACK
             Script::CallStackInfo::CallStackInfoMode = CLAMP( value, 0, 2 );
+            #endif
         }
     };
 
@@ -3236,4 +3252,4 @@ void Script::CallStackInfo::RegistrationScriptCustomCallStack( asIScriptEngine* 
     engine->RegisterGlobalFunction( "uint get_CallStackInfoMode( )", asFUNCTION( CustomCallStack::GetCallStackInfoMode ), asCALL_CDECL );
     engine->RegisterGlobalFunction( "void set_CallStackInfoMode( uint value )", asFUNCTION( CustomCallStack::SetCallStackInfoMode ), asCALL_CDECL );
 }
-#endif
+#endif // FONLINE_SERVER

@@ -347,7 +347,7 @@ void Critter::ProcessVisibleCritters()
     if( !map )
         return;
 
-    Script::StartCallStack( "CheckLook", false );
+    START_CALLSTACK( "CheckLook", false );
     LookData look, crlook;
     Data.Look.GetMixed( map->Data.Look, look );
     look.InitCritter(*this);
@@ -832,7 +832,7 @@ void Critter::ProcessVisibleCritters()
             }
         }
     }
-    Script::CallStackInfoWriteAndClose( );
+    CLOSE_CALLSTACK();
 }
 
 void Critter::ProcessVisibleItems()
@@ -855,7 +855,7 @@ void Critter::ProcessVisibleItemVec( ItemPtrVec& items )
     if( !map )
         return;
 
-    Script::StartCallStack( "CheckLook", false );
+    START_CALLSTACK( "CheckLook", false );
     static LookData hideitem;
     static LookData lookdata;
     Data.Look.GetMixed( map->Data.Look, lookdata );
@@ -918,7 +918,7 @@ void Critter::ProcessVisibleItemVec( ItemPtrVec& items )
             }
         }
     }
-    Script::CallStackInfoWriteAndClose( );
+    CLOSE_CALLSTACK();
 }
 
 void Critter::ViewMap( Map* map, int look, ushort hx, ushort hy, int dir )

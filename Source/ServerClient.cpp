@@ -138,9 +138,9 @@ void FOServer::ProcessCritter( Critter* cr )
         // Process
         if( npc->IsLife() )
         {
-            Script::StartCallStack( "ProcessAI", false );
+            START_CALLSTACK( "ProcessAI", false );
             ProcessAI( npc );
-            Script::CallStackInfoWriteAndClose( );
+            CLOSE_CALLSTACK();
             if( npc->IsNeedRefreshBag() )
                 npc->RefreshBag();
         }
