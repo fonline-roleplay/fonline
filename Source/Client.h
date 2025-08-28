@@ -853,14 +853,14 @@ public:
 /************************************************************************/
     AnyFrames* IntMainPic, * IntPWAddMess, * IntPBAddMessDn, * IntPBMessFilter1Dn, * IntPBMessFilter2Dn, * IntPBMessFilter3Dn,
     * IntPBScrUpDn, * IntPBScrDnDn, * IntPBSlotsDn,
-    * IntPBInvDn, * IntPBMenuDn, * IntPBSkillDn, * IntPBMapDn, * IntPBChaDn, * IntPBPipDn, * IntPBFixDn,
+    * IntPBInvDn, * IntPBMenuDn, * IntPBSkillDn, * IntPBMapDn, * IntPBChaDn, * IntPBPipDn,
     * IntDiodeG, * IntDiodeY, * IntDiodeR, * IntBreakTimePic, * IntWApCostPicNone;
 
     int        IntX, IntY;
     bool       IntVisible, IntAddMess;
     Rect       IntWMain, IntWAddMess, IntBAddMess, IntBMessFilter1, IntBMessFilter2, IntBMessFilter3;
     Rect       IntBItem, IntWApCost;
-    Rect       IntBChangeSlot, IntBInv, IntBMenu, IntBSkill, IntBMap, IntBChar, IntBPip, IntBFix;
+    Rect       IntBChangeSlot, IntBInv, IntBMenu, IntBSkill, IntBMap, IntBChar, IntBPip;
     Rect       IntWMess, IntWMessLarge;
     Rect       IntAP, IntHP, IntAC, IntBreakTime; // 15 зеленых(200мс) 3 желтых(1000мс) 2 красных(10000мс)
     int        IntAPstepX, IntAPstepY, IntAPMax;
@@ -1028,11 +1028,11 @@ public:
     int          GmapPTownInOffsX, GmapPTownInOffsY, GmapPTownViewOffsX, GmapPTownViewOffsY;
     AnyFrames*   GmapPFollowCrit, * GmapPFollowCritSelf;
     AnyFrames*   GmapPWTab, * GmapPWBlankTab, * GmapPBTabLoc, * GmapPTabScrUpDw, * GmapPTabScrDwDw;
-    AnyFrames*   GmapBInvPicDown, * GmapBMenuPicDown, * GmapBChaPicDown, * GmapBPipPicDown, * GmapBFixPicDown;
+    AnyFrames*   GmapBInvPicDown, * GmapBMenuPicDown, * GmapBChaPicDown, * GmapBPipPicDown;
     AnyFrames*   GmapPLightPic0, * GmapPLightPic1;
     int          GmapX, GmapY, GmapVectX, GmapVectY, GmapWNameStepX, GmapWNameStepY;
     Rect         GmapWMain, GmapWMap, GmapBTown, GmapWName, GmapWChat, GmapWPanel, GmapWCar, GmapWLock, GmapWTime, GmapWDayTime;
-    Rect         GmapBInv, GmapBMenu, GmapBCha, GmapBPip, GmapBFix;
+    Rect         GmapBInv, GmapBMenu, GmapBCha, GmapBPip;
     PointVec     GmapMapCutOff;
     static bool  GmapActive;
     static float GmapZoom;
@@ -1198,7 +1198,7 @@ public:
     AnyFrames* ChaPMain, * ChaPBPrintDn, * ChaPBOkDn, * ChaPBCancelDn;
     int        ChaX, ChaY;
     int        ChaVectX, ChaVectY;
-    Rect       ChaWMain, ChaBPrint, ChaBPrintText, ChaBOk, ChaBOkText, ChaBCancel, ChaBCancelText;
+    Rect       ChaWMain, ChaBPrint, ChaBOk, ChaBOkText, ChaBCancel, ChaBCancelText;
 
     // Special
     Rect   ChaWSpecialText, ChaWSpecialValue, ChaWSpecialLevel;
@@ -1343,10 +1343,10 @@ public:
     #define PIP__ARCHIVES            ( 8 )
     #define PIP__ARCHIVES_INFO       ( 9 )
 
-    AnyFrames* PipPMain, * PipPBStatusDn /*,*PipPBGamesDn*/, * PipPBAutomapsDn, * PipPBArchivesDn, * PipPBCloseDn, * PipPWMonitor;
+    AnyFrames* PipPMain /*,*PipPBGamesDn*/, * PipPBAutomapsDn, * PipPBArchivesDn, * PipPBCloseDn, * PipPWMonitor;
     int        PipX, PipY;
     int        PipVectX, PipVectY;
-    Rect       PipWMain, PipWMonitor, PipBStatus /*,PipBGames*/, PipBAutomaps, PipBArchives, PipBClose, PipWTime;
+    Rect       PipWMain, PipWMonitor /*,PipBGames*/, PipBAutomaps, PipBArchives, PipBClose, PipWTime;
     int        PipScroll[ PIP__ARCHIVES_INFO + 1 ];
 
     void PipDraw();
@@ -1410,7 +1410,7 @@ public:
 /************************************************************************/
 /* PickUp                                                               */
 /************************************************************************/
-    AnyFrames* PupPMain, * PupPTakeAllOn, * PupPBOkOn,
+    AnyFrames* PupPMain, * PupPBOkOn,
     * PupPBScrUpOn1, * PupPBScrUpOff1, * PupPBScrDwOn1, * PupPBScrDwOff1,
     * PupPBScrUpOn2, * PupPBScrUpOff2, * PupPBScrDwOn2, * PupPBScrDwOff2,
     * PupBNextCritLeftPicUp, * PupBNextCritLeftPicDown,
@@ -1419,7 +1419,7 @@ public:
     int    PupScroll1, PupScroll2, PupScrollCrit;
     int    PupX, PupY;
     int    PupVectX, PupVectY;
-    Rect   PupWMain, PupWInfo, PupWCont1, PupWCont2, PupBTakeAll, PupBOk,
+    Rect   PupWMain, PupWInfo, PupWCont1, PupWCont2, PupBOk,
            PupBScrUp1, PupBScrDw1, PupBScrUp2, PupBScrDw2, PupBNextCritLeft, PupBNextCritRight, PupContName;
     int    PupHeightItem1, PupHeightItem2;
     uchar  PupTransferType;
@@ -1571,93 +1571,6 @@ public:
     void TimerLMouseDown();
     void TimerLMouseUp();
     void TimerMouseMove();
-
-/************************************************************************/
-/* FixBoy                                                               */
-/************************************************************************/
-    int FixMode;
-    #define FIX_MODE_LIST              ( 0 )
-    #define FIX_MODE_FIXIT             ( 1 )
-    #define FIX_MODE_RESULT            ( 2 )
-
-    AnyFrames* FixMainPic, * FixPBDoneDn, * FixPBScrUpDn, * FixPBScrDnDn, * FixPBFixDn;
-    Rect       FixWMain, FixBDone, FixBScrUp, FixBScrDn, FixWWin, FixBFix;
-    int        FixX, FixY, FixVectX, FixVectY;
-    int        FixCurCraft;
-
-    struct SCraft
-    {
-        Rect   Pos;
-        string Name;
-        uint   Num;
-        bool   IsTrue;
-
-        SCraft( Rect& pos, string& name, uint num, bool is_true )
-        {
-            Pos = pos;
-            Name = name;
-            Num = num;
-            IsTrue = is_true;
-        }
-        SCraft( const SCraft& _right )
-        {
-            Pos = _right.Pos;
-            Name = _right.Name;
-            Num = _right.Num;
-            IsTrue = _right.IsTrue;
-        }
-        SCraft& operator=( const SCraft& _right )
-        {
-            Pos = _right.Pos;
-            Name = _right.Name;
-            Num = _right.Num;
-            IsTrue = _right.IsTrue;
-            return *this;
-        }
-    };
-    typedef vector< SCraft >    SCraftVec;
-    typedef vector< SCraftVec > SCraftVecVec;
-
-    SCraftVecVec FixCraftLst;
-    int          FixScrollLst;
-    SCraftVecVec FixCraftFix;
-    int          FixScrollFix;
-    uchar        FixResult;
-
-    struct FixDrawComponent
-    {
-        bool       IsText;
-        Rect       Place;
-
-        string     Text;
-        AnyFrames* Anim;
-
-        FixDrawComponent( Rect& r, string& text ): IsText( true ), Anim( NULL )
-        {
-            Place = r;
-            Text = text;
-        }
-        FixDrawComponent( Rect& r, AnyFrames* anim ): IsText( false ), Anim( anim ) { Place = r; }
-    };
-    typedef vector< FixDrawComponent* > FixDrawComponentVec;
-    #define FIX_DRAW_PIC_WIDTH         ( 40 )
-    #define FIX_DRAW_PIC_HEIGHT        ( 40 )
-
-    FixDrawComponentVec FixDrawComp;
-    string              FixResultStr;
-    UIntSet             FixShowCraft;
-    uint                FixNextShowCraftTick;
-
-    void       FixGenerate( int fix_mode );
-    void       FixGenerateStrLine( string& str, Rect& r );
-    void       FixGenerateItems( UShortVec& items_vec, UIntVec& val_vec, UCharVec& or_vec, string& str, Rect& r, int& x );
-    int        GetMouseCraft();
-    SCraftVec* GetCurSCrafts();
-
-    void FixDraw();
-    void FixLMouseDown();
-    void FixLMouseUp();
-    void FixMouseMove();
 
 /************************************************************************/
 /* Input Box                                                            */
@@ -1858,7 +1771,6 @@ public:
 #define SCREEN__DIALOG                 ( 14 )
 #define SCREEN__BARTER                 ( 15 )
 #define SCREEN__PIP_BOY                ( 16 )
-#define SCREEN__FIX_BOY                ( 17 )
 #define SCREEN__MENU_OPTION            ( 18 )
 #define SCREEN__AIM                    ( 19 )
 #define SCREEN__SPLIT                  ( 20 )
@@ -1970,7 +1882,6 @@ public:
 #define IFACE_INT_MAP                  ( 6 )
 #define IFACE_INT_CHAR                 ( 7 )
 #define IFACE_INT_PIP                  ( 8 )
-#define IFACE_INT_FIX                  ( 9 )
 #define IFACE_INT_ADDMESS              ( 10 )
 #define IFACE_INT_FILTER1              ( 11 )
 #define IFACE_INT_FILTER2              ( 12 )
@@ -2085,7 +1996,6 @@ public:
 #define IFACE_TOWN_VIEW_BACK           ( 251 )
 #define IFACE_TOWN_VIEW_ENTER          ( 252 )
 #define IFACE_TOWN_VIEW_CONTOUR        ( 253 )
-#define IFACE_PIP_STATUS               ( 260 )
 // #define IFACE_PIP_GAMES        (261)
 #define IFACE_PIP_AUTOMAPS             ( 262 )
 #define IFACE_PIP_AUTOMAPS_SCR         ( 263 )
@@ -2109,7 +2019,6 @@ public:
 #define IFACE_PUP_SCRDOWN1             ( 304 )
 #define IFACE_PUP_SCRUP2               ( 305 )
 #define IFACE_PUP_SCRDOWN2             ( 306 )
-#define IFACE_PUP_TAKEALL              ( 307 )
 #define IFACE_PUP_SCRCR_L              ( 308 )
 #define IFACE_PUP_SCRCR_R              ( 309 )
 #define IFACE_PUP_MAIN                 ( 310 )
@@ -2131,12 +2040,7 @@ public:
 #define IFACE_TIMER_DOWN               ( 382 )
 #define IFACE_TIMER_DONE               ( 383 )
 #define IFACE_TIMER_CANCEL             ( 384 )
-#define IFACE_FIX_DONE                 ( 400 )
-#define IFACE_FIX_SCRUP                ( 401 )
-#define IFACE_FIX_SCRDN                ( 402 )
-#define IFACE_FIX_CHOOSE               ( 403 )
-#define IFACE_FIX_FIX                  ( 404 )
-#define IFACE_FIX_MAIN                 ( 405 )
+
 #define IFACE_IBOX_DONE                ( 420 )
 #define IFACE_IBOX_CANCEL              ( 421 )
 #define IFACE_IBOX_TITLE               ( 422 )

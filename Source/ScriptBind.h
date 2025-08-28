@@ -1209,7 +1209,6 @@ BIND_ASSERT( engine->RegisterGlobalProperty( "bool __DisableZlibCompression", &G
 BIND_ASSERT( engine->RegisterGlobalProperty( "uint __FloodSize", &GameOpt.FloodSize ) );
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __NoAnswerShuffle", &GameOpt.NoAnswerShuffle ) );
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __DialogDemandRecheck", &GameOpt.DialogDemandRecheck ) );
-BIND_ASSERT( engine->RegisterGlobalProperty( "uint __FixBoyDefaultExperience", &GameOpt.FixBoyDefaultExperience ) );
 BIND_ASSERT( engine->RegisterGlobalProperty( "uint __SneakDivider", &GameOpt.SneakDivider ) );
 BIND_ASSERT( engine->RegisterGlobalProperty( "uint __LevelCap", &GameOpt.LevelCap ) );
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __LevelCapAddExperience", &GameOpt.LevelCapAddExperience ) );

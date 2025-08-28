@@ -1576,7 +1576,6 @@ GameOptions::GameOptions()
     FloodSize = 2048;
     NoAnswerShuffle = false;
     DialogDemandRecheck = false;
-    FixBoyDefaultExperience = 50;
     SneakDivider = 6;
     LevelCap = 99;
     LevelCapAddExperience = false;

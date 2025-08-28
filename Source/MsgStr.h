@@ -57,16 +57,6 @@
 #define STR_MBRADIO                        ( 130 )
 #define STR_MBNET                          ( 132 )
 
-// FixBoy
-#define STR_FIX_PARAMS                     ( 200 )
-#define STR_FIX_TOOLS                      ( 201 )
-#define STR_FIX_ITEMS                      ( 202 )
-#define STR_FIX_PIECES                     ( 205 )
-#define STR_FIX_YOUHAVE                    ( 206 )
-#define STR_FIX_SUCCESS                    ( 210 )
-#define STR_FIX_FAIL                       ( 211 )
-#define STR_FIX_TIMEOUT                    ( 212 )
-
 // Interface
 #define STR_OPTIONS_NOT_AVIABLE            ( 250 )
 #define STR_SCREENSHOT_SAVED               ( 251 )

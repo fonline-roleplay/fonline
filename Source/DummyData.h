@@ -584,12 +584,6 @@ struct BindClass
     static void Item_set_TrapValue() {}
     static void Item_get_TrapValue() {}
 
-    static void CraftItem_GetShowParams() {}
-    static void CraftItem_GetNeedParams() {}
-    static void CraftItem_GetNeedTools()  {}
-    static void CraftItem_GetNeedItems()  {}
-    static void CraftItem_GetOutItems()   {}
-
     static void Crit_IsPlayer()                 {}
     static void Crit_IsNpc()                    {}
     static void Crit_IsCanWalk()                {}
@@ -1077,6 +1071,12 @@ struct BindClass
     static void Global_GetCritterSoundName()            {}
     static void Global_GetGlobalMapRelief()             {}
     static void Global_GetCraftItem()                   {}
+
+	static void CraftItem_GetShowParams() {}
+	static void CraftItem_GetNeedParams() {}
+	static void CraftItem_GetNeedTools() {}
+	static void CraftItem_GetNeedItems() {}
+	static void CraftItem_GetOutItems() {}
     #endif
 
     #ifdef BIND_MAPPER
@@ -1229,12 +1229,6 @@ struct BindClass
 
     static void Global_AddFileToServerCollection( ){}
     static void Global_WindowsExplorer_OpenFileName( ){}
-	
-	static void CraftItem_GetShowParams() {}
-	static void CraftItem_GetNeedParams() {}
-	static void CraftItem_GetNeedTools() {}
-	static void CraftItem_GetNeedItems() {}
-	static void CraftItem_GetOutItems() {}
 };
 
 #ifdef BIND_CLIENT
@@ -1276,7 +1270,7 @@ struct GameOptions
     int FloodSize;
     int NoAnswerShuffle;
     int DialogDemandRecheck;
-    int FixBoyDefaultExperience;
+    int UnusedUint;
     int SneakDivider;
     int LevelCap;
     int LevelCapAddExperience;

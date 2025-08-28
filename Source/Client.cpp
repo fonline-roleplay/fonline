@@ -472,7 +472,6 @@ bool FOClient::Init()
 
     // MrFixit
     MrFixit.LoadCrafts( *MsgCraft );
-    MrFixit.GenerateNames( *MsgGame, *MsgItem );  // After Item manager init
 
     // Hex manager
     if( !HexMngr.Init() )
@@ -895,7 +894,6 @@ int FOClient::MainLoop()
                     case SCREEN__MINI_MAP:   LmapDraw(); break;
                     case SCREEN__DIALOG:     DlgDraw(); break;
                     case SCREEN__PIP_BOY:    PipDraw(); break;
-                    case SCREEN__FIX_BOY:    FixDraw(); break;
                     case SCREEN__MENU_OPTION:MoptDraw(); break;
                     case SCREEN__CHARACTER:  ChaDraw(false); break;
                     case SCREEN__AIM:        AimDraw(); break;
@@ -1387,12 +1385,6 @@ void FOClient::ParseKeyboard()
                             TryExit();Anuri said to block possibility to open statistics window in pipboy - APAMk2*/ 
 						TryExit();
                         continue;
-                    }  
-                case DIK_F:
-                    if( GetActiveScreen() == SCREEN__FIX_BOY )
-                    {
-                        TryExit();
-                        continue;
                     }
                     break;
                 case DIK_I:
@@ -1796,9 +1788,6 @@ void FOClient::ParseMouse()
             case SCREEN__PIP_BOY:
                 PipMouseMove();
                 break;
-            case SCREEN__FIX_BOY:
-                FixMouseMove();
-                break;
             case SCREEN__AIM:
                 AimMouseMove();
                 break;
@@ -2087,9 +2076,6 @@ void FOClient::ParseMouse()
                 case SCREEN__PIP_BOY:
                     PipLMouseDown();
                     break;
-                case SCREEN__FIX_BOY:
-                    FixLMouseDown();
-                    break;
                 case SCREEN__AIM:
                     AimLMouseDown();
                     break;
@@ -2199,9 +2185,6 @@ void FOClient::ParseMouse()
                     break;
                 case SCREEN__PIP_BOY:
                     PipLMouseUp();
-                    break;
-                case SCREEN__FIX_BOY:
-                    FixLMouseUp();
                     break;
                 case SCREEN__AIM:
                     AimLMouseUp();
@@ -3862,7 +3845,6 @@ void FOClient::Net_SendCraftAsk( UIntVec numbers )
     Bout << count;
     for( int i = 0; i < count; i++ )
         Bout << numbers[ i ];
-    FixNextShowCraftTick = Timer::FastTick() + CRAFT_SEND_TIME;
 }
 
 void FOClient::Net_SendCraft( uint craft_num )
@@ -4476,10 +4458,6 @@ void FOClient::OnText( const char* str, uint crid, int how_say, ushort intellect
         DlgboxWait = Timer::GameTick() + GM_ANSWER_WAIT_TIME;
         Str::Copy( DlgboxText, fstr );
     }
-
-    // FixBoy result
-    if( how_say == SAY_FIX_RESULT )
-        FixResultStr = fstr;
 
     // Dialogbox
     if( how_say == SAY_DIALOGBOX_TEXT )
@@ -6857,9 +6835,6 @@ void FOClient::Net_OnShowScreen()
     case SHOW_SCREEN_CHARACTER:
         ShowScreen( SCREEN__CHARACTER );
         return;
-    case SHOW_SCREEN_FIXBOY:
-        ShowScreen( SCREEN__FIX_BOY );
-        return;
     case SHOW_SCREEN_PIPBOY:
         ShowScreen( SCREEN__PIP_BOY );
         return;
@@ -6946,7 +6921,6 @@ void FOClient::Net_OnRunClientScript()
 void FOClient::Net_OnDropTimers()
 {
     ScoresNextUploadTick = 0;
-    FixNextShowCraftTick = 0;
     GmapNextShowEntrancesTick = 0;
     GmapShowEntrancesLocId = 0;
 }
@@ -7112,14 +7086,10 @@ void FOClient::Net_OnMsgData()
 
     switch( num_msg )
     {
-    case TEXTMSG_ITEM:
-        MrFixit.GenerateNames( *MsgGame, *MsgItem );
-        break;
     case TEXTMSG_CRAFT:
         // Reload crafts
         MrFixit.Finish();
         MrFixit.LoadCrafts( *MsgCraft );
-        MrFixit.GenerateNames( *MsgGame, *MsgItem );
         break;
     case TEXTMSG_INTERNAL:
         // Reload critter types
@@ -7183,9 +7153,6 @@ void FOClient::Net_OnProtoItemData()
 
     uint count = (uint) proto_items.size();
     Crypt.SetCache( "item_protos_count", (uchar*) &count, sizeof( count ) );
-
-    // Refresh craft names
-    MrFixit.GenerateNames( *MsgGame, *MsgItem );
 }
 
 void FOClient::Net_OnQuest( bool many )
@@ -7694,30 +7661,13 @@ void FOClient::Net_OnCraftAsk()
     Bin >> msg_len;
     Bin >> count;
 
-    FixShowCraft.clear();
-    for( int i = 0; i < count; i++ )
-    {
-        uint craft_num;
-        Bin >> craft_num;
-        FixShowCraft.insert( craft_num );
-    }
-
     CHECK_IN_BUFF_ERROR;
-
-    if( IsScreenPresent( SCREEN__FIX_BOY ) && FixMode == FIX_MODE_LIST )
-        FixGenerate( FIX_MODE_LIST );
 }
 
 void FOClient::Net_OnCraftResult()
 {
     uchar craft_result;
     Bin >> craft_result;
-
-    if( craft_result != CRAFT_RESULT_NONE )
-    {
-        FixResult = craft_result;
-        FixGenerate( FIX_MODE_RESULT );
-    }
 }
 
 void FOClient::SetGameColor( uint color )
@@ -9190,7 +9140,6 @@ void FOClient::TryExit()
         case SCREEN__MINI_MAP:
         case SCREEN__CHARACTER:
         case SCREEN__PIP_BOY:
-        case SCREEN__FIX_BOY:
         case SCREEN__MENU_OPTION:
         case SCREEN__SAVE_LOAD:
         default:
@@ -12560,10 +12509,6 @@ void FOClient::SScriptFunc::Global_GetHardcodedScreenPos( int screen, int& x, in
         x = Self->PipX;
         y = Self->PipY;
         break;
-    case SCREEN__FIX_BOY:
-        x = Self->FixX;
-        y = Self->FixY;
-        break;
     case SCREEN__MENU_OPTION:
         x = Self->MoptX;
         y = Self->MoptY;
@@ -12656,9 +12601,6 @@ void FOClient::SScriptFunc::Global_DrawHardcodedScreen( int screen )
         break;
     case SCREEN__PIP_BOY:
         Self->PipDraw();
-        break;
-    case SCREEN__FIX_BOY:
-        Self->FixDraw();
         break;
     case SCREEN__MENU_OPTION:
         Self->MoptDraw();

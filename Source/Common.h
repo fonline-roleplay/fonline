@@ -608,7 +608,7 @@ struct GameOptions
     uint         FloodSize;
     bool         NoAnswerShuffle;
     bool         DialogDemandRecheck;
-    uint         FixBoyDefaultExperience;
+    uint         UnusedUint;
     uint         SneakDivider;
     uint         LevelCap;
     bool         LevelCapAddExperience;

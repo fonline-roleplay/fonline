@@ -60,11 +60,6 @@
 #define COLOR_TEXT_YELLOW                  COLOR_XRGB( 0xFF, 0xFF, 0 )
 #define COLOR_TEXT_GRAY                    COLOR_XRGB( 127, 127, 127 )
 
-#define COLOR_FIXBOY_TXT_TRUE			   COLOR_TEXT
-#define COLOR_FIXBOY_TXT_SELECT            COLOR_TEXT_DGREEN
-#define COLOR_FIXBOY_TXT_CLICK             COLOR_TEXT_YELLOW
-#define COLOR_FIXBOY_TXT_FALSE             COLOR_TEXT_GRAY
-
 // Default effects
 #define DEFAULT_EFFECT_CONTOUR             ( 0 )
 #define DEFAULT_EFFECT_GENERIC             ( 1 )

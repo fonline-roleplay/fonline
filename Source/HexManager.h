@@ -149,7 +149,6 @@ public:
     char&  GetHexTrack( ushort hx, ushort hy )  { return hexTrack[ hy * maxHexX + hx ]; }
     ushort GetMaxHexX()                         { return maxHexX; }
     ushort GetMaxHexY()                         { return maxHexY; }
-	void   SplitColorRGB( int Color,int& Red, int& Green, int& Blue );
     void   ClearHexToDraw()                     { memzero( hexToDraw, maxHexX * maxHexY * sizeof( bool ) ); }
     void   ClearHexTrack()                      { memzero( hexTrack, maxHexX * maxHexY * sizeof( char ) ); }
     void   SwitchShowTrack();

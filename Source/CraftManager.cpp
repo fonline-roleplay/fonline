@@ -121,36 +121,6 @@ void CraftItem::Clear()
     Experience = 0;
 }
 
-#ifdef FONLINE_CLIENT
-void CraftItem::SetName( FOMsg& msg_game, FOMsg& msg_item )
-{
-    Name = "";
-
-    // Out items
-    for( uint i = 0, j = (uint) OutItems.size(); i < j; i++ )
-    {
-        ProtoItem* proto = ItemMngr.GetProtoItem( OutItems[ i ] );
-
-        if( !proto )
-            Name += "???";
-        else
-            Name += msg_item.GetStr( proto->ProtoId * 100 );
-
-        if( OutItemsVal[ i ] > 1 )
-        {
-            Name += " ";
-            Name += Str::UItoA( OutItemsVal[ i ] );
-            Name += " ";
-            Name += msg_game.GetStr( STR_FIX_PIECES );
-        }
-
-        if( i == j - 1 )
-            break;
-        Name += msg_game.GetStr( STR_AND );
-    }
-}
-#endif // FONLINE_CLIENT
-
 template< class T >
 void SetStrMetadata( T& v, const char*& str )
 {
@@ -642,19 +612,6 @@ bool CraftManager::LoadCrafts( FOMsg& msg )
     return load_fail == 0;
 }
 
-#ifdef FONLINE_CLIENT
-void CraftManager::GenerateNames( FOMsg& msg_game, FOMsg& msg_item )
-{
-    auto it = itemCraft.begin();
-    auto it_end = itemCraft.end();
-
-    for( ; it != it_end; ++it )
-    {
-        ( *it ).second->SetName( msg_game, msg_item );
-    }
-}
-#endif // FONLINE_CLIENT
-
 void CraftManager::Finish()
 {
     auto it = itemCraft.begin();
@@ -1115,8 +1072,6 @@ int CraftManager::ProcessCraft( Critter* cr, uint num )
         cr->ChangeParam( ST_EXPERIENCE );
         if( craft->Experience )
             cr->Data.Params[ ST_EXPERIENCE ] += craft->Experience;
-        else if( GameOpt.FixBoyDefaultExperience )
-            cr->Data.Params[ ST_EXPERIENCE ] += GameOpt.FixBoyDefaultExperience;
     }
 
     CRAFT_RETURN_SUCC;

@@ -139,7 +139,6 @@ const char ClientSaveSignature[ 4 ] = { 'F', 'O', 0, CLIENT_SAVE_LAST };
 #define SAY_ENCOUNTER_ANY            ( 14 )
 #define SAY_ENCOUNTER_RT             ( 15 )
 #define SAY_ENCOUNTER_TB             ( 16 )
-#define SAY_FIX_RESULT               ( 17 )
 #define SAY_DIALOGBOX_TEXT           ( 18 )
 #define SAY_DIALOGBOX_BUTTON( b )             ( 19 + ( b ) ) // Max 20 buttons (0..19)
 #define SAY_SAY_TITLE                ( 39 )
@@ -393,7 +392,6 @@ const char ClientSaveSignature[ 4 ] = { 'F', 'O', 0, CLIENT_SAVE_LAST };
 #define SHOW_ELEVATOR                ( 6 )    // Elevator. Output: look ELEVATOR_* macro. Input I: Choosed level button.
 #define SHOW_SCREEN_INVENTORY        ( 7 )    // Inventory.
 #define SHOW_SCREEN_CHARACTER        ( 8 )    // Character.
-#define SHOW_SCREEN_FIXBOY           ( 9 )    // Fix-boy.
 #define SHOW_SCREEN_PIPBOY           ( 10 )   // Pip-boy.
 #define SHOW_SCREEN_MINIMAP          ( 11 )   // Mini-map.
 

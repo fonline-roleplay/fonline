@@ -257,11 +257,11 @@ void HexManager::ReloadSprites()
 
     // Rain
     picRainDrop = SprMngr.LoadAnimation( "drop.png", PT_ART_MISC, ANIM_USE_DUMMY );
-    for( int i = 0; i <= 6; i++ )
+    for( int i = 1; i <= 7; i++ )
     {
         char name[ 64 ];
         Str::Format( name, "adrop%d.png", i );
-        picRainDropA[ i ] = SprMngr.LoadAnimation( name, PT_ART_MISC, ANIM_USE_DUMMY );
+        picRainDropA[ i - 1 ] = SprMngr.LoadAnimation( name, PT_ART_MISC, ANIM_USE_DUMMY );
     }
 }
 
@@ -4715,83 +4715,3 @@ void HexManager::AffectCritter( MapObject* mobj, CritterCl* cr )
 }
 
 #endif // FONLINE_MAPPER
-
-
-
-#ifdef FONLINE_CLIENT
-#include <string> 
-#include <sstream>
-#include <iostream>
-#include <cmath>
-void HexManager::SplitColorRGB( int Color,int& Red, int& Green, int& Blue )//color ->  255000000  red,-> red255 green000 blue000
-{
-stringstream ss; 
-	ss << Color; 
-	string stringColor = ss.str();	
-	const char *number_arraySa = stringColor.c_str();
-
-	string s1 = "";
-	string s2 = "";
-	string s3 = "";
-		
-	bool RedBool = false;
-	bool GreenBool = false;
-	bool BlueBool = false;
-	
-	int Otstup = 0;
-	if (stringColor.length()==9){Otstup=0;RedBool=true;}
-	if (stringColor.length()==8){Otstup=1;RedBool=true;}
-	if (stringColor.length()==7){Otstup=2;RedBool=true;}
-	if (stringColor.length()==6){Otstup=0;GreenBool = true;}
-	if (stringColor.length()==5){Otstup=1;GreenBool = true;}
-	if (stringColor.length()==4){Otstup=2;GreenBool = true;}
-	if (stringColor.length()==3){Otstup=0;BlueBool = true;}
-	if (stringColor.length()==2){Otstup=1;BlueBool = true;}
-	if (stringColor.length()==1){Otstup=2;BlueBool = true;}
-
-	if (RedBool)
-	{
-			for(int i1 = 0+Otstup; i1 < 3; i1++)
-			{
-				s1 = s1 + number_arraySa[i1];
-			}
-			for(int i2 = 3; i2 < 6; i2++)
-			{
-				s2 = s2 + number_arraySa[i2];
-			}
-			for(int i3 = 6; i3 < 9; i3++)
-			{
-				s3 = s3 + number_arraySa[i3];
-			}
-	}
-	if (GreenBool)
-	{
-			s1 = "0";
-			for(int i1 = 0+Otstup; i1 < 3; i1++)
-			{
-				s2 = s2 + number_arraySa[i1];
-			}
-			for(int i2 = 3; i2 < 6; i2++)
-			{
-				s3 = s3 + number_arraySa[i2];
-			}
-	}
-	if (BlueBool)
-	{
-			s1 = "0";
-			s2 = "0";
-			for(int i1 = 0+Otstup; i1 < 3; i1++)
-			{
-				s3 = s3 + number_arraySa[i1];
-			}
-	}
-
-	istringstream sstrRRed (s1, istringstream::in);
-	sstrRRed >> Red;
-	istringstream sstrGGreen (s2, istringstream::in);
-	sstrGGreen >> Green;
-	istringstream sstrBBlue (s3, istringstream::in);
-	sstrBBlue >> Blue;
-}
-
-#endif // FONLINE_CLIENT

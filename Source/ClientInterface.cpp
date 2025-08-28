@@ -266,7 +266,6 @@ int FOClient::InitIface()
     IfaceLoadRect2( IntBMap, "IntMap", IntX, IntY );
     IfaceLoadRect2( IntBChar, "IntCha", IntX, IntY );
     IfaceLoadRect2( IntBPip, "IntPip", IntX, IntY );
-    IfaceLoadRect2( IntBFix, "IntFix", IntX, IntY );
     IfaceLoadRect2( IntWMess, "IntMess", IntX, IntY );
     IfaceLoadRect2( IntWMessLarge, "IntMessLarge", IntX, IntY );
     IfaceLoadRect2( IntHP, "IntHp", IntX, IntY );
@@ -496,7 +495,6 @@ int FOClient::InitIface()
     ChaVectX = 0;
     ChaVectY = 0;
     IfaceLoadRect( ChaBPrint, "ChaPrint" );
-    IfaceLoadRect( ChaBPrintText, "ChaPrintText" );
     IfaceLoadRect( ChaBOk, "ChaOk" );
     IfaceLoadRect( ChaBOkText, "ChaOkText" );
     IfaceLoadRect( ChaBCancel, "ChaCancel" );
@@ -662,7 +660,6 @@ int FOClient::InitIface()
     IfaceLoadRect2( GmapBMenu, "GmapMenu", GmapX, GmapY );
     IfaceLoadRect2( GmapBCha, "GmapCha", GmapX, GmapY );
     IfaceLoadRect2( GmapBPip, "GmapPip", GmapX, GmapY );
-    IfaceLoadRect2( GmapBFix, "GmapFix", GmapX, GmapY );
     GmapOffsetX = GmapWMap.W() / 2 + GmapWMap.L;
     GmapOffsetY = GmapWMap.H() / 2 + GmapWMap.T;
     IfaceLoadRect2( GmapWLock, "GmapLock", GmapX, GmapY );
@@ -700,7 +697,6 @@ int FOClient::InitIface()
     IfaceLoadRect( PupWInfo, "PupInfo" );
     IfaceLoadRect( PupWCont1, "PupCont1" );
     IfaceLoadRect( PupWCont2, "PupCont2" );
-    IfaceLoadRect( PupBTakeAll, "PupTakeAll" );
     IfaceLoadRect( PupBOk, "PupOk" );
     IfaceLoadRect( PupBScrUp1, "PupScrUp1" );
     IfaceLoadRect( PupBScrDw1, "PupScrDw1" );
@@ -733,7 +729,6 @@ int FOClient::InitIface()
     // Pipboy
     IfaceLoadRect( PipWMain, "PipMain" );
     IfaceLoadRect( PipWMonitor, "PipMonitor" );
-    IfaceLoadRect( PipBStatus, "PipStatus" );
     // IfaceLoadRect(PipBGames,"PipGames");
     IfaceLoadRect( PipBAutomaps, "PipAutomaps" );
     IfaceLoadRect( PipBArchives, "PipArchives" );
@@ -886,26 +881,6 @@ int FOClient::InitIface()
     TimerItemPic = 0;
     TimerItemColor = 0;
 
-    // FixBoy
-    IfaceLoadRect( FixWMain, "FixMain" );
-    IfaceLoadRect( FixBScrUp, "FixScrUp" );
-    IfaceLoadRect( FixBScrDn, "FixScrDn" );
-    IfaceLoadRect( FixBDone, "FixDone" );
-    IfaceLoadRect( FixWWin, "FixWin" );
-    IfaceLoadRect( FixBFix, "FixFix" );
-    FixVectX = 0;
-    FixVectY = 0;
-    FixX = ( MODE_WIDTH - FixWMain.W() ) / 2;
-    FixY = ( MODE_HEIGHT - FixWMain.H() ) / 2;
-    FixMode = FIX_MODE_LIST;
-    FixCurCraft = -1;
-    FixScrollLst = 0;
-    FixScrollFix = 0;
-    FixResult = 0;
-    FixResultStr = "";
-    FixShowCraft.clear();
-    FixNextShowCraftTick = 0;
-
     // Input box
     IfaceLoadRect( IboxWMain, "IboxMain" );
     IfaceLoadRect( IboxWTitle, "IboxTitle" );
@@ -997,7 +972,6 @@ int FOClient::InitIface()
     IfaceLoadSpr( IntPBMapDn, "IntMapPicDn" );
     IfaceLoadSpr( IntPBChaDn, "IntChaPicDn" );
     IfaceLoadSpr( IntPBPipDn, "IntPipPicDn" );
-    IfaceLoadSpr( IntPBFixDn, "IntFixPicDn" );
     IfaceLoadSpr( IntBItemPicDn, "IntItemPicDn" );
     IfaceLoadSpr( IntAimPic, "IntAimPic" );
     IfaceLoadSpr( IntWApCostPicNone, "IntApCostPic" );
@@ -1286,13 +1260,11 @@ int FOClient::InitIface()
     IfaceLoadSpr( GmapBMenuPicDown, "GmapMenuPicDn" );
     IfaceLoadSpr( GmapBChaPicDown, "GmapChaPicDn" );
     IfaceLoadSpr( GmapBPipPicDown, "GmapPipPicDn" );
-    IfaceLoadSpr( GmapBFixPicDown, "GmapFixPicDn" );
     IfaceLoadSpr( GmapPLightPic0, "GmapLightPic0" );
     IfaceLoadSpr( GmapPLightPic1, "GmapLightPic1" );
 
     // PickUp
     IfaceLoadSpr( PupPMain, "PupMainPic" );
-    IfaceLoadSpr( PupPTakeAllOn, "PupTAPicDn" );
     IfaceLoadSpr( PupPBOkOn, "PupOkPicDn" );
     IfaceLoadSpr( PupPBScrUpOn1, "PupScrUp1PicDn" );
     IfaceLoadSpr( PupPBScrUpOff1, "PupScrUp1PicOff" );
@@ -1310,7 +1282,6 @@ int FOClient::InitIface()
     // Pipboy
     IfaceLoadSpr( PipPMain, "PipMainPic" );
     IfaceLoadSpr( PipPWMonitor, "PipMonitorPic" );
-    IfaceLoadSpr( PipPBStatusDn, "PipStatusPicDn" );
     // IfaceLoadSpr(PipPBGamesDn,"PipGamesPicDn");
     IfaceLoadSpr( PipPBAutomapsDn, "PipAutomapsPicDn" );
     IfaceLoadSpr( PipPBArchivesDn, "PipArchivesPicDn" );
@@ -1345,13 +1316,6 @@ int FOClient::InitIface()
     IfaceLoadSpr( TimerBDownPicDown, "TimerDownPicDn" );
     IfaceLoadSpr( TimerBDonePicDown, "TimerDonePicDn" );
     IfaceLoadSpr( TimerBCancelPicDown, "TimerCancelPicDn" );
-
-    // FixBoy
-    IfaceLoadSpr( FixMainPic, "FixMainPic" );
-    IfaceLoadSpr( FixPBScrUpDn, "FixScrUpPicDn" );
-    IfaceLoadSpr( FixPBScrDnDn, "FixScrDnPicDn" );
-    IfaceLoadSpr( FixPBDoneDn, "FixDonePicDn" );
-    IfaceLoadSpr( FixPBFixDn, "FixFixPicDn" );
 
     // Input box
     IfaceLoadSpr( IboxWMainPicNone, "IboxMainPic" );
@@ -1705,6 +1669,36 @@ void FOClient::InvDraw()
         // Item info
         SprMngr.DrawStr( Rect( InvWText, InvX, InvY ), InvItemInfo.c_str(), FT_SKIPLINES( InvItemInfoScroll ) );
     }
+
+	if (IfaceHold == IFACE_INV_INV && InvHoldId)
+	{
+		Item* item = Chosen->GetItem(InvHoldId);
+		PointVec slotPoints;
+
+		switch (item->Proto->Slot)
+		{
+		case(SLOT_ARMOR):
+		{
+			slotPoints.push_back(PrepPoint(InvWArmor.L + InvX, InvWArmor.T + InvY, COLOR_ARGB(150, 100, 100, 100), NULL, NULL));
+			slotPoints.push_back(PrepPoint(InvWArmor.R + InvX, InvWArmor.T + InvY, COLOR_ARGB(150, 100, 100, 100), NULL, NULL));
+			slotPoints.push_back(PrepPoint(InvWArmor.L + InvX, InvWArmor.B + InvY, COLOR_ARGB(150, 100, 100, 100), NULL, NULL));
+			slotPoints.push_back(PrepPoint(InvWArmor.R + InvX, InvWArmor.B + InvY, COLOR_ARGB(150, 100, 100, 100), NULL, NULL));
+		}
+		break;
+		case(SLOT_INV):
+		case(SLOT_HAND1):
+		case(SLOT_HAND2):
+		{
+			slotPoints.push_back(PrepPoint(InvWSlot1.L + InvX, InvWSlot1.T + InvY, COLOR_ARGB(150, 100, 100, 100), NULL, NULL));
+			slotPoints.push_back(PrepPoint(InvWSlot1.R + InvX, InvWSlot1.T + InvY, COLOR_ARGB(150, 100, 100, 100), NULL, NULL));
+			slotPoints.push_back(PrepPoint(InvWSlot1.L + InvX, InvWSlot1.B + InvY, COLOR_ARGB(150, 100, 100, 100), NULL, NULL));
+			slotPoints.push_back(PrepPoint(InvWSlot1.R + InvX, InvWSlot1.B + InvY, COLOR_ARGB(150, 100, 100, 100), NULL, NULL));
+		}
+		break;
+		}
+
+		SprMngr.DrawPoints(slotPoints, PRIMITIVE_TRIANGLESTRIP);
+	}
 }
 
 void FOClient::InvLMouseDown()
@@ -2561,9 +2555,6 @@ void FOClient::GameKeyDown( uchar dik )
         case DIK_P:
             ShowScreen( SCREEN__PIP_BOY );
             break;
-        case DIK_F:
-            ShowScreen( SCREEN__FIX_BOY );
-            break;
         // case DIK_Z: PipBoy clock
         case DIK_O:
             ShowScreen( SCREEN__MENU_OPTION );
@@ -2835,9 +2826,6 @@ void FOClient::IntDraw()
     case IFACE_INT_PIP:
         SprMngr.DrawSprite( IntPBPipDn, IntBPip[ 0 ], IntBPip[ 1 ] );
         break;
-    case IFACE_INT_FIX:
-        SprMngr.DrawSprite( IntPBFixDn, IntBFix[ 0 ], IntBFix[ 1 ] );
-        break;
     case IFACE_INT_ITEM:
         SprMngr.DrawSprite( IntBItemPicDn, IntBItem[ 0 ], IntBItem[ 1 ] );
         break;
@@ -3006,8 +2994,6 @@ int FOClient::IntLMouseDown()
         IfaceHold = IFACE_INT_CHAR;
     else if( IsCurInRect( IntBPip ) )
         IfaceHold = IFACE_INT_PIP;
-    else if( IsCurInRect( IntBFix ) )
-        IfaceHold = IFACE_INT_FIX;
     else if( IsCurInRect( IntBAddMess ) )
         IfaceHold = IFACE_INT_ADDMESS;
     else if( IsCurInRect( IntBMessFilter1 ) )
@@ -3072,10 +3058,6 @@ void FOClient::IntLMouseUp()
     else if( IfaceHold == IFACE_INT_PIP && IsCurInRect( IntBPip ) )
     {
         ShowScreen( SCREEN__PIP_BOY );
-    }
-    else if( IfaceHold == IFACE_INT_FIX && IsCurInRect( IntBFix ) )
-    {
-        ShowScreen( SCREEN__FIX_BOY );
     }
     else if( IfaceHold == IFACE_INT_ITEM && IsCurInRect( IntBItem ) )
     {
@@ -5564,13 +5546,6 @@ void FOClient::ShowScreen( int screen, int p0, int p1, int p2 )
         PipMode = PIP__NONE;
         PipMouseMove();
         break;
-    case SCREEN__FIX_BOY:
-        SetCurMode( CUR_DEFAULT );
-        FixMode = FIX_MODE_LIST;
-        FixCurCraft = -1;
-        FixGenerate( FIX_MODE_LIST );
-        FixMouseMove();
-        break;
     case SCREEN__MENU_OPTION:
         SetCurMode( CUR_DEFAULT );
         break;
@@ -6308,9 +6283,6 @@ void FOClient::GmapDraw()
     case IFACE_GMAP_PIP:
         SprMngr.DrawSprite( GmapBPipPicDown, GmapBPip[ 0 ], GmapBPip[ 1 ] );
         break;
-    case IFACE_GMAP_FIX:
-        SprMngr.DrawSprite( GmapBFixPicDown, GmapBFix[ 0 ], GmapBFix[ 1 ] );
-        break;
     default:
         break;
     }
@@ -6483,8 +6455,6 @@ void FOClient::GmapLMouseDown()
         IfaceHold = IFACE_GMAP_CHA;
     else if( IsCurInRect( GmapBPip ) )
         IfaceHold = IFACE_GMAP_PIP;
-    else if( IsCurInRect( GmapBFix ) )
-        IfaceHold = IFACE_GMAP_FIX;
     else if( IsCurInRect( GmapBTabsScrUp ) )
     {
         IfaceHold = IFACE_GMAP_TABSCRUP;
@@ -6655,8 +6625,6 @@ void FOClient::GmapLMouseUp()
     }
     else if( IfaceHold == IFACE_GMAP_PIP && IsCurInRect( GmapBPip ) )
         ShowScreen( SCREEN__PIP_BOY );
-    else if( IfaceHold == IFACE_GMAP_FIX && IsCurInRect( GmapBFix ) )
-        ShowScreen( SCREEN__FIX_BOY );
 
     IfaceHold = IFACE_NONE;
 }
@@ -6722,9 +6690,6 @@ void FOClient::GmapKeyDown( uchar dik )
         break;
     case DIK_P:
         ShowScreen( SCREEN__PIP_BOY );
-        break;
-    case DIK_F:
-        ShowScreen( SCREEN__FIX_BOY );
         break;
     case DIK_O:
         ShowScreen( SCREEN__MENU_OPTION );
@@ -7322,8 +7287,7 @@ void FOClient::ChaDraw( bool is_reg )
             SprMngr.DrawSprite( ChaPBSwitchScrDnUp, ChaBSwitchScrDn[ 0 ] + ChaX, ChaBSwitchScrDn[ 1 ] + ChaY );
     }
 
-    // Print, Ok, Cancel button texts
-    SprMngr.DrawStr( Rect( ChaBPrintText, ChaX, ChaY ), MsgGame->GetStr( STR_CHA_PRINT ), FT_NOBREAK | FT_CENTERY, COLOR_TEXT_SAND, FONT_FAT );
+    // Ok, Cancel button texts
     SprMngr.DrawStr( Rect( ChaBOkText, ChaX, ChaY ), MsgGame->GetStr( STR_CHA_OK ), FT_NOBREAK | FT_CENTERY, COLOR_TEXT_SAND, FONT_FAT );
     SprMngr.DrawStr( Rect( ChaBCancelText, ChaX, ChaY ), MsgGame->GetStr( STR_CHA_CANCEL ), FT_NOBREAK | FT_CENTERY, COLOR_TEXT_SAND, FONT_FAT );
 
@@ -8548,9 +8512,6 @@ void FOClient::PipDraw()
 
     switch( IfaceHold )
     {
-    case IFACE_PIP_STATUS:
-        SprMngr.DrawSprite( PipPBStatusDn, PipBStatus[ 0 ] + PipX, PipBStatus[ 1 ] + PipY );
-        break;
     // case IFACE_PIP_GAMES: SprMngr.DrawSprite(PipPBGamesDn,PipBGames[0]+PipX,PipBGames[1]+PipY); break;
     case IFACE_PIP_AUTOMAPS:
         SprMngr.DrawSprite( PipPBAutomapsDn, PipBAutomaps[ 0 ] + PipX, PipBAutomaps[ 1 ] + PipY );
@@ -8834,10 +8795,8 @@ void FOClient::PipLMouseDown()
     int h = r.H() / ml;
     int scr = -(int) PipScroll[ PipMode ];
 
-    if( IsCurInRect( PipBStatus, PipX, PipY ) )
-        IfaceHold = IFACE_PIP_STATUS;
     // else if(IsCurInRect(PipBGames,PipX,PipY)) PipHold=IFACE_PIP_GAMES;
-    else if( IsCurInRect( PipBAutomaps, PipX, PipY ) )
+    if( IsCurInRect( PipBAutomaps, PipX, PipY ) )
         IfaceHold = IFACE_PIP_AUTOMAPS;
     else if( IsCurInRect( PipBArchives, PipX, PipY ) )
         IfaceHold = IFACE_PIP_ARCHIVES;
@@ -8962,11 +8921,6 @@ void FOClient::PipLMouseUp()
 {
     switch( IfaceHold )
     {
-    /*case IFACE_PIP_STATUS:
-        if( !IsCurInRect( PipBStatus, PipX, PipY ) )
-            break;
-        PipMode = PIP__STATUS;
-        break;*/
 //	case IFACE_PIP_GAMES:
 //		if(!IsCurInRect(PipBGames,PipX,PipY)) break;
 //		PipMode=PIP__GAMES;
@@ -9280,10 +9234,6 @@ void FOClient::PupDraw()
     if( IfaceHold == IFACE_PUP_OK )
         SprMngr.DrawSprite( PupPBOkOn, PupBOk[ 0 ] + PupX, PupBOk[ 1 ] + PupY );
 
-    // Button Take All
-    if( IfaceHold == IFACE_PUP_TAKEALL )
-        SprMngr.DrawSprite( PupPTakeAllOn, PupBTakeAll[ 0 ] + PupX, PupBTakeAll[ 1 ] + PupY );
-
     // Scrolling Buttons Window 1
     if( PupScroll1 <= 0 )
         SprMngr.DrawSprite( PupPBScrUpOff1, PupBScrUp1[ 0 ] + PupX, PupBScrUp1[ 1 ] + PupY );
@@ -9368,8 +9318,6 @@ void FOClient::PupLMouseDown()
         Timer::StartAccelerator( ACCELERATE_PUP_SCRDOWN2 );
         IfaceHold = IFACE_PUP_SCRDOWN2;
     }
-    else if( IsCurInRect( PupBTakeAll, PupX, PupY ) )
-        IfaceHold = IFACE_PUP_TAKEALL;
     else if( IsCurInRect( PupBNextCritLeft, PupX, PupY ) && PupGetLootCrits().size() > 1 )
     {
         if( Chosen->IsFree() && ChosenAction.empty() )
@@ -9475,15 +9423,6 @@ void FOClient::PupLMouseUp()
             break;
         if( PupScroll2 < (int) PupCont2.size() - ( PupWCont1[ 3 ] - PupWCont1[ 1 ] ) / PupHeightItem1 )
             PupScroll2++;
-    }
-    break;
-    case IFACE_PUP_TAKEALL:
-    {
-        if( PupTransferType == TRANSFER_CRIT_STEAL )
-            break;
-        if( !IsCurInRect( PupBTakeAll, PupX, PupY ) )
-            break;
-        SetAction( CHOSEN_TAKE_ALL );
     }
     break;
     case IFACE_PUP_SCRCR_L:
@@ -10865,521 +10804,6 @@ void FOClient::TimerMouseMove()
             TimerY = 0;
         if( TimerY + TimerWMain[ 3 ] > MODE_HEIGHT )
             TimerY = MODE_HEIGHT - TimerWMain[ 3 ];
-    }
-}
-
-// ==============================================================================================================================
-// ******************************************************************************************************************************
-// ==============================================================================================================================
-
-void FOClient::FixGenerate( int fix_mode )
-{
-    if( !Chosen )
-    {
-        ShowScreen( SCREEN_NONE );
-        return;
-    }
-
-    FixMode = fix_mode;
-
-    if( fix_mode == FIX_MODE_LIST )
-    {
-        FixCraftLst.clear();
-
-        CraftItemVec true_crafts;
-        MrFixit.GetShowCrafts( Chosen, true_crafts );
-
-        SCraftVec scraft_vec;
-        UIntVec script_craft;
-        for( uint i = 0, cur_height = 0; i < true_crafts.size(); ++i )
-        {
-            CraftItem* craft = true_crafts[ i ];
-
-            if( craft->Script.length() )
-            {
-                script_craft.push_back( craft->Num );
-                if( !FixShowCraft.count( craft->Num ) )
-                    continue;
-            }
-
-            Rect pos( FixWWin[ 0 ], FixWWin[ 1 ] + cur_height, FixWWin[ 2 ], FixWWin[ 1 ] + cur_height + 100 );
-            int line_height = SprMngr.GetLinesHeight( FixWWin.W(), 0, craft->Name.c_str() );
-
-            cur_height += line_height;
-            pos.B = FixWWin[ 1 ] + cur_height;
-
-            if( (int) cur_height > FixWWin.H() )
-            {
-                FixCraftLst.push_back( scraft_vec );
-                scraft_vec.clear();
-
-                i--;
-                cur_height = 0;
-                continue;
-
-                pos.T = FixWWin[ 1 ];
-                pos.B = FixWWin[ 1 ] + line_height;
-                cur_height = line_height;
-            }
-
-            scraft_vec.push_back( SCraft( pos, craft->Name, craft->Num, MrFixit.IsTrueCraft( Chosen, craft->Num ) ) );
-        }
-
-        if( !scraft_vec.empty() )
-            FixCraftLst.push_back( scraft_vec );
-        if( script_craft.size() && Timer::FastTick() >= FixNextShowCraftTick )
-            Net_SendCraftAsk( script_craft );
-    }
-    else if( fix_mode == FIX_MODE_FIXIT )
-    {
-        SCraftVec* cur_vec = GetCurSCrafts();
-        if( !cur_vec || FixCurCraft >= (int) cur_vec->size() )
-        {
-            ShowScreen( SCREEN_NONE );
-            return;
-        }
-
-        SCraft* scraft = &( *cur_vec )[ FixCurCraft ];
-        CraftItem* craft = MrFixit.GetCraft( scraft->Num );
-
-        if( !craft )
-        {
-            ShowScreen( SCREEN_NONE );
-            return;
-        }
-
-        Rect r( FixWWin[ 0 ], FixWWin[ 1 ], FixWWin[ 2 ], FixWWin[ 1 ] );
-        string str;
-        int x;
-
-        for( uint i = 0, j = (uint) FixDrawComp.size(); i < j; i++ )
-            delete FixDrawComp[ i ];
-        FixDrawComp.clear();
-
-        // Out items
-        UCharVec tmp_vec;            // Temp vector
-        for( uint i = 0; i < craft->OutItems.size(); i++ )
-            tmp_vec.push_back( 0 );  // Push AND
-        FixGenerateItems( craft->OutItems, craft->OutItemsVal, tmp_vec, str, r, x );
-
-        // About
-        if( craft->Info.length() )
-        {
-            str = "\n";
-            str += craft->Info;
-            str += "\n";
-            FixGenerateStrLine( str, r );
-        }
-
-        // Need params
-        if( craft->NeedPNum.size() )
-        {
-            str = "\n";
-            str += MsgGame->GetStr( STR_FIX_PARAMS );
-            str += "\n";
-            for( uint i = 0, j = (uint) craft->NeedPNum.size(); i < j; i++ )
-            {
-                // Need
-                str += MsgGame->GetStr( STR_PARAM_NAME_( craft->NeedPNum[ i ] ) );
-                str += " ";
-                str += Str::ItoA( craft->NeedPVal[ i ] );
-
-                if( craft->NeedPNum[ i ] >= SKILL_BEGIN && craft->NeedPNum[ i ] <= SKILL_END )
-                    str += "%";
-
-                // You have
-                str += " (";
-                str += MsgGame->GetStr( STR_FIX_YOUHAVE );
-                str += Str::ItoA( Chosen->GetParam( craft->NeedPNum[ i ] ) );
-                str += ")";
-
-                // And, or
-                if( i == j - 1 )
-                    break;
-
-                str += "\n";
-                if( craft->NeedPOr[ i ] )
-                    str += MsgGame->GetStr( STR_OR );
-                else
-                    str += MsgGame->GetStr( STR_AND );
-            }
-            FixGenerateStrLine( str, r );
-        }
-
-        // Need tools
-        if( craft->NeedTools.size() )
-        {
-            str = "\n";
-            str += MsgGame->GetStr( STR_FIX_TOOLS );
-            FixGenerateStrLine( str, r );
-            FixGenerateItems( craft->NeedTools, craft->NeedToolsVal, craft->NeedToolsOr, str, r, x );
-        }
-
-        // Need items
-        if( craft->NeedItems.size() )
-        {
-            str = "\n";
-            str += MsgGame->GetStr( STR_FIX_ITEMS );
-            FixGenerateStrLine( str, r );
-            FixGenerateItems( craft->NeedItems, craft->NeedItemsVal, craft->NeedItemsOr, str, r, x );
-        }
-    }
-    else if( fix_mode == FIX_MODE_RESULT )
-    {
-        FixResultStr = "ERROR RESULT";
-
-        switch( FixResult )
-        {
-        case CRAFT_RESULT_NONE:
-            FixResultStr = "...";
-            break;
-        case CRAFT_RESULT_SUCC:
-            FixResultStr = MsgGame->GetStr( STR_FIX_SUCCESS );
-            break;
-        case CRAFT_RESULT_FAIL:
-            FixResultStr = MsgGame->GetStr( STR_FIX_FAIL );
-            break;
-        case CRAFT_RESULT_TIMEOUT:
-            FixResultStr = MsgGame->GetStr( STR_FIX_TIMEOUT );
-            break;
-        default:
-            break;
-        }
-    }
-}
-
-void FOClient::FixGenerateStrLine( string& str, Rect& r )
-{
-    r.B += SprMngr.GetLinesHeight( FixWWin.W(), 0, str.c_str() );
-    FixDrawComp.push_back( new FixDrawComponent( r, str ) );
-    r.T = r.B;
-}
-
-void FOClient::FixGenerateItems( UShortVec& items_vec, UIntVec& val_vec, UCharVec& or_vec, string& str, Rect& r, int& x )
-{
-    str = "";
-    for( uint i = 0, j = (uint) items_vec.size(); i < j; i++ )
-    {
-        uint color = COLOR_TEXT;
-        if( Chosen->CountItemPid( items_vec[ i ] ) < val_vec[ i ] )
-            color = COLOR_TEXT_DGREEN;
-
-        str += "|";
-        str += Str::FormatBuf( "%u", color );
-        str += " ";
-
-        if( i > 0 )
-        {
-            if( or_vec[ i - 1 ] )
-                str += MsgGame->GetStr( STR_OR );
-            else
-                str += MsgGame->GetStr( STR_AND );
-        }
-
-        ProtoItem* proto = ItemMngr.GetProtoItem( items_vec[ i ] );
-        if( !proto )
-            str += "???";
-        else
-            str += MsgItem->GetStr( proto->ProtoId * 100 );
-
-        if( val_vec[ i ] > 1 )
-        {
-            str += " ";
-            str += Str::UItoA( val_vec[ i ] );
-            str += " ";
-            str += MsgGame->GetStr( STR_FIX_PIECES );
-        }
-
-        str += "\n";
-    }
-
-    FixGenerateStrLine( str, r );
-
-    x = FixWWin[ 0 ] + FixWWin.W() / 2 - FIX_DRAW_PIC_WIDTH / 2 * (uint) items_vec.size();
-    for( uint i = 0, j = (uint) items_vec.size(); i < j; i++, x += FIX_DRAW_PIC_WIDTH )
-    {
-        ProtoItem* proto = ItemMngr.GetProtoItem( items_vec[ i ] );
-        if( !proto )
-            continue;
-
-        AnyFrames* anim = ResMngr.GetInvAnim( proto->PicInv );
-        if( !anim )
-            continue;
-
-        Rect r2 = r;
-        r2.L = x;
-        r2.R = x + FIX_DRAW_PIC_WIDTH;
-        r2.B += FIX_DRAW_PIC_HEIGHT;
-
-        FixDrawComp.push_back( new FixDrawComponent( r2, anim ) );
-    }
-    r.B += FIX_DRAW_PIC_HEIGHT;
-    r.T = r.B;
-}
-
-
-int FOClient::GetMouseCraft()
-{
-    if( IfaceHold != IFACE_NONE )
-        return -1;
-    if( !IsCurInRect( FixWWin, FixX, FixY ) )
-        return -1;
-
-    SCraftVec* cur_vec = GetCurSCrafts();
-    if( !cur_vec )
-        return -1;
-
-    for( uint i = 0, j = (uint) cur_vec->size(); i < j; i++ )
-    {
-        SCraft* scraft = &( *cur_vec )[ i ];
-        if( IsCurInRect( scraft->Pos, FixX, FixY ) )
-            return i;
-    }
-
-    return -1;
-}
-
-FOClient::SCraftVec* FOClient::GetCurSCrafts()
-{
-    if( FixCraftLst.empty() )
-        return NULL;
-    if( FixScrollLst >= (int) FixCraftLst.size() )
-        FixScrollLst = (int) FixCraftLst.size() - 1;
-    return &FixCraftLst[ FixScrollLst ];
-}
-
-void FOClient::FixDraw()
-{
-    SprMngr.DrawSprite( FixMainPic, FixWMain[ 0 ] + FixX, FixWMain[ 1 ] + FixY );
-
-    switch( IfaceHold )
-    {
-    case IFACE_FIX_SCRUP:
-        SprMngr.DrawSprite( FixPBScrUpDn, FixBScrUp[ 0 ] + FixX, FixBScrUp[ 1 ] + FixY );
-        break;
-    case IFACE_FIX_SCRDN:
-        SprMngr.DrawSprite( FixPBScrDnDn, FixBScrDn[ 0 ] + FixX, FixBScrDn[ 1 ] + FixY );
-        break;
-    case IFACE_FIX_DONE:
-        SprMngr.DrawSprite( FixPBDoneDn, FixBDone[ 0 ] + FixX, FixBDone[ 1 ] + FixY );
-        break;
-    case IFACE_FIX_FIX:
-        SprMngr.DrawSprite( FixPBFixDn, FixBFix[ 0 ] + FixX, FixBFix[ 1 ] + FixY );
-        break;
-    default:
-        break;
-    }
-
-    if( FixMode != FIX_MODE_FIXIT )
-        SprMngr.DrawSprite( FixPBFixDn, FixBFix[ 0 ] + FixX, FixBFix[ 1 ] + FixY );
-
-    if( FixMode == FIX_MODE_FIXIT )
-    {
-        for( uint i = 0, j = (uint) FixDrawComp.size(); i < j; i++ )
-        {
-            FixDrawComponent* c = FixDrawComp[ i ];
-            if( !c->IsText )
-                SprMngr.DrawSpriteSize( c->Anim, c->Place.L + FixX, c->Place.T + FixY, (float) c->Place.W(), (float) c->Place.H(), false, true );
-        }
-    }
-
-    SprMngr.Flush();
-
-    switch( FixMode )
-    {
-    case FIX_MODE_LIST:
-    {
-        // Crafts names
-        SCraftVec* cur_vec = GetCurSCrafts();
-        if( !cur_vec )
-            break;
-
-        for( uint i = 0, j = (uint) cur_vec->size(); i < j; i++ )
-        {
-            SCraft* scraft = &( *cur_vec )[ i ];
-            uint col = COLOR_FIXBOY_TXT_TRUE;
-            if( !scraft->IsTrue )
-                col = COLOR_FIXBOY_TXT_FALSE;
-            if( i == (uint) FixCurCraft )
-            {
-                if( IfaceHold == IFACE_FIX_CHOOSE )
-                    col = COLOR_FIXBOY_TXT_CLICK;
-                else
-                    col = COLOR_FIXBOY_TXT_SELECT;
-            }
-
-            SprMngr.DrawStr( Rect( scraft->Pos, FixX, FixY ), scraft->Name.c_str(), 0, col );
-        }
-
-        // Number of page
-        char str[ 64 ];
-        Str::Format( str, "%u/%u", FixScrollLst + 1, FixCraftLst.size() );
-        SprMngr.DrawStr( Rect( FixWWin[ 2 ] - 30 + FixX, FixWWin[ 3 ] - 15 + FixY, FixWWin[ 2 ] + FixX, FixWWin[ 3 ] + FixY ), str, FT_NOBREAK );
-    }
-    break;
-    case FIX_MODE_FIXIT:
-    {
-        for( uint i = 0, j = (uint) FixDrawComp.size(); i < j; i++ )
-        {
-            FixDrawComponent* c = FixDrawComp[ i ];
-            if( c->IsText )
-                SprMngr.DrawStr( Rect( c->Place, FixX, FixY ), c->Text.c_str(), FT_CENTERX );
-        }
-    }
-    break;
-    case FIX_MODE_RESULT:
-    {
-        SprMngr.DrawStr( Rect( FixWWin, FixX, FixY ), FixResultStr.c_str(), FT_CENTERX );
-    }
-    break;
-    default:
-        break;
-    }
-}
-
-void FOClient::FixLMouseDown()
-{
-    IfaceHold = IFACE_NONE;
-    if( !IsCurInRect( FixWMain, FixX, FixY ) )
-        return;
-
-    if( IsCurInRect( FixBScrUp, FixX, FixY ) )
-        IfaceHold = IFACE_FIX_SCRUP;
-    else if( IsCurInRect( FixBScrDn, FixX, FixY ) )
-        IfaceHold = IFACE_FIX_SCRDN;
-    else if( IsCurInRect( FixBDone, FixX, FixY ) )
-        IfaceHold = IFACE_FIX_DONE;
-    else if( IsCurInRect( FixBFix, FixX, FixY ) )
-        IfaceHold = IFACE_FIX_FIX;
-    else if( FixMode == FIX_MODE_LIST && IsCurInRect( FixWWin, FixX, FixY ) )
-    {
-        FixCurCraft = GetMouseCraft();
-        if( FixCurCraft != -1 )
-            IfaceHold = IFACE_FIX_CHOOSE;
-    }
-
-    if( IfaceHold != IFACE_NONE )
-        return;
-
-    FixVectX = GameOpt.MouseX - FixX;
-    FixVectY = GameOpt.MouseY - FixY;
-    IfaceHold = IFACE_FIX_MAIN;
-}
-
-void FOClient::FixLMouseUp()
-{
-    switch( IfaceHold )
-    {
-    case IFACE_FIX_SCRUP:
-    {
-        if( !IsCurInRect( FixBScrUp, FixX, FixY ) )
-            break;
-
-        if( FixMode == FIX_MODE_LIST )
-        {
-            if( FixScrollLst > 0 )
-                FixScrollLst--;
-        }
-        else if( FixMode == FIX_MODE_FIXIT )
-        {
-            if( FixScrollFix > 0 )
-                FixScrollFix--;
-        }
-    }
-    break;
-    case IFACE_FIX_SCRDN:
-    {
-        if( !IsCurInRect( FixBScrDn, FixX, FixY ) )
-            break;
-
-        if( FixMode == FIX_MODE_LIST )
-        {
-            if( FixScrollLst < (int) FixCraftLst.size() - 1 )
-                FixScrollLst++;
-        }
-        else if( FixMode == FIX_MODE_FIXIT )
-        {
-            if( FixScrollFix < (int) FixCraftFix.size() - 1 )
-                FixScrollFix++;
-        }
-    }
-    break;
-    case IFACE_FIX_DONE:
-    {
-        if( !IsCurInRect( FixBDone, FixX, FixY ) )
-            break;
-
-        if( FixMode != FIX_MODE_LIST )
-            FixGenerate( FIX_MODE_LIST );
-        else
-            ShowScreen( SCREEN_NONE );
-    }
-    break;
-    case IFACE_FIX_FIX:
-    {
-        if( !IsCurInRect( FixBFix, FixX, FixY ) )
-            break;
-        if( FixMode != FIX_MODE_FIXIT )
-            break;
-
-        SCraftVec* cur_vec = GetCurSCrafts();
-        if( !cur_vec )
-            break;
-        if( FixCurCraft >= (int) cur_vec->size() )
-            break;
-
-        SCraft& craft = ( *cur_vec )[ FixCurCraft ];
-        uint num = craft.Num;
-
-        FixResult = CRAFT_RESULT_NONE;
-        FixGenerate( FIX_MODE_RESULT );
-        Net_SendCraft( num );
-        WaitPing();
-    }
-    break;
-    case IFACE_FIX_CHOOSE:
-    {
-        if( FixMode != FIX_MODE_LIST )
-            break;
-        if( FixCurCraft < 0 )
-            break;
-        IfaceHold = IFACE_NONE;
-        if( FixCurCraft != GetMouseCraft() )
-            break;
-        SCraftVec* cur_vec = GetCurSCrafts();
-        if( !cur_vec )
-            break;
-        if( FixCurCraft >= (int) cur_vec->size() )
-            break;
-
-        FixGenerate( FIX_MODE_FIXIT );
-    }
-    break;
-    default:
-        break;
-    }
-
-    IfaceHold = IFACE_NONE;
-}
-
-void FOClient::FixMouseMove()
-{
-    if( FixMode == FIX_MODE_LIST && IfaceHold == IFACE_NONE )
-        FixCurCraft = GetMouseCraft();
-
-    if( IfaceHold == IFACE_FIX_MAIN )
-    {
-        FixX = GameOpt.MouseX - FixVectX;
-        FixY = GameOpt.MouseY - FixVectY;
-
-        if( FixX < 0 )
-            FixX = 0;
-        if( FixX + FixWMain[ 2 ] > MODE_WIDTH )
-            FixX = MODE_WIDTH - FixWMain[ 2 ];
-        if( FixY < 0 )
-            FixY = 0;
-        if( FixY + FixWMain[ 3 ] > MODE_HEIGHT )
-            FixY = MODE_HEIGHT - FixWMain[ 3 ];
     }
 }
 

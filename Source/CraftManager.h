@@ -64,9 +64,6 @@ public:
     void AddRef()  {}
     void Release() {}
 // Set, get parse
-    #ifdef FONLINE_CLIENT
-    void SetName( FOMsg& msg_game, FOMsg& msg_item );
-    #endif
 
     int         SetStr( uint num, const char* str );
     const char* GetStr( bool metadata );
@@ -110,11 +107,6 @@ public:
 
     // Return fail crafts
     bool LoadCrafts( FOMsg& msg );
-
-    #ifdef FONLINE_CLIENT
-    // Item manager must be init!
-    void GenerateNames( FOMsg& msg_game, FOMsg& msg_item );
-    #endif
 
     void Finish();
 
