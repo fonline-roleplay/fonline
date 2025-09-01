@@ -756,9 +756,6 @@ public:
 	void Send_CollectionFile(FileSendBuffer * filebuffer, int collection_type, int p0, int p1, int p2);
 #endif
 
-    void Send_WorkCollectionFileContext( );
-    bool Send_PrepareCollectionFileContext( const CollectionFile* file, uint packet_size );
-
     // Locations
     bool CheckKnownLocById( uint loc_id ) const;
     bool CheckKnownLocByPid( ushort loc_pid ) const;
