@@ -112,3 +112,7 @@ uint Timer_GameTick() {
 uint Timer_FastTick() {
 	return Timer::FastTick();
 }
+
+ServerGameOptions* Server_GameOptions() {
+    return &GameOpt;
+}
