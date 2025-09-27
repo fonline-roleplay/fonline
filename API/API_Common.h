@@ -15,4 +15,10 @@
 typedef unsigned int     uint;
 typedef unsigned char    uchar;
 typedef unsigned short   ushort;
+#ifdef FO_X86
+    typedef unsigned int        size_t;
+#elif defined(FO_X64)
+    typedef __SIZE_TYPE__       size_t;
+#endif
+
 #endif //__API_IMPL__

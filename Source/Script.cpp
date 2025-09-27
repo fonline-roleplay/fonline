@@ -2561,11 +2561,12 @@ void Script::SetArgAddress( void* value )
 }
 
 // Taked from AS sources
-#if defined ( FO_MSVC )
+#ifdef FO_X86
+#if defined( FO_MSVC )
 uint64 CallCDeclFunction32( const size_t* args, size_t paramSize, size_t func )
-#else
+#elif defined( FO_GCC )
 uint64 __attribute( ( __noinline__ ) ) CallCDeclFunction32( const size_t * args, size_t paramSize, size_t func )
-#endif
+#endif //  FO_MSVC or FO_GCC
 {
     volatile asQWORD retQW = 0;
 
@@ -2688,10 +2689,11 @@ endcopy:
 		: "%eax", "%ecx"            // clobber
 		);
 
-#endif
+#endif //  FO_MSVC or FO_GCC
 
     return retQW;
 }
+#endif // FO_X86
 
 bool Script::RunPrepared()
 {
@@ -2756,7 +2758,9 @@ bool Script::RunPrepared()
     }
     else
     {
+        #ifdef FO_X86
         *( (uint64*) NativeRetValue ) = CallCDeclFunction32( NativeArgs, CurrentArg * 4, NativeFuncAddr );
+        #endif
         ScriptCall = false;
     }
 
