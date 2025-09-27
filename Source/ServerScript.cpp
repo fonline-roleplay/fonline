@@ -6536,6 +6536,7 @@ bool FOServer::SScriptFunc::CheckLook( Map& map, LookData& look, LookData& hide,
     return result.IsLook;
 }
 
+#ifndef DISABLE_COLLECTION_FILE
 void FOServer::SScriptFunc::Crit_SendFileToClient( Critter* critter, ScriptString& filePath )
 {
     if( critter->IsNotValid )
@@ -6557,6 +6558,7 @@ void FOServer::SScriptFunc::Crit_SendFileToClient( Critter* critter, ScriptStrin
 
     file->Release( );
 }
+#endif // DISABLE_COLLECTION_FILE
 
 ScriptString* FOServer::SScriptFunc::CraftItem_GetScriptName(CraftItem* craft)
 {

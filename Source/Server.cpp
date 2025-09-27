@@ -1903,18 +1903,6 @@ void FOServer::Process( ClientPtr& cl )
             cl->Bin.SkipMsg( msg );
             BIN_END( cl );
         }
-
-        auto dataExt = cl->GetDataExt( );
-        if( dataExt )
-        {
-/*            if( !dataExt->FileCollectionContext.IsBusy )
-            {
-                if( !dataExt->QueueFileRecive.empty( ) )
-                {
-
-                }
-            }*/
-        }
     }
 }
 

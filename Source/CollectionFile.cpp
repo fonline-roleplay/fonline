@@ -1,4 +1,4 @@
-
+#ifndef DISABLE_COLLECTION_FILE
 #include <iostream>
 #include <fstream>
 
@@ -94,3 +94,4 @@ void CollectionFile::Close( CollectionFile* file )
 
     delete file;
 }
+#endif // DISABLE_COLLECTION_FILE

@@ -957,7 +957,9 @@ public:
         static LookData* Map_GetLookData(Map* map);
         static void Crit_UpdateLookData(Critter* critter);
         static bool CheckLook( Map& map, LookData& look, LookData& hide, bool& isView, bool& isHear, bool isDebug );
+        #ifndef DISABLE_COLLECTION_FILE
         static void Crit_SendFileToClient( Critter* critter, ScriptString& file );
+        #endif // DISABLE_COLLECTION_FILE
     } ScriptFunc;
 };
 

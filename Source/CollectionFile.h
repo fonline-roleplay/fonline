@@ -1,4 +1,4 @@
-
+#ifndef DISABLE_COLLECTION_FILE
 #ifndef FONLINE_COLLECTION_FILE
 #define FONLINE_COLLECTION_FILE
 
@@ -34,3 +34,4 @@ public:
 };
 
 #endif
+#endif // DISABLE_COLLECTION_FILE
