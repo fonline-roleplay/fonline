@@ -286,6 +286,18 @@ int ScriptFile::Open( const ScriptString& filename, const ScriptString& mode )
 
     std::string myFilename = filename.c_std_str();
 
+    // Change to valid slash
+    for( auto it=myFilename.begin(); it!=myFilename.end(); ++it )
+    {
+        #if defined ( FO_WINDOWS )
+        if( *it == '/' )
+            *it = '\\';
+        #else
+        if( *it == '\\' )
+            *it = '/';
+        #endif
+    }
+
     // Validate the mode
     string m;
     #if AS_WRITE_OPS == 1
