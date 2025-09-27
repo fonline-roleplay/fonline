@@ -16,5 +16,6 @@ EXPORT int Script_RegisterObjectMethod(const char *obj, const char *declaration,
 EXPORT int Script_RegisterObjectBehaviour(const char *obj, asEBehaviours behaviour, const char *declaration, const asSFuncPtr &funcPointer, asDWORD callConv);
 
 EXPORT ScriptString* Script_String(const char *str);
+EXPORT const char* Script_String_c_str(const ScriptString *string);
 
 #endif // __API_ANGELSCRIPT__

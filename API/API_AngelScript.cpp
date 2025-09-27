@@ -42,3 +42,7 @@ int Script_RegisterObjectBehaviour(const char *obj, asEBehaviours behaviour, con
 ScriptString* Script_String(const char *c_str) {
 	return new ScriptString(c_str);
 }
+
+const char* Script_String_c_str(const ScriptString *string) {
+	return string->c_str();
+}
