@@ -1,6 +1,9 @@
 #include "StdAfx.h"
 #include "Server.h"
+
+#ifndef SERVER_LIB
 #include "FL/Fl.H"
+#endif // SERVER_LIB
 
 #include "md5.h"
 
@@ -364,6 +367,7 @@ void FOServer::RemoveClient( Client* cl )
             DeleteClientFile( cl->Name );
         }
 
+#ifndef DISABLE_AVATARS
 		auto file = FileSendBuffer::GetDownloadFileBuffer( id );
 		if( file )
 		{
@@ -378,6 +382,7 @@ void FOServer::RemoveClient( Client* cl )
 			file->FreeUpload(id);
 			file = nullptr;
 		}
+#endif // DISABLE_AVATARS
         Job::DeferredRelease( cl );
     }
     else
@@ -655,7 +660,7 @@ void FOServer::Logic_Work( void* data )
         sync_mngr->UnlockAll();
         CurrentJob = Job::PopFront();
 
-        Script::StartCallStack( jobNames[CurrentJob.Type], false );
+        START_CALLSTACK( jobNames[CurrentJob.Type], false );
         if( CurrentJob.Type == JOB_CLIENT )
         {
             Client* cl = (Client*)CurrentJob.Data;
@@ -705,7 +710,7 @@ void FOServer::Logic_Work( void* data )
                 ConnectedClientsLocker.Unlock();
 
                 Job::DeferredRelease( cl );
-                Script::CallStackInfoWriteAndClose( );
+                CLOSE_CALLSTACK();
                 continue;
             }
 
@@ -718,7 +723,7 @@ void FOServer::Logic_Work( void* data )
         {
             if( !Logic_CritterProccess( ( Critter* )CurrentJob.Data ) )
             {
-                Script::CallStackInfoWriteAndClose( );
+                CLOSE_CALLSTACK();
                 continue;
             }
         }
@@ -730,7 +735,7 @@ void FOServer::Logic_Work( void* data )
             // Check for removing
             if( map->IsNotValid )
             {
-                Script::CallStackInfoWriteAndClose( );
+                CLOSE_CALLSTACK();
                 continue;
             }
             if( map->IsRefreshVision( ) )
@@ -745,7 +750,7 @@ void FOServer::Logic_Work( void* data )
             }
 
 			// Npc proccess:
-            Script::StartCallStack( "NpcProccess", false );
+            START_CALLSTACK( "NpcProccess", false );
 			if( map->GetPlayersCount() != 0 || ( map->Data.ProccessSleep == 0 || map->Data.ProccessTick-- == 0 ) )
 			{
 				map->Data.ProccessTick = map->Data.ProccessSleep;
@@ -756,7 +761,7 @@ void FOServer::Logic_Work( void* data )
 					Logic_CritterProccess(npcs[i]);
                 npcs.clear( );
 			}
-            Script::CallStackInfoWriteAndClose( );
+            CLOSE_CALLSTACK();
             // Process logic
             map->Process();
         }
@@ -828,8 +833,10 @@ void FOServer::Logic_Work( void* data )
         }
         else if( CurrentJob.Type == JOB_THREAD_LOOP )
         {
-            Script::CallStackInfoWriteAndClose( );
+            CLOSE_CALLSTACK();
+            #ifndef DISABLE_CALLSTACK
             Script::CallStackNextCycle( );
+            #endif
 
             // Sleep
             uint sleep_time = Timer::FastTick( );
@@ -913,12 +920,14 @@ void FOServer::Logic_Work( void* data )
         else         // JOB_NOP
         {
             Sleep( 100 );
-            Script::CallStackInfoWriteAndClose( );
+            CLOSE_CALLSTACK();
             continue;
         }
 
 		if( CurrentJob.Type != JOB_THREAD_LOOP )
-            Script::CallStackInfoWriteAndClose( );
+        {
+            CLOSE_CALLSTACK();
+        }
 
         // Add job to back
         uint job_count = Job::PushBack( CurrentJob );
@@ -1863,6 +1872,7 @@ void FOServer::Process( ClientPtr& cl )
                 BIN_END( cl );
                 continue;
             }
+#ifndef DISABLE_AVATARS
             case NETMSG_PREPARE_SEND_FILE_TO_SERVER:
             {
                 Process_PrepareSendFileToServer( cl );
@@ -1881,6 +1891,7 @@ void FOServer::Process( ClientPtr& cl )
 				BIN_END(cl);
 				continue;
 			}
+#endif // DISABLE_AVATARS
             default:
             {
                 cl->Bin.SkipMsg( msg );
@@ -1891,18 +1902,6 @@ void FOServer::Process( ClientPtr& cl )
 
             cl->Bin.SkipMsg( msg );
             BIN_END( cl );
-        }
-
-        auto dataExt = cl->GetDataExt( );
-        if( dataExt )
-        {
-/*            if( !dataExt->FileCollectionContext.IsBusy )
-            {
-                if( !dataExt->QueueFileRecive.empty( ) )
-                {
-
-                }
-            }*/
         }
     }
 }
@@ -3495,6 +3494,8 @@ bool FOServer::InitReal()
 	STATIC_ASSERT( sizeof( GameVar ) == 28 );
     STATIC_ASSERT( sizeof( Mutex ) == 24 );
     STATIC_ASSERT( sizeof( MutexSpinlock ) == 4 );
+    STATIC_ASSERT( sizeof( SOCKET ) == 4 );
+    STATIC_ASSERT( sizeof( sockaddr_in ) == 16 );
 	STATIC_ASSERT( sizeof( GameOptions ) == 1328 );//hotrinED
     STATIC_ASSERT( sizeof( CScriptArray ) == 28 );
     STATIC_ASSERT( sizeof( ProtoMap::Tile ) == 12 );
@@ -3504,6 +3505,7 @@ bool FOServer::InitReal()
     STATIC_ASSERT( OFFSETOF( Critter::CrTimeEvent, Identifier ) == 12 );
     STATIC_ASSERT( OFFSETOF( Critter, RefCounter ) == 9340 );
     STATIC_ASSERT( OFFSETOF( Client, LanguageMsg ) == 9408 );
+    STATIC_ASSERT( OFFSETOF( Client, GameState ) == 9968 );
     STATIC_ASSERT( OFFSETOF( Npc, Reserved ) == 9360 );
     STATIC_ASSERT( OFFSETOF( GameVar, RefCount ) == 22 );
     STATIC_ASSERT( OFFSETOF( TemplateVar, Flags ) == 68 );
@@ -3514,9 +3516,13 @@ bool FOServer::InitReal()
     STATIC_ASSERT( OFFSETOF( ProtoMap, HexFlags ) == 304 );
     STATIC_ASSERT( OFFSETOF( Map, RefCounter ) == 774 );
     STATIC_ASSERT( OFFSETOF( ProtoLocation, GeckVisible ) == 76 );
-    STATIC_ASSERT( OFFSETOF( Location, RefCounter ) == 282 );
+    STATIC_ASSERT( OFFSETOF( Location, RefCounter ) == 282 );  
     #else // FO_X64
     STATIC_ASSERT( sizeof( size_t ) == 8 );
+    STATIC_ASSERT( sizeof( Mutex )  == 40 );
+    STATIC_ASSERT( offsetof( Map, Proto )  == 688 );
+    //int array[offsetof( Map, hexFlags )];
+    //int error = 1 / &array;
     #endif
 
     // Critters parameters
@@ -3560,9 +3566,11 @@ bool FOServer::InitReal()
         sample_time = 0;
     Script::Profiler::SetData( sample_time, ( ( profiler_mode & 1 ) != 0 ) ? 300000 : 0, ( ( profiler_mode & 2 ) != 0 ) );
 
+    #ifndef DISABLE_CALLSTACK
     // DetailedCallStackInfo
     Script::CallStackInfo::CallStackInfoMode = cfg.GetInt( "DetailedCallStackInfo", 0 );
     Script::CallStackInfo::CallStackInfoMode = CLAMP( Script::CallStackInfo::CallStackInfoMode, 0, 2 );
+    #endif
 
     // Threading
     LogicThreadSetAffinity = cfg.GetInt( "LogicThreadSetAffinity", 0 ) != 0;
@@ -3590,9 +3598,10 @@ bool FOServer::InitReal()
     FileManager::CreateDirectoryTree( FileManager::GetFullPath( "", PT_SERVER_DUMPS ) );
     FileManager::CreateDirectoryTree( FileManager::GetFullPath( "", PT_SERVER_PROFILER ) );
 
-
+#ifndef DISABLE_AVATARS
 	WriteLog("Init MD5...\n");
 	InitMD5();
+#endif
 
     ConstantsManager::Initialize( PT_SERVER_DATA ); // Generate name of defines
     if( !InitScriptSystem() )

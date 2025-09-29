@@ -5,9 +5,11 @@
 
 #define NET_BUFFER_SIZE    ( 2048 )
 
+#ifndef DISABLE_AVATARS
 map< uint, FileSendBuffer*> FileSendBuffer::lib;
 map< uint, FileSendBuffer*> FileSendBuffer::DownloadLib;
 map< uint, FileSendBuffer*> FileSendBuffer::UploadLib;
+#endif
 
 BufferManager::BufferManager()
 {
@@ -387,6 +389,7 @@ BufferManager& BufferManager::operator>>( bool& i )
     return *this;
 }
 
+#ifndef DISABLE_AVATARS
 BufferManager & BufferManager::operator>>(string & i)
 {
 	return *this;
@@ -399,6 +402,7 @@ BufferManager & BufferManager::operator<<(string & i)
 		Push(i.c_str(), i.size());
 	return *this;
 }
+#endif
 
 #if ( defined ( FONLINE_SERVER ) ) || ( defined ( FONLINE_CLIENT ) )
 bool BufferManager::NeedProcess()
@@ -599,7 +603,6 @@ bool BufferManager::NeedProcess()
     case NETMSG_SEND_SET_USER_HOLO_STR:
     case NETMSG_USER_HOLO_STR:
     case NETMSG_AUTOMAPS_INFO:
-	case NETMSG_SEND_FILE_IN_COLLECTION:
     case NETMSG_PREPARE_SEND_FILE_TO_SERVER:
 	case NETMSG_SEND_FILE_PART_TO_SERVER:
 	case NETMSG_PREPARE_SEND_FILE_TO_CLIENT:
@@ -877,7 +880,6 @@ void BufferManager::SkipMsg( uint msg )
     case NETMSG_SEND_SET_USER_HOLO_STR:
     case NETMSG_USER_HOLO_STR:
     case NETMSG_AUTOMAPS_INFO:
-	case NETMSG_SEND_FILE_IN_COLLECTION:
     case NETMSG_PREPARE_SEND_FILE_TO_SERVER:
 	case NETMSG_SEND_FILE_PART_TO_SERVER:
 	case NETMSG_PREPARE_SEND_FILE_TO_CLIENT:
@@ -1023,7 +1025,6 @@ bool BufferManager::IsValidMsg( uint msg )
     case NETMSG_SEND_SET_USER_HOLO_STR:
     case NETMSG_USER_HOLO_STR:
     case NETMSG_AUTOMAPS_INFO:
-	case NETMSG_SEND_FILE_IN_COLLECTION:
     case NETMSG_SEND_LOOK_DATA:
     case NETMSG_PREPARE_SEND_FILE_TO_SERVER:
 	case NETMSG_SEND_FILE_PART_TO_SERVER:

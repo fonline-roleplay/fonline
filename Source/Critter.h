@@ -14,9 +14,9 @@
 #include "CollectionFile.h"
 
 #if defined ( USE_LIBEVENT )
-# include "Event2/event.h"
-# include "Event2/bufferevent.h"
-# include "Event2/buffer.h"
+# include "event2/event.h"
+# include "event2/bufferevent.h"
+# include "event2/buffer.h"
 #endif
 
 // Events
@@ -100,10 +100,6 @@ typedef vector< Npc* >        PcVec;
 
 class Critter
 {
-private:
-    Critter( const Critter& ) {}
-    Critter& operator=( const Critter& ) {}
-
 public:
     Critter();
     ~Critter();
@@ -151,10 +147,10 @@ public:
         Data.MapPid = map_pid;
     }
     void SetLexems( const char* lexems );
-    bool IsLexems() { return Data.Lexems[ 0 ] != 0; }
+    bool IsLexems() const { return Data.Lexems[ 0 ] != 0; }
 
-    int  RunParamsSendScript( int bind_id, uint param_index, Critter* from_cr, Critter* to_cr );
-    bool RunSlotDataSendScript( int bind_id, uchar slot, Item* item, Critter* from_cr, Critter* to_cr );
+    static int  RunParamsSendScript( int bind_id, uint param_index, Critter* from_cr, Critter* to_cr );
+    static bool RunSlotDataSendScript( int bind_id, uchar slot, Item* item, Critter* from_cr, Critter* to_cr );
 
     // Visible critters and items
     CrVec         VisCr;
@@ -336,7 +332,7 @@ public:
 
     // Send
     volatile int DisableSend;
-    bool IsSendDisabled() { return DisableSend > 0; }
+    bool IsSendDisabled() const { return DisableSend > 0; }
     void Send_Move( Critter* from_cr, uint move_params );
     void Send_Dir( Critter* from_cr );
     void Send_AddCritter( Critter* cr );
@@ -385,7 +381,9 @@ public:
     void Send_PlaySoundType( uint crid_synchronize, uchar sound_type, uchar sound_type_ext, uchar sound_id, uchar sound_id_ext );
     void Send_CritterLexems( Critter* cr );
     void Send_LookData();
+#ifndef DISABLE_AVATARS
 	void Send_CollectionFile(FileSendBuffer* filebuffer, int collection_type, int p0, int p1, int p2);
+#endif
 
     // Send all
     void SendA_Move( uint move_params );
@@ -418,7 +416,7 @@ public:
     ushort      GetProtoMap() const { return Data.MapPid; }
     void        RefreshName();
     const char* GetName()  const { return NameStr.c_str(); }
-    const char* GetInfo();
+    const char* GetInfo() const;
     uint        GetCrType() const { return Data.BaseType; }
     ushort      GetHexX() const { return Data.HexX; }
     ushort      GetHexY() const { return Data.HexY; }
@@ -667,8 +665,8 @@ public:
     ushort      GetPort();
 
 public:
-    bool IsOnline()  { return !IsDisconnected; }
-    bool IsOffline() { return IsDisconnected; }
+    bool IsOnline() const { return !IsDisconnected; }
+    bool IsOffline() const { return IsDisconnected; }
     void Disconnect()
     {
         IsDisconnected = true;
@@ -754,14 +752,13 @@ public:
     void Send_CheckUIDS();
     void Send_SomeItem( Item* item );       // Without checks!
     void Send_LookData();
+#ifndef DISABLE_AVATARS
 	void Send_CollectionFile(FileSendBuffer * filebuffer, int collection_type, int p0, int p1, int p2);
-
-    void Send_WorkCollectionFileContext( );
-    bool Send_PrepareCollectionFileContext( const CollectionFile* file, uint packet_size );
+#endif
 
     // Locations
-    bool CheckKnownLocById( uint loc_id );
-    bool CheckKnownLocByPid( ushort loc_pid );
+    bool CheckKnownLocById( uint loc_id ) const;
+    bool CheckKnownLocByPid( ushort loc_pid ) const;
     void AddKnownLoc( uint loc_id );
     void EraseKnownLoc( uint loc_id );
 
@@ -796,7 +793,7 @@ private:
 
 public:
     Talking Talk;
-    bool IsTalking() { return Talk.TalkType != TALK_NONE; }
+    bool IsTalking() const { return Talk.TalkType != TALK_NONE; }
     void ProcessTalk( bool force );
     void CloseTalk();
 

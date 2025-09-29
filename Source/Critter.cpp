@@ -347,7 +347,7 @@ void Critter::ProcessVisibleCritters()
     if( !map )
         return;
 
-    Script::StartCallStack( "CheckLook", false );
+    START_CALLSTACK( "CheckLook", false );
     LookData look, crlook;
     Data.Look.GetMixed( map->Data.Look, look );
     look.InitCritter(*this);
@@ -832,7 +832,7 @@ void Critter::ProcessVisibleCritters()
             }
         }
     }
-    Script::CallStackInfoWriteAndClose( );
+    CLOSE_CALLSTACK();
 }
 
 void Critter::ProcessVisibleItems()
@@ -855,7 +855,7 @@ void Critter::ProcessVisibleItemVec( ItemPtrVec& items )
     if( !map )
         return;
 
-    Script::StartCallStack( "CheckLook", false );
+    START_CALLSTACK( "CheckLook", false );
     static LookData hideitem;
     static LookData lookdata;
     Data.Look.GetMixed( map->Data.Look, lookdata );
@@ -918,7 +918,7 @@ void Critter::ProcessVisibleItemVec( ItemPtrVec& items )
             }
         }
     }
-    Script::CallStackInfoWriteAndClose( );
+    CLOSE_CALLSTACK();
 }
 
 void Critter::ViewMap( Map* map, int look, ushort hx, ushort hy, int dir )
@@ -2800,12 +2800,14 @@ void Critter::Send_LookData()
         ((Client*)this)->Send_LookData();
 }
 
+#ifndef DISABLE_AVATARS
 void Critter::Send_CollectionFile(FileSendBuffer * filebuffer, int collection_type, int p0, int p1, int p2)
 {
 	if (IsPlayer())
 		((Client*)this)->Send_CollectionFile(filebuffer, collection_type, p0, p1, p2);
 
 }
+#endif // DISABLE_AVATARS
 
 void Critter::SendA_Move( uint move_params )
 {
@@ -3288,7 +3290,7 @@ void Critter::RefreshName()
     }
 }
 
-const char* Critter::GetInfo()
+const char* Critter::GetInfo() const
 {
 //	static char buf[1024];
 //	sprintf(buf,"Name<%s>, Id<%u>, MapPid<%u>, HexX<%u>, HexY<%u>",GetName(),GetId(),GetProtoMap(),GetHexX(),GetHexY());
@@ -4855,7 +4857,7 @@ void Client::Send_AutomapsInfo( void* locs_vec, Location* loc )
         for( uint i = 0, j = (uint) locs->size(); i < j; i++ )
         {
             Location*  loc_ = ( *locs )[ i ];
-            UShortVec& automaps = loc_->GetAutomaps();
+            const UShortVec& automaps = loc_->GetAutomaps();
             Bout << loc_->GetId();
             Bout << loc_->GetPid();
             Bout << (ushort) automaps.size();
@@ -4867,7 +4869,7 @@ void Client::Send_AutomapsInfo( void* locs_vec, Location* loc )
 
     if( loc )
     {
-        UShortVec& automaps = loc->GetAutomaps();
+        const UShortVec& automaps = loc->GetAutomaps();
         uint       msg_len = sizeof( uint ) + sizeof( msg_len ) + sizeof( bool ) + sizeof( ushort ) +
                              sizeof( uint ) + sizeof( ushort ) + sizeof( ushort ) + sizeof( ushort ) * (uint) automaps.size();
 
@@ -5182,6 +5184,7 @@ void Client::Send_LookData()
     BOUT_END(this);
 }
 
+#ifndef DISABLE_AVATARS
 void Client::Send_CollectionFile(FileSendBuffer * filebuffer, int collection_type, int p0, int p1, int p2)
 {
 	if (!filebuffer)
@@ -5268,78 +5271,17 @@ void Client::Send_CollectionFile(FileSendBuffer * filebuffer, int collection_typ
     //WriteLog("Extension cool\n");
     BOUT_END(this);
 }
-
-void Client::Send_WorkCollectionFileContext( )
-{
-    /*context->File = file;
-    context->Flags.IsPrepared = true;
-    context->PacketSize = 1024;
-    context->PacketNumber = 0;
-    */
-
-    if( !GetDataExt( ) )
-        return;
-    /*auto context = &GetDataExt( )->FileCollectionContext;
-
-    const uint size = context->PacketSize;
-    char* buffer = new char[ size ];
-    uint len = context->PacketNumber * size;
-    if( len + size > context->File->GetSize( ) )
-    {
-        memcpy( buffer, context->File->GetBuffer( ) + len, context->File->GetSize( ) - ( len + size ) );
-        
-        context->PacketNumber = 0;
-        context->PacketSize = 0;
-        context->IsBusy = false;
-        context->File->Release( );
-        context->File = nullptr;
-    }
-    else
-    {
-        memcpy( buffer, context->File->GetBuffer( ) + len, size );
-        context->PacketNumber++;
-    }
-
-    BOUT_BEGIN( this );
-    Bout << NETMSG_SEND_FILE_IN_COLLECTION;
-    Bout << size + sizeof( uint ) + sizeof( uint );
-    Bout.Push( buffer, size );
-    BOUT_END( this );
-
-    delete[ size ] buffer;*/
-}
-
-bool Client::Send_PrepareCollectionFileContext( const CollectionFile* file, uint packet_size )
-{
-    if( !file )
-        return false;
-
-    if( file->GetHash( ) == 0 )
-        return false;
-
-    string file_name = Str::GetName( file->GetHash( ) );
-    uint msg_len = sizeof( uint ) + sizeof( uint ) + sizeof( int ) + sizeof( uint ) + sizeof( uint ) + sizeof( ushort ) + file_name.size( );
-    BOUT_BEGIN( this );
-    Bout << NETMSG_PREPARE_SEND_FILE;
-    Bout << msg_len;
-    Bout << file->GetHash( );
-    Bout << file->GetSize( );
-    Bout << packet_size;
-    Bout << file_name.size( );// ushort text_len
-    Bout.Push( file_name.begin( ), file_name.size( ) ); // char file_name[text_len]
-    BOUT_END( this );
-    return true;
-}
+#endif // DISABLE_AVATARS
 
 /************************************************************************/
 /* Locations                                                            */
 /************************************************************************/
 
-bool Client::CheckKnownLocById( uint loc_id )
+bool Client::CheckKnownLocById( uint loc_id ) const
 {
     if( !loc_id )
         return false;
-    CritDataExt* data_ext = GetDataExt();
+    CritDataExt* data_ext = DataExt;
     if( !data_ext )
         return false;
 
@@ -5349,11 +5291,11 @@ bool Client::CheckKnownLocById( uint loc_id )
     return false;
 }
 
-bool Client::CheckKnownLocByPid( ushort loc_pid )
+bool Client::CheckKnownLocByPid( ushort loc_pid ) const
 {
     if( !loc_pid )
         return false;
-    CritDataExt* data_ext = GetDataExt();
+    CritDataExt* data_ext = DataExt;
     if( !data_ext )
         return false;
 

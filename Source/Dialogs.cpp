@@ -582,7 +582,7 @@ DemandResult* DialogManager::LoadDemandResult( istrstream& input, bool is_demand
         }
         else
         {
-            char ch = *input.rdbuf()->_M_gptr();
+            char ch = input.rdbuf()->sgetc();
             if( ch == ' ' )
             {
                 #ifdef FONLINE_NPCEDITOR
@@ -622,11 +622,11 @@ DemandResult* DialogManager::LoadDemandResult( istrstream& input, bool is_demand
 
         #ifdef FONLINE_SERVER
         // Bind function
-        # define BIND_D_FUNC( params )               { id = Script::Bind( name, "bool %s(Critter&,Critter@"params, false ); }
+        # define BIND_D_FUNC( params )               { id = Script::Bind( name, "bool %s(Critter&,Critter@" params, false ); }
         # define BIND_R_FUNC( params )                                                                                    \
-            { if( ( id = Script::Bind( name, "uint %s(Critter&,Critter@"params, false, true ) ) > 0 ) { ret_value = true; \
+            { if( ( id = Script::Bind( name, "uint %s(Critter&,Critter@" params, false, true ) ) > 0 ) { ret_value = true; \
               } else                                                                                                      \
-                  id = Script::Bind( name, "void %s(Critter&,Critter@"params, false ); }
+                  id = Script::Bind( name, "void %s(Critter&,Critter@" params, false ); }
         switch( values_count )
         {
         case 1:

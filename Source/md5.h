@@ -2,6 +2,8 @@
 #ifndef _FONLINE_MD5_
 #define _FONLINE_MD5_
 
+#ifndef DISABLE_AVATARS
+
 #include <tchar.h>
 #include <iostream>
 #include <Windows.h>
@@ -23,5 +25,7 @@ typedef struct
 extern LPVOID MapFile_ReadOnly( LPCTSTR lpFileName, DWORD& dwSize );
 extern bool InitMD5( );
 extern TMD5 GetMD5( PUCHAR Buffer, DWORD dwSize );
+
+#endif // DISABLE_AVATARS
 
 #endif _FONLINE_MD5_

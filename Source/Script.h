@@ -13,6 +13,14 @@
 #define GLOBAL_CONTEXT_STACK_SIZE    ( 10 )
 #define CONTEXT_BUFFER_SIZE          ( 512 )
 
+#ifndef DISABLE_CALLSTACK
+#define START_CALLSTACK(key, isscript) Script::StartCallStack(key, isscript)
+#define CLOSE_CALLSTACK() Script::CallStackInfoWriteAndClose()
+#elif defined(FONLINE_SERVER)
+#define START_CALLSTACK(key, isscript)
+#define CLOSE_CALLSTACK()
+#endif
+
 typedef void ( *EndExecutionCallback )();
 typedef std::vector< asIScriptModule* > ScriptModuleVec;
 
@@ -204,7 +212,7 @@ namespace Script
             }
         }
     }
-
+#ifndef DISABLE_CALLSTACK
     class CallStackInfo
     {
         typedef std::map<std::string, CallStackInfo*> CallStackInfoMap;
@@ -264,10 +272,6 @@ namespace Script
         static void SynchronizeCallStacksChilds( CallStackInfo* info0, CallStackInfo* info1 );
 
         static int CallStackInfoMode;
-
-#ifdef FONLINE_SERVER
-        static void RegistrationScriptCustomCallStack( asIScriptEngine* engine );
-#endif
     };
 
 #ifdef FONLINE_SERVER
@@ -275,7 +279,8 @@ namespace Script
     void StartCallStack( const char* key, bool isscript );
     void CallStackInfoWriteAndClose( );
     std::string FormatCallstackInfo( bool iscurrent = false );
-#endif
+#endif // FONLINE_SERVER
+#endif // DISABLE_CALLSTACK
 }
 
 class CBytecodeStream: public asIBinaryStream

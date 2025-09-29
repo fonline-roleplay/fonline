@@ -1777,10 +1777,10 @@ BIND_ASSERT( engine->RegisterGlobalFunction( "bool CheckLook( Map& map, LookData
 BIND_ASSERT( engine->RegisterObjectMethod( "LookData", "void WorkItem(const Item&in item)", asMETHODPR( LookData, InitItem, ( const Item& item ), void ), asCALL_THISCALL ) );
 BIND_ASSERT( engine->RegisterObjectMethod( "LookData", "void WorkMap(const Map&in map)", asMETHODPR( LookData, InitMap, ( const Map& map ), void ), asCALL_THISCALL ) );
 BIND_ASSERT( engine->RegisterObjectMethod( "LookData", "void WorkCritter(const Critter&in critter)", asMETHODPR( LookData, InitCritter, ( const Critter& critter ), void ), asCALL_THISCALL ) );
-
+#ifndef DISABLE_COLLECTION_FILE
 BIND_ASSERT( engine->RegisterObjectMethod( "Critter", "void SendFileToClient( string& filePath )", asFUNCTION( BIND_CLASS Crit_SendFileToClient ), asCALL_CDECL_OBJFIRST ) );
-
-#endif
+#endif // DISABLE_COLLECTION_FILE
+#endif // BIND_SERVER
 /*
 BIND_ASSERT(engine->RegisterObjectMethod("LookData", "uint8 get_HideViewDirMultiplier( uint index )", asFUNCTION(BIND_CLASS LookData_GetHideViewDirMultiplier), asCALL_CDECL_OBJFIRST));
 BIND_ASSERT(engine->RegisterObjectMethod("LookData", "void set_HideViewDirMultiplier( uint index, uint8 value )", asFUNCTION(BIND_CLASS LookData_SetHideViewDirMultiplier), asCALL_CDECL_OBJFIRST));

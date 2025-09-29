@@ -8,7 +8,7 @@
 #ifdef FO_LINUX
 # include <signal.h>
 #endif
-#ifndef SERVER_DAEMON
+#if !defined(SERVER_DAEMON) && !defined(SERVER_LIB)
 # include "FL/Fl.H"
 # include "FL/Fl_Window.H"
 # include "FL/Fl_Box.H"
@@ -24,7 +24,7 @@ void InitAdminManager( IniParser* cfg );
 /* GUI & Windows service version                                        */
 /************************************************************************/
 
-#ifndef SERVER_DAEMON
+#if !defined(SERVER_DAEMON) && !defined(SERVER_LIB)
 void GUIInit( IniParser& cfg );
 void GUICallback( Fl_Widget* widget, void* data );
 void UpdateInfo();
@@ -622,7 +622,9 @@ void UpdateInfo()
             break;
 		case 7:
 		{
+            #ifndef DISABLE_CALLSTACK
             std_str = Script::FormatCallstackInfo( );
+            #endif
 			/*static char* jobNames[ ] = { "none", "clients", "critters", "maps", "time events", "garbage items", "garbage critters", "garbage locations", "garbage sript", "garbage vars", "deferred release", "game time", "bans", "loop script", "thread loop", "thread synchronize", "finish" };
 			std_str = "Jobs:\n";
 			char buf[ MAX_FOTEXT ] = { 0 };
@@ -1038,6 +1040,8 @@ void GameLoopThread( void* )
 /* Admin panel                                                          */
 /************************************************************************/
 
+#ifndef SERVER_LIB
+
 #define MAX_SESSIONS    ( 10 )
 
 struct Session
@@ -1449,6 +1453,8 @@ label_Finish:
     if( --s->RefCount == 0 )
         delete s;
 }
+
+#endif // SERVER_LIB
 
 /************************************************************************/
 /*                                                                      */

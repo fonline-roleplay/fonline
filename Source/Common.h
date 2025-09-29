@@ -587,7 +587,7 @@ struct ServerScriptFunctions
 /* Game options                                                         */
 /************************************************************************/
 
-struct GameOptions
+struct ServerGameOptions
 {
     ushort       YearStart;
     uint         YearStartFTLo;
@@ -724,6 +724,8 @@ struct GameOptions
     int          MapRoofSkipSize;
     float        MapCameraAngle;
     bool         MapSmoothPath;
+};
+struct GameOptions: ServerGameOptions {
     ScriptString MapDataPrefix;
 
     // Client and Mapper

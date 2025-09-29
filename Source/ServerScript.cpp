@@ -3638,6 +3638,7 @@ void FOServer::SScriptFunc::Crit_EventSmthTurnBasedProcess( Critter* cr, Critter
 
 void FOServer::SScriptFunc::Crit_SendCollectionFile(Critter * cr, uint hash, int type, int p0, int p1, int p2, asIScriptFunction* func )
 {
+#ifndef DISABLE_AVATARS
 	if (cr->IsNotValid)
 		SCRIPT_ERROR_R("This nullptr.");
 
@@ -3675,6 +3676,7 @@ void FOServer::SScriptFunc::Crit_SendCollectionFile(Critter * cr, uint hash, int
 	buffer->Extension = FileManager::GetExtension(fileName);
 
 	cr->Send_CollectionFile(buffer, type, p0, p1, p2);
+#endif // DISABLE_AVATARS
 }
 
 GameVar* FOServer::SScriptFunc::Global_GetGlobalVar( ushort tvar_id )
@@ -6526,14 +6528,15 @@ bool FOServer::SScriptFunc::CheckLook( Map& map, LookData& look, LookData& hide,
     mixHide.isruning = hide.isruning;
     mixHide.access = hide.access;
 
-    Script::StartCallStack( "CheckLook", false );
+    START_CALLSTACK( "CheckLook", false );
     auto result = LookData::CheckLook( map, mixLook, mixHide, isDebug );
-    Script::CallStackInfoWriteAndClose( );
+    CLOSE_CALLSTACK();
     isView = result.IsView;
     isHear = result.IsHear;
     return result.IsLook;
 }
 
+#ifndef DISABLE_COLLECTION_FILE
 void FOServer::SScriptFunc::Crit_SendFileToClient( Critter* critter, ScriptString& filePath )
 {
     if( critter->IsNotValid )
@@ -6555,6 +6558,7 @@ void FOServer::SScriptFunc::Crit_SendFileToClient( Critter* critter, ScriptStrin
 
     file->Release( );
 }
+#endif // DISABLE_COLLECTION_FILE
 
 ScriptString* FOServer::SScriptFunc::CraftItem_GetScriptName(CraftItem* craft)
 {

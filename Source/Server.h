@@ -20,10 +20,10 @@
 #include "AngelScript/scriptfile.h"
 
 #if defined ( USE_LIBEVENT )
-# include "Event2/event.h"
-# include "Event2/bufferevent.h"
-# include "Event2/buffer.h"
-# include "Event2/thread.h"
+# include "event2/event.h"
+# include "event2/bufferevent.h"
+# include "event2/buffer.h"
+# include "event2/thread.h"
 #endif
 
 // #ifdef _DEBUG
@@ -83,10 +83,12 @@ public:
     static void Process_RunServerScript( Client* cl );
     static void Process_KarmaVoting( Client* cl );
 
+#ifndef DISABLE_AVATARS
     static void Process_PrepareSendFileToServer( Client* cl );
 	static void Process_ReciveFilePart( Client* cl );
 	static void Proccess_NextFilePartClientReqest( Client* cl );
 	static void Proccess_SendFilePartToClient( Client* cl );
+#endif // DISABLE_AVATARS
 
     static void Send_MapData( Client* cl, ProtoMap* pmap, uchar send_info );
     static void Send_MsgData( Client* cl, uint lang, ushort num_msg, FOMsg& data_msg );
@@ -955,7 +957,9 @@ public:
         static LookData* Map_GetLookData(Map* map);
         static void Crit_UpdateLookData(Critter* critter);
         static bool CheckLook( Map& map, LookData& look, LookData& hide, bool& isView, bool& isHear, bool isDebug );
+        #ifndef DISABLE_COLLECTION_FILE
         static void Crit_SendFileToClient( Critter* critter, ScriptString& file );
+        #endif // DISABLE_COLLECTION_FILE
     } ScriptFunc;
 };
 

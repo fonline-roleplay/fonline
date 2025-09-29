@@ -1574,9 +1574,11 @@ void ProtoMap::SaveCache( FileManager& fm )
 
     // To send
     fm.SetBEUInt( (uint) WallsToSend.size() );
-    fm.SetData( &WallsToSend[ 0 ], (uint) WallsToSend.size() * sizeof( SceneryCl ) );
+    if( WallsToSend.size() )
+        fm.SetData( &WallsToSend[ 0 ], (uint) WallsToSend.size() * sizeof( SceneryCl ) );
     fm.SetBEUInt( (uint) SceneriesToSend.size() );
-    fm.SetData( &SceneriesToSend[ 0 ], (uint) SceneriesToSend.size() * sizeof( SceneryCl ) );
+    if( SceneriesToSend.size() )
+        fm.SetData( &SceneriesToSend[ 0 ], (uint) SceneriesToSend.size() * sizeof( SceneryCl ) );
 
     // Hashes
     fm.SetBEUInt( HashTiles );
@@ -1588,7 +1590,8 @@ void ProtoMap::SaveCache( FileManager& fm )
 
     // Entires
     fm.SetBEUInt( (uint) mapEntires.size() );
-    fm.SetData( &mapEntires[ 0 ], (uint) mapEntires.size() * sizeof( MapEntire ) );
+    if( mapEntires.size() )
+        fm.SetData( &mapEntires[ 0 ], (uint) mapEntires.size() * sizeof( MapEntire ) );
 
     // Save
     char fname[ MAX_FOPATH ];
@@ -1601,9 +1604,9 @@ void ProtoMap::BindSceneryScript( MapObject* mobj )
 // ============================================================
     # define BIND_SCENERY_FUNC( params )                                                                                                        \
         if( mobj->ProtoId != SP_SCEN_TRIGGER )                                                                                                  \
-            mobj->RunTime.BindScriptId = Script::Bind( mobj->ScriptName, mobj->FuncName, "bool %s(Critter&,Scenery&,int,Item@"params, false );  \
+            mobj->RunTime.BindScriptId = Script::Bind( mobj->ScriptName, mobj->FuncName, "bool %s(Critter&,Scenery&,int,Item@" params, false );  \
         else                                                                                                                                    \
-            mobj->RunTime.BindScriptId = Script::Bind( mobj->ScriptName, mobj->FuncName, "void %s(Critter&,Scenery&,bool,uint8"params, false )
+            mobj->RunTime.BindScriptId = Script::Bind( mobj->ScriptName, mobj->FuncName, "void %s(Critter&,Scenery&,bool,uint8" params, false )
 // ============================================================
 
     switch( mobj->MScenery.ParamsCount )
@@ -2428,7 +2431,7 @@ void ProtoMap::GetWalls( ushort hexX, ushort hexY, SceneryClRefVec& sceneries )
 {
 	for( auto it = WallsToSend.begin( ), end = WallsToSend.end( ); it != end; ++it )
 	{
-		SceneryCl* mobj = it;
+		SceneryCl* mobj = &*it;
 		if( mobj->MapX == hexX && mobj->MapY == hexY )
 			sceneries.push_back( mobj );
 	}
@@ -2438,7 +2441,7 @@ void ProtoMap::GetSceneryClients( ushort hexX, ushort hexY, SceneryClRefVec& sce
 {
 	for( auto it = SceneriesToSend.begin( ), end = SceneriesToSend.end( ); it != end; ++it )
 	{
-		SceneryCl* mobj = it;
+		SceneryCl* mobj = &*it;
 		if( mobj->MapX == hexX && mobj->MapY == hexY )
 			sceneries.push_back( mobj );
 	}

@@ -1,6 +1,13 @@
 #include "StdAfx.h"
 #include "Common.h"
 #include "Exception.h"
+
+#ifdef DISABLE_EXCEPTION_HANDLING
+
+void CatchExceptions( const string& app_name, int app_ver ) {}
+void CreateDump( const string& appendix, const string& message ) {}
+
+#else // DISABLE_EXCEPTION_HANDLING
 #include "Script.h"
 #include "Version.h"
 
@@ -103,7 +110,7 @@ static LONG WINAPI TopLevelFilterReadableDump( EXCEPTION_POINTERS* except )
 		fprintf( f, "\tTimestamp   %04d.%02d.%02d %02d:%02d:%02d\n", dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second );
 		fprintf( f, "\n" );
 
-#ifdef FONLINE_SERVER
+#if defined(FONLINE_SERVER) && !defined(DISABLE_CALLSTACK)
 		fprintf( f, "\nCallStack:\n%s\n", Script::FormatCallstackInfo( true ).c_str() );
 #endif
 		// Exception information
@@ -716,3 +723,4 @@ bool RaiseAssert( const string& message, const string& file, int line )
 	ExitProcess( 1 );
 	return true;
 }
+#endif // DISABLE_EXCEPTION_HANDLING

@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "DataFile.h"
 #include "DatFile/cfile.h"
-#include "Zlib/unzip.h"
+#include "zlib/unzip.h"
 
 /************************************************************************/
 /* Dat/Zip loaders                                                      */
@@ -75,7 +75,7 @@ DataFile* OpenDataFile( const char* fname )
     if( !ext )
     {
         WriteLogF( _FUNC_, " - File<%s> extension not found.\n", fname );
-        return false;
+        return NULL;
     }
 
     const char* ext_ = ext;

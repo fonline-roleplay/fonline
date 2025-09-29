@@ -54,6 +54,10 @@ bool             LogDebugInfo = true;
 StrVec           WrongGlobalObjects;
 
 #ifdef FONLINE_SERVER
+
+void RegistrationScriptCustomCallStack( asIScriptEngine* engine );
+
+#ifndef DISABLE_CALLSTACK
 Script::CallStackInfo* CallStackInfoRoot[ 2 ] = { new Script::CallStackInfo( "FOnline", false, nullptr ), new Script::CallStackInfo( "FOnline", false, nullptr ) };
 Script::CallStackInfo* CurrentCallStack = CallStackInfoRoot[0];
 
@@ -122,6 +126,7 @@ std::string Script::FormatCallstackInfo( bool iscurrent /* = false */ )
     }
     return stream.str();
 }
+#endif // DISABLE_CALLSTACK
 
 uint   GarbagerCycle = 120000;
 uint   EvaluationCycle = 120000;
@@ -554,8 +559,12 @@ void* Script::LoadDynamicLibrary( const char* dll_name )
     void* dll = DLL_Load( dll_path );
 	if( !dll )
 	{
-		
+        #if defined ( FO_WINDOWS )		
 		WriteLog( "Dll nullptr <%s> error: %u\n", dll_path, GetLastError( ) );
+        #else
+        WriteLog( "Dll nullptr <%s> error: %s\n", dll_path, dlerror() );
+        #endif
+
 		return NULL;
 	}
 	WriteLog( "Dll loading <%s>\n", dll_path );
@@ -1012,7 +1021,7 @@ asIScriptEngine* Script::CreateEngine( Preprocessor::PragmaCallback* pragma_call
     if( !engine )
     {
         WriteLogF( _FUNC_, " - asCreateScriptEngine fail.\n" );
-        return false;
+        return NULL;
     }
 
     engine->SetMessageCallback( asFUNCTION( CallbackMessage ), NULL, asCALL_CDECL );
@@ -1027,7 +1036,7 @@ asIScriptEngine* Script::CreateEngine( Preprocessor::PragmaCallback* pragma_call
 #ifdef FONLINE_SERVER
     if( Str::Compare( dll_target, "SERVER" ) )
     {
-        CallStackInfo::RegistrationScriptCustomCallStack( engine );
+        RegistrationScriptCustomCallStack( engine );
     }
 #endif
 
@@ -1085,8 +1094,10 @@ asIScriptContext* Script::CreateContext()
 
     Str::Copy( buf, CONTEXT_BUFFER_SIZE, "<error>" );
     ctx->SetUserData( buf );
+#ifndef DISABLE_CALLSTACK
     char* buf2 = new char[ CONTEXT_BUFFER_SIZE ];
     ctx->SetUserData( buf2, 1 );
+#endif
     return ctx;
 }
 
@@ -2463,7 +2474,7 @@ bool Script::PrepareContext( int bind_id, const char* call_func, const char* ctx
     CurrentArg = 0;
 
 #ifdef FONLINE_SERVER
-    StartCallStack( call_func, false );
+    START_CALLSTACK( call_func, false );
 #endif
 
     return true;
@@ -2557,89 +2568,139 @@ void Script::SetArgAddress( void* value )
 }
 
 // Taked from AS sources
-#if defined ( FO_MSVC )
+#ifdef FO_X86
+#if defined( FO_MSVC )
 uint64 CallCDeclFunction32( const size_t* args, size_t paramSize, size_t func )
-#else
+#elif defined( FO_GCC )
 uint64 __attribute( ( __noinline__ ) ) CallCDeclFunction32( const size_t * args, size_t paramSize, size_t func )
-#endif
+#endif //  FO_MSVC or FO_GCC
 {
-    #if defined ( FO_MSVC )
+    volatile asQWORD retQW = 0;
+
+#if defined ( FO_MSVC )
+
     // Copy the data to the real stack. If we fail to do
-    // this we may run into trouble in case of exceptions.
-    __asm
-    {
-        // We must save registers that are used
-        push ecx
+	// this we may run into trouble in case of exceptions.
+	__asm
+	{
+		// We must save registers that are used
+		push ecx
 
-        // Clear the FPU stack, in case the called function doesn't do it by itself
-        fninit
+		// Clear the FPU stack, in case the called function doesn't do it by itself
+		fninit
 
-        // Copy arguments from script
-        // stack to application stack
-        mov ecx, paramSize
-        mov  eax, args
-        add  eax, ecx
-        cmp  ecx, 0
-        je   endcopy
+		// Copy arguments from script
+		// stack to application stack
+		mov  ecx, paramSize
+		mov  eax, args
+		add  eax, ecx
+		cmp  ecx, 0
+		je   endcopy
 copyloop:
-        sub  eax, 4
-        push dword ptr[ eax ]
-        sub  ecx, 4
-        jne  copyloop
+		sub  eax, 4
+		push dword ptr [eax]
+		sub  ecx, 4
+		jne  copyloop
 endcopy:
 
-        // Call function
-        call[ func ]
+		// Call function
+		call [func]
 
-        // Pop arguments from stack
-        add  esp, paramSize
+		// Pop arguments from stack
+		add  esp, paramSize
 
-        // Restore registers
-        pop  ecx
+		// Copy return value from EAX:EDX
+		lea  ecx, retQW
+		mov  [ecx], eax
+		mov  4[ecx], edx
 
-        // return value in EAX or EAX:EDX
-    }
+		// Restore registers
+		pop  ecx
+	}
 
-    #elif defined ( FO_GCC )
-    args = args;
-    paramSize = paramSize;
-    func = func;
+#elif defined ( FO_GCC )
+    // It is not possible to rely on ESP or BSP to refer to variables or arguments on the stack
+	// depending on compiler settings BSP may not even be used, and the ESP is not always on the
+	// same offset from the local variables. Because the code adjusts the ESP register it is not
+	// possible to inform the arguments through symbolic names below.
 
-    asm ( "pushl %ecx           \n"
-          "fninit               \n"
+	// It's not also not possible to rely on the memory layout of the function arguments, because
+	// on some compiler versions and settings the arguments may be copied to local variables with a
+	// different ordering before they are accessed by the rest of the code.
 
-          // Need to align the stack pointer so that it is aligned to 16 bytes when making the function call.
-          // It is assumed that when entering this function, the stack pointer is already aligned, so we need
-          // to calculate how much we will put on the stack during this call.
-          "movl  12(%ebp), %eax \n"     // paramSize
-          "addl  $4, %eax       \n"     // counting esp that we will push on the stack
-          "movl  %esp, %ecx     \n"
-          "subl  %eax, %ecx     \n"
-          "andl  $15, %ecx      \n"
-          "movl  %esp, %eax     \n"
-          "subl  %ecx, %esp     \n"
-          "pushl %eax           \n"     // Store the original stack pointer
+	// I'm copying the arguments into this array where I know the exact memory layout. The address
+	// of this array will then be passed to the inline asm in the EDX register.
+	volatile asPWORD a[] = {asPWORD(args), asPWORD(paramSize), asPWORD(func)};
 
-          "movl  12(%ebp), %ecx \n"     // paramSize
-          "movl  8(%ebp), %eax  \n"     // args
-          "addl  %ecx, %eax     \n"     // push arguments on the stack
-          "cmp   $0, %ecx       \n"
-          "je    endcopy        \n"
-          "copyloop:            \n"
-          "subl  $4, %eax       \n"
-          "pushl (%eax)         \n"
-          "subl  $4, %ecx       \n"
-          "jne   copyloop       \n"
-          "endcopy:             \n"
-          "call  *16(%ebp)      \n"
-          "addl  12(%ebp), %esp \n"     // pop arguments
+	asm __volatile__(
+//#ifdef __OPTIMIZE__
+		// When compiled with optimizations the stack unwind doesn't work properly, 
+		// causing exceptions to crash the application. By adding this prologue
+		// and the epilogue below, the stack unwind works as it should. 
+		// TODO: runtime optimize: The prologue/epilogue shouldn't be needed if the correct cfi directives are used below
+		"pushl %%ebp               \n"
+		".cfi_adjust_cfa_offset 4  \n"
+		".cfi_rel_offset ebp, 0    \n"
+		"movl %%esp, %%ebp         \n"
+		".cfi_def_cfa_register ebp \n"
+//#endif
+		"fninit                 \n"
+		"pushl %%ebx            \n"
+		"movl  %%edx, %%ebx     \n"
 
-          // Pop the alignment bytes
-          "popl  %esp           \n"
+		// Need to align the stack pointer so that it is aligned to 16 bytes when making the function call.
+		// It is assumed that when entering this function, the stack pointer is already aligned, so we need
+		// to calculate how much we will put on the stack during this call.
+		"movl  4(%%ebx), %%eax  \n" // paramSize
+		"addl  $4, %%eax        \n" // counting esp that we will push on the stack
+		"movl  %%esp, %%ecx     \n"
+		"subl  %%eax, %%ecx     \n"
+		"andl  $15, %%ecx       \n"
+		"movl  %%esp, %%eax     \n"
+		"subl  %%ecx, %%esp     \n"
+		"pushl %%eax            \n" // Store the original stack pointer
 
-          "popl  %ecx           \n" );
-    #endif
+		// Copy all arguments to the stack and call the function
+		"movl  4(%%ebx), %%ecx  \n" // paramSize
+		"movl  0(%%ebx), %%eax  \n" // args
+		"addl  %%ecx, %%eax     \n" // push arguments on the stack
+		"cmp   $0, %%ecx        \n"
+		"je    endcopy          \n"
+		"copyloop:              \n"
+		"subl  $4, %%eax        \n"
+		"pushl (%%eax)          \n"
+		"subl  $4, %%ecx        \n"
+		"jne   copyloop         \n"
+		"endcopy:               \n"
+		"call  *8(%%ebx)        \n"
+		"addl  4(%%ebx), %%esp  \n" // pop arguments
+
+		// Pop the alignment bytes
+		"popl  %%esp            \n"
+		"popl  %%ebx            \n"
+//#ifdef __OPTIMIZE__
+		// Epilogue
+		"movl %%ebp, %%esp         \n"
+		".cfi_def_cfa_register esp \n"
+		"popl %%ebp                \n"
+		".cfi_adjust_cfa_offset -4 \n"
+		".cfi_restore ebp          \n"
+//#endif
+		// Copy EAX:EDX to retQW. As the stack pointer has been
+		// restored it is now safe to access the local variable
+		"leal  %1, %%ecx        \n"
+		"movl  %%eax, 0(%%ecx)  \n"
+		"movl  %%edx, 4(%%ecx)  \n"
+		:                           // output
+		: "d"(a), "m"(retQW)        // input - pass pointer of args in edx, pass pointer of retQW in memory argument
+		: "%eax", "%ecx"            // clobber
+		);
+
+#endif //  FO_MSVC or FO_GCC
+
+    return retQW;
 }
+#endif // FO_X86
 
 bool Script::RunPrepared()
 {
@@ -2680,7 +2741,7 @@ bool Script::RunPrepared()
             ctx->Abort();
             EndExecution();
 #ifdef FONLINE_SERVER
-            CallStackInfoWriteAndClose( );
+            CLOSE_CALLSTACK();
 #endif
             return false;
         }
@@ -2694,7 +2755,7 @@ bool Script::RunPrepared()
             WriteLogF( _FUNC_, " - Context<%s> execute error<%d>, state<%s>.\n", ctx->GetUserData(), result, ContextStatesStr[ (int) state ] );
             EndExecution();
 #ifdef FONLINE_SERVER
-            CallStackInfoWriteAndClose( );
+            CLOSE_CALLSTACK();
 #endif
             return false;
         }
@@ -2704,14 +2765,16 @@ bool Script::RunPrepared()
     }
     else
     {
+        #ifdef FO_X86
         *( (uint64*) NativeRetValue ) = CallCDeclFunction32( NativeArgs, CurrentArg * 4, NativeFuncAddr );
+        #endif
         ScriptCall = false;
     }
 
     EndExecution();
 
 #ifdef FONLINE_SERVER
-    CallStackInfoWriteAndClose( );
+    CLOSE_CALLSTACK();
 #endif
     return true;
 }
@@ -2992,6 +3055,7 @@ CScriptArray *Script::CreateArray( const char* type )
 /*                                                                      */
 /************************************************************************/
 #ifdef FONLINE_SERVER
+#ifndef DISABLE_CALLSTACK
 Script::CallStackInfo::CallStackInfo( const std::string _key, bool _isscript, Script::CallStackInfo* _parent, bool isabs ):
     RootData( nullptr ), name( _key ), CurrentTime( 0 ), AllTime(0), absolutle( nullptr ), parent( _parent ),
     MaxTime( 0 ), CurrentTimeOne( 0 ), MaxTimeOne( 0 ), childs( ), CycleDelta( 0 ),
@@ -3145,8 +3209,8 @@ void Script::CallStackInfo::SynchronizeCallStacksChilds( CallStackInfo* info0, C
     for( auto it = info1->childs.begin( ); it != info1->childs.end( ); it++ )
         SynchronizeCallStacksChilds( info0->GetOrCreateChild( it->first, it->second->isscript ), it->second );
 }
-
-void Script::CallStackInfo::RegistrationScriptCustomCallStack( asIScriptEngine* engine )
+#endif // DISABLE_CALLSTACK
+void RegistrationScriptCustomCallStack( asIScriptEngine* engine )
 {
     class CustomCallStack
     {
@@ -3154,24 +3218,32 @@ void Script::CallStackInfo::RegistrationScriptCustomCallStack( asIScriptEngine* 
 
         static void Open( ScriptString& name )
         {
-            Script::StartCallStack( Str::FormatBuf( "Script_%s", name.c_str( ) ), true );
+            START_CALLSTACK( Str::FormatBuf( "Script_%s", name.c_str( ) ), true );
         }
 
         static void Close( )
         {
+            #ifndef DISABLE_CALLSTACK
             if( CurrentCallStack->IsScript( ) )
                 Script::CallStackInfoWriteAndClose( );
             else WriteLogF( __FUNCTION__, "wrong script close callstack\n" );
+            #endif
         }
 
         static uint GetCallStackInfoMode( )
         {
-            return Script::CallStackInfo::CallStackInfoMode;
+            #ifndef DISABLE_CALLSTACK
+                return Script::CallStackInfo::CallStackInfoMode;
+            #else
+                return 0;
+            #endif
         }
 
         static void SetCallStackInfoMode( uint value )
         {
+            #ifndef DISABLE_CALLSTACK
             Script::CallStackInfo::CallStackInfoMode = CLAMP( value, 0, 2 );
+            #endif
         }
     };
 
@@ -3180,4 +3252,4 @@ void Script::CallStackInfo::RegistrationScriptCustomCallStack( asIScriptEngine* 
     engine->RegisterGlobalFunction( "uint get_CallStackInfoMode( )", asFUNCTION( CustomCallStack::GetCallStackInfoMode ), asCALL_CDECL );
     engine->RegisterGlobalFunction( "void set_CallStackInfoMode( uint value )", asFUNCTION( CustomCallStack::SetCallStackInfoMode ), asCALL_CDECL );
 }
-#endif
+#endif // FONLINE_SERVER

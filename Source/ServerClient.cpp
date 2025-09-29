@@ -91,36 +91,6 @@ void FOServer::ProcessCritter( Critter* cr )
             cl->RemoveFromGame();
         }
 
-        if( cl->GameState == STATE_PLAYING )
-        {
-            auto dataExt = cl->GetDataExt( );
-            if( dataExt )
-            {
-                /*if( !dataExt->FileCollectionContext.IsBusy )
-                {
-                    if( !dataExt->QueueFileRecive.empty( ) )
-                    {
-                        auto file = dataExt->QueueFileRecive.front();
-                        if( file )
-                        {
-                            if( cl->Send_PrepareCollectionFileContext( file, 1024 ) )
-                            {
-                                dataExt->FileCollectionContext.File = file;
-                                dataExt->FileCollectionContext.Flags.IsPrepared = true;
-                                dataExt->FileCollectionContext.PacketSize = 1024;
-                                dataExt->FileCollectionContext.PacketNumber = 0;
-                            }
-                            else file->Release( );
-                        }
-                    }
-                }
-                else
-                {
-                    cl->Send_WorkCollectionFileContext( );
-                }*/
-            }
-        }
-
         // Cache intelligence for GetSayIntellect, every 3 seconds
         if( tick >= cl->CacheValuesNextTick )
         {
@@ -138,9 +108,9 @@ void FOServer::ProcessCritter( Critter* cr )
         // Process
         if( npc->IsLife() )
         {
-            Script::StartCallStack( "ProcessAI", false );
+            START_CALLSTACK( "ProcessAI", false );
             ProcessAI( npc );
-            Script::CallStackInfoWriteAndClose( );
+            CLOSE_CALLSTACK();
             if( npc->IsNeedRefreshBag() )
                 npc->RefreshBag();
         }
@@ -4398,6 +4368,7 @@ void FOServer::Process_KarmaVoting( Client* cl )
     }
 }
 
+#ifndef DISABLE_AVATARS
 void FOServer::Process_PrepareSendFileToServer( Client* cl )
 {
     int collection_type;
@@ -4420,7 +4391,7 @@ void FOServer::Process_PrepareSendFileToServer( Client* cl )
 		md5chars[ sizemd5 ] = 0;
         cl->Bin.Pop( md5chars, sizemd5 );
         md5 = md5chars;
-        delete[ sizemd5 + 1 ] md5chars;
+        delete[] md5chars;
     }
 
 	cl->Bin >> sizeextension;
@@ -4431,7 +4402,7 @@ void FOServer::Process_PrepareSendFileToServer( Client* cl )
 		extensionchars[sizeextension] = 0;
 		cl->Bin.Pop(extensionchars, sizeextension);
 		extension = extensionchars;
-		delete[sizeextension + 1] extensionchars;
+		delete[] extensionchars;
 	}
 
 	CHECK_IN_BUFF_ERROR( cl );
@@ -4588,6 +4559,7 @@ void FOServer::Proccess_SendFilePartToClient(Client* cl)
 		CurrentFileSend->Release();
 	}
 }
+#endif // DISABLE_AVATARS
 
 void FOServer::Process_GiveGlobalInfo( Client* cl )
 {
