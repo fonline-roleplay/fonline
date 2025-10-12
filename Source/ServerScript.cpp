@@ -113,8 +113,6 @@ bool FOServer::InitScriptSystem()
     ServerWrongGlobalObjects.push_back( "Location@[]" );
     ServerWrongGlobalObjects.push_back( "GameVar@" );
     ServerWrongGlobalObjects.push_back( "GameVar@[]" );
-    ServerWrongGlobalObjects.push_back( "CraftItem@" );
-    ServerWrongGlobalObjects.push_back( "CraftItem@[]" );
     Script::SetWrongGlobalObjects( ServerWrongGlobalObjects );
 
     // Bind vars and functions, look bind.h
@@ -176,7 +174,6 @@ bool FOServer::InitScriptSystem()
         { &ServerFunctions.CheckLook, "check_look", "bool %s(Map&,Critter&,Critter&)" },
         { &ServerFunctions.ItemCost, "item_cost", "uint %s(Item&,Critter&,Critter&,bool)" },
         { &ServerFunctions.ItemsBarter, "items_barter", "bool %s(Item@[]&,uint[]&,Item@[]&,uint[]&,Critter&,Critter&)" },
-        { &ServerFunctions.ItemsCrafted, "items_crafted", "void %s(Item@[]&,uint[]&,Item@[]&,Critter&)" },
         { &ServerFunctions.PlayerLevelUp, "player_levelup", "void %s(Critter&,uint,uint,uint)" },
         { &ServerFunctions.TurnBasedBegin, "turn_based_begin", "void %s(Map&)" },
         { &ServerFunctions.TurnBasedEnd, "turn_based_end", "void %s(Map&)" },
@@ -1263,59 +1260,6 @@ void FOServer::SScriptFunc::Item_set_TrapValue( Item* item, short value )
 short FOServer::SScriptFunc::Item_get_TrapValue( Item* item )
 {
     return item->Data.TrapValue;
-}
-
-uint FOServer::SScriptFunc::CraftItem_GetShowParams( CraftItem* craft, CScriptArray* nums, CScriptArray* vals, CScriptArray* ors )
-{
-    if( nums )
-        Script::AppendVectorToArray( craft->ShowPNum, nums );
-    if( vals )
-        Script::AppendVectorToArray( craft->ShowPVal, vals );
-    if( ors )
-        Script::AppendVectorToArray( craft->ShowPOr, ors );
-    return (uint) craft->ShowPNum.size();
-}
-
-uint FOServer::SScriptFunc::CraftItem_GetNeedParams( CraftItem* craft, CScriptArray* nums, CScriptArray* vals, CScriptArray* ors )
-{
-    if( nums )
-        Script::AppendVectorToArray( craft->NeedPNum, nums );
-    if( vals )
-        Script::AppendVectorToArray( craft->NeedPVal, vals );
-    if( ors )
-        Script::AppendVectorToArray( craft->NeedPOr, ors );
-    return (uint) craft->NeedPNum.size();
-}
-
-uint FOServer::SScriptFunc::CraftItem_GetNeedTools( CraftItem* craft, CScriptArray* pids, CScriptArray* vals, CScriptArray* ors )
-{
-    if( pids )
-        Script::AppendVectorToArray( craft->NeedTools, pids );
-    if( vals )
-        Script::AppendVectorToArray( craft->NeedToolsVal, vals );
-    if( ors )
-        Script::AppendVectorToArray( craft->NeedToolsOr, ors );
-    return (uint) craft->NeedTools.size();
-}
-
-uint FOServer::SScriptFunc::CraftItem_GetNeedItems( CraftItem* craft, CScriptArray* pids, CScriptArray* vals, CScriptArray* ors )
-{
-    if( pids )
-        Script::AppendVectorToArray( craft->NeedItems, pids );
-    if( vals )
-        Script::AppendVectorToArray( craft->NeedItemsVal, vals );
-    if( ors )
-        Script::AppendVectorToArray( craft->NeedItemsOr, ors );
-    return (uint) craft->NeedItems.size();
-}
-
-uint FOServer::SScriptFunc::CraftItem_GetOutItems( CraftItem* craft, CScriptArray* pids, CScriptArray* vals )
-{
-    if( pids )
-        Script::AppendVectorToArray( craft->OutItems, pids );
-    if( vals )
-        Script::AppendVectorToArray( craft->OutItemsVal, vals );
-    return (uint) craft->OutItems.size();
 }
 
 bool FOServer::SScriptFunc::Crit_IsPlayer( Critter* cr )
@@ -5260,11 +5204,6 @@ void FOServer::SScriptFunc::Global_GetProtoCritter( ushort proto_id, CScriptArra
     Script::AppendVectorToArray( data__, &data );
 }
 
-CraftItem* FOServer::SScriptFunc::Global_GetCraftItem( uint num )
-{
-    return MrFixit.GetCraft( num );
-}
-
 Critter* FOServer::SScriptFunc::Global_GetCritter( uint crid )
 {
     if( !crid )
@@ -6559,12 +6498,6 @@ void FOServer::SScriptFunc::Crit_SendFileToClient( Critter* critter, ScriptStrin
     file->Release( );
 }
 #endif // DISABLE_COLLECTION_FILE
-
-ScriptString* FOServer::SScriptFunc::CraftItem_GetScriptName(CraftItem* craft)
-{
-	const char* c_str = craft->Script.c_str();
-	return new ScriptString(c_str);
-}
 
 /************************************************************************/
 /*                                                                      */

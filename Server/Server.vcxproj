@@ -291,7 +291,6 @@
     <ClCompile Include="..\Source\BufferManager.cpp" />
     <ClCompile Include="..\Source\Common.cpp" />
     <ClCompile Include="..\Source\ConstantsManager.cpp" />
-    <ClCompile Include="..\Source\CraftManager.cpp" />
     <ClCompile Include="..\Source\Critter.cpp" />
     <ClCompile Include="..\Source\CritterManager.cpp" />
     <ClCompile Include="..\Source\CritterType.cpp" />
@@ -617,7 +616,6 @@
     <ClInclude Include="..\Source\BufferManager.h" />
     <ClInclude Include="..\Source\Common.h" />
     <ClInclude Include="..\Source\ConstantsManager.h" />
-    <ClInclude Include="..\Source\CraftManager.h" />
     <ClInclude Include="..\Source\Critter.h" />
     <ClInclude Include="..\Source\CritterData.h" />
     <ClInclude Include="..\Source\CritterManager.h" />

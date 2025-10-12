@@ -583,7 +583,6 @@
     <ClInclude Include="..\Source\Client.h" />
     <ClInclude Include="..\Source\Common.h" />
     <ClInclude Include="..\Source\ConstantsManager.h" />
-    <ClInclude Include="..\Source\CraftManager.h" />
     <ClInclude Include="..\Source\CritterCl.h" />
     <ClInclude Include="..\Source\CritterType.h" />
     <ClInclude Include="..\Source\Crypt.h" />
@@ -969,7 +968,6 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='ReleaseD3D|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="..\Source\ConstantsManager.cpp" />
-    <ClCompile Include="..\Source\CraftManager.cpp" />
     <ClCompile Include="..\Source\CritterCl.cpp" />
     <ClCompile Include="..\Source\CritterType.cpp" />
     <ClCompile Include="..\Source\Crypt.cpp">

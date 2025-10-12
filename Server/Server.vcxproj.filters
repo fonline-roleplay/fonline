@@ -89,9 +89,6 @@
     <ClCompile Include="..\Source\ConstantsManager.cpp">
       <Filter>Server</Filter>
     </ClCompile>
-    <ClCompile Include="..\Source\CraftManager.cpp">
-      <Filter>Server</Filter>
-    </ClCompile>
     <ClCompile Include="..\Source\Critter.cpp">
       <Filter>Server</Filter>
     </ClCompile>
@@ -389,9 +386,6 @@
       <Filter>Server</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\ConstantsManager.h">
-      <Filter>Server</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Source\CraftManager.h">
       <Filter>Server</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\Critter.h">

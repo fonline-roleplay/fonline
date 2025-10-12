@@ -547,7 +547,6 @@ struct ServerScriptFunctions
     int CheckLook;
     int ItemCost;
     int ItemsBarter;
-    int ItemsCrafted;
     int PlayerLevelUp;
     int TurnBasedBegin;
     int TurnBasedEnd;

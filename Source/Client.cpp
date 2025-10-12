@@ -381,7 +381,6 @@ bool FOClient::Init()
     MsgCombat = &CurLang.Msg[ TEXTMSG_COMBAT ];
     MsgQuest = &CurLang.Msg[ TEXTMSG_QUEST ];
     MsgHolo = &CurLang.Msg[ TEXTMSG_HOLO ];
-    MsgCraft = &CurLang.Msg[ TEXTMSG_CRAFT ];
     MsgInternal = &CurLang.Msg[ TEXTMSG_INTERNAL ];
     MsgUserHolo = new FOMsg;
     MsgUserHolo->LoadMsgFile( USER_HOLO_TEXTMSG_FILE, PT_TEXTS );
@@ -469,9 +468,6 @@ bool FOClient::Init()
             delete[] protos_uc;
         }
     }
-
-    // MrFixit
-    MrFixit.LoadCrafts( *MsgCraft );
 
     // Hex manager
     if( !HexMngr.Init() )
@@ -566,7 +562,6 @@ void FOClient::Finish()
     SprMngr.Finish();
     SndMngr.Finish();
     QuestMngr.Finish();
-    MrFixit.Finish();
     Script::Finish();
 
     SAFEDELA( ComBuf );
@@ -3234,12 +3229,6 @@ void FOClient::NetProcess()
         case NETMSG_PARAM:
             Net_OnChosenParam();
             break;
-        case NETMSG_CRAFT_ASK:
-            Net_OnCraftAsk();
-            break;
-        case NETMSG_CRAFT_RESULT:
-            Net_OnCraftResult();
-            break;
         case NETMSG_CLEAR_ITEMS:
             Net_OnChosenClearItems();
             break;
@@ -3834,23 +3823,6 @@ void FOClient::Net_SendLevelUp( ushort perk_up )
 
     // Perks
     Bout << perk_up;
-}
-
-void FOClient::Net_SendCraftAsk( UIntVec numbers )
-{
-    ushort count = (ushort) numbers.size();
-    uint   msg_len = sizeof( uint ) + sizeof( msg_len ) + sizeof( count ) + sizeof( uint ) * count;
-    Bout << NETMSG_CRAFT_ASK;
-    Bout << msg_len;
-    Bout << count;
-    for( int i = 0; i < count; i++ )
-        Bout << numbers[ i ];
-}
-
-void FOClient::Net_SendCraft( uint craft_num )
-{
-    Bout << NETMSG_SEND_CRAFT;
-    Bout << craft_num;
 }
 
 void FOClient::Net_SendPing( uchar ping )
@@ -7086,11 +7058,6 @@ void FOClient::Net_OnMsgData()
 
     switch( num_msg )
     {
-    case TEXTMSG_CRAFT:
-        // Reload crafts
-        MrFixit.Finish();
-        MrFixit.LoadCrafts( *MsgCraft );
-        break;
     case TEXTMSG_INTERNAL:
         // Reload critter types
         CritType::InitFromMsg( MsgInternal );
@@ -7652,22 +7619,6 @@ void FOClient::Net_OnViewMap()
 
 void FOClient::Net_OnServerFinishFileDownload( )
 {
-}
-
-void FOClient::Net_OnCraftAsk()
-{
-    uint   msg_len;
-    ushort count;
-    Bin >> msg_len;
-    Bin >> count;
-
-    CHECK_IN_BUFF_ERROR;
-}
-
-void FOClient::Net_OnCraftResult()
-{
-    uchar craft_result;
-    Bin >> craft_result;
 }
 
 void FOClient::SetGameColor( uint color )
@@ -13047,62 +12998,4 @@ ScriptString* FOClient::SScriptFunc::Global_WindowsExplorer_OpenFileName( Script
     if( !str.empty( ) )
         return new ScriptString( str );
     return nullptr;
-}
-
-uint FOClient::SScriptFunc::CraftItem_GetShowParams(CraftItem* craft, CScriptArray* nums, CScriptArray* vals, CScriptArray* ors)
-{
-	if (nums)
-		Script::AppendVectorToArray(craft->ShowPNum, nums);
-	if (vals)
-		Script::AppendVectorToArray(craft->ShowPVal, vals);
-	if (ors)
-		Script::AppendVectorToArray(craft->ShowPOr, ors);
-	return (uint)craft->ShowPNum.size();
-}
-
-uint FOClient::SScriptFunc::CraftItem_GetNeedParams(CraftItem* craft, CScriptArray* nums, CScriptArray* vals, CScriptArray* ors)
-{
-	if (nums)
-		Script::AppendVectorToArray(craft->NeedPNum, nums);
-	if (vals)
-		Script::AppendVectorToArray(craft->NeedPVal, vals);
-	if (ors)
-		Script::AppendVectorToArray(craft->NeedPOr, ors);
-	return (uint)craft->NeedPNum.size();
-}
-
-uint FOClient::SScriptFunc::CraftItem_GetNeedTools(CraftItem* craft, CScriptArray* pids, CScriptArray* vals, CScriptArray* ors)
-{
-	if (pids)
-		Script::AppendVectorToArray(craft->NeedTools, pids);
-	if (vals)
-		Script::AppendVectorToArray(craft->NeedToolsVal, vals);
-	if (ors)
-		Script::AppendVectorToArray(craft->NeedToolsOr, ors);
-	return (uint)craft->NeedTools.size();
-}
-
-uint FOClient::SScriptFunc::CraftItem_GetNeedItems(CraftItem* craft, CScriptArray* pids, CScriptArray* vals, CScriptArray* ors)
-{
-	if (pids)
-		Script::AppendVectorToArray(craft->NeedItems, pids);
-	if (vals)
-		Script::AppendVectorToArray(craft->NeedItemsVal, vals);
-	if (ors)
-		Script::AppendVectorToArray(craft->NeedItemsOr, ors);
-	return (uint)craft->NeedItems.size();
-}
-
-uint FOClient::SScriptFunc::CraftItem_GetOutItems(CraftItem* craft, CScriptArray* pids, CScriptArray* vals)
-{
-	if (pids)
-		Script::AppendVectorToArray(craft->OutItems, pids);
-	if (vals)
-		Script::AppendVectorToArray(craft->OutItemsVal, vals);
-	return (uint)craft->OutItems.size();
-}
-
-CraftItem* FOClient::SScriptFunc::Global_GetCraftItem(uint num)
-{
-	return MrFixit.GetCraft(num);
 }

@@ -422,8 +422,6 @@ int main( int argc, char* argv[] )
             Engine->GetTypeIdByDecl( "Location@[]" ),
             Engine->GetTypeIdByDecl( "GameVar@" ),
             Engine->GetTypeIdByDecl( "GameVar@[]" ),
-            Engine->GetTypeIdByDecl( "CraftItem@" ),
-            Engine->GetTypeIdByDecl( "CraftItem@[]" ),
         };
         int bad_typeids_count = sizeof( bad_typeids ) / sizeof( int );
         for( int k = 0; k < bad_typeids_count; k++ )

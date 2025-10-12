@@ -448,10 +448,6 @@ bool BufferManager::NeedProcess()
         return ( NETMSG_PARAM_SIZE + bufReadPos <= bufEndPos );
     case NETMSG_CRITTER_PARAM:
         return ( NETMSG_CRITTER_PARAM_SIZE + bufReadPos <= bufEndPos );
-    case NETMSG_SEND_CRAFT:
-        return ( NETMSG_SEND_CRAFT_SIZE + bufReadPos <= bufEndPos );
-    case NETMSG_CRAFT_RESULT:
-        return ( NETMSG_CRAFT_RESULT_SIZE + bufReadPos <= bufEndPos );
     case NETMSG_CLEAR_ITEMS:
         return ( NETMSG_CLEAR_ITEMS_SIZE + bufReadPos <= bufEndPos );
     case NETMSG_ADD_ITEM:
@@ -585,7 +581,6 @@ bool BufferManager::NeedProcess()
     case NETMSG_MAP_TEXT:
     case NETMSG_MAP_TEXT_MSG_LEX:
     case NETMSG_SEND_LEVELUP:
-    case NETMSG_CRAFT_ASK:
     case NETMSG_CONTAINER_INFO:
     case NETMSG_CRITTER_MOVE_ITEM:
     case NETMSG_COMBAT_RESULTS:
@@ -683,12 +678,6 @@ void BufferManager::SkipMsg( uint msg )
         break;
     case NETMSG_CRITTER_PARAM:
         size = NETMSG_CRITTER_PARAM_SIZE;
-        break;
-    case NETMSG_SEND_CRAFT:
-        size = NETMSG_SEND_CRAFT_SIZE;
-        break;
-    case NETMSG_CRAFT_RESULT:
-        size = NETMSG_CRAFT_RESULT_SIZE;
         break;
     case NETMSG_CLEAR_ITEMS:
         size = NETMSG_CLEAR_ITEMS_SIZE;
@@ -862,7 +851,6 @@ void BufferManager::SkipMsg( uint msg )
     case NETMSG_MAP_TEXT:
     case NETMSG_MAP_TEXT_MSG_LEX:
     case NETMSG_SEND_LEVELUP:
-    case NETMSG_CRAFT_ASK:
     case NETMSG_CONTAINER_INFO:
     case NETMSG_CRITTER_MOVE_ITEM:
     case NETMSG_COMBAT_RESULTS:
@@ -949,8 +937,6 @@ bool BufferManager::IsValidMsg( uint msg )
     case NETMSG_ALL_PARAMS:
     case NETMSG_PARAM:
     case NETMSG_CRITTER_PARAM:
-    case NETMSG_SEND_CRAFT:
-    case NETMSG_CRAFT_RESULT:
     case NETMSG_CLEAR_ITEMS:
     case NETMSG_ADD_ITEM:
     case NETMSG_REMOVE_ITEM:
@@ -1009,7 +995,6 @@ bool BufferManager::IsValidMsg( uint msg )
     case NETMSG_MAP_TEXT:
     case NETMSG_MAP_TEXT_MSG_LEX:
     case NETMSG_SEND_LEVELUP:
-    case NETMSG_CRAFT_ASK:
     case NETMSG_CONTAINER_INFO:
     case NETMSG_TALK_NPC:
     case NETMSG_SEND_BARTER:

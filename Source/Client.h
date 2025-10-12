@@ -13,7 +13,6 @@
 #include "BufferManager.h"
 #include "Text.h"
 #include "QuestManager.h"
-#include "CraftManager.h"
 #include "ConstantsManager.h"
 #include "ResourceManager.h"
 #include "CritterType.h"
@@ -139,8 +138,6 @@ public:
     void Net_SendDir();
     void Net_SendMove( UCharVec steps );
     void Net_SendLevelUp( ushort perk_up );
-    void Net_SendCraftAsk( UIntVec numbers );
-    void Net_SendCraft( uint craft_num );
     void Net_SendPing( uchar ping );
     void Net_SendPlayersBarter( uchar barter, uint param, uint param_ext );
     void Net_SendScreenAnswer( uint answer_i, const char* answer_s );
@@ -193,8 +190,6 @@ public:
     void Net_OnCritterXY();
     void Net_OnChosenParams();
     void Net_OnChosenParam();
-    void Net_OnCraftAsk();
-    void Net_OnCraftResult();
     void Net_OnChosenClearItems();
     void Net_OnChosenAddItem();
     void Net_OnChosenEraseItem();
@@ -259,7 +254,7 @@ public:
 
     // MSG File
     LanguagePack CurLang;
-    FOMsg*       MsgText, * MsgDlg, * MsgItem, * MsgGame, * MsgGM, * MsgCombat, * MsgQuest, * MsgHolo, * MsgUserHolo, * MsgCraft, * MsgInternal;
+    FOMsg*       MsgText, * MsgDlg, * MsgItem, * MsgGame, * MsgGM, * MsgCombat, * MsgQuest, * MsgHolo, * MsgUserHolo, * MsgInternal;
 
     const char* GetHoloText( uint str_num );
     const char* FmtGameText( uint str_num, ... );
@@ -686,13 +681,6 @@ public:
 		static FOWindow*     Global_GetMainWindows( );
 
         static ScriptString* Global_WindowsExplorer_OpenFileName( ScriptString& filter );
-
-		static uint			 CraftItem_GetShowParams(CraftItem* craft, CScriptArray* nums, CScriptArray* vals, CScriptArray* ors);
-		static uint			 CraftItem_GetNeedParams(CraftItem* craft, CScriptArray* nums, CScriptArray* vals, CScriptArray* ors);
-		static uint			 CraftItem_GetNeedTools(CraftItem* craft, CScriptArray* pids, CScriptArray* vals, CScriptArray* ors);
-		static uint			 CraftItem_GetNeedItems(CraftItem* craft, CScriptArray* pids, CScriptArray* vals, CScriptArray* ors);
-		static uint			 CraftItem_GetOutItems(CraftItem* craft, CScriptArray* pids, CScriptArray* vals);
-		static CraftItem*	 Global_GetCraftItem(uint num);
 
         static void Global_SetDebugLookMode( bool isDebug );
         static bool Global_IsDebugLookMode( );

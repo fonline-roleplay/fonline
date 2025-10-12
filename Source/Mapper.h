@@ -62,7 +62,7 @@ public:
 
     // MSG File
     LanguagePack CurLang;
-    FOMsg*       MsgText, * MsgDlg, * MsgItem, * MsgGame, * MsgGM, * MsgCombat, * MsgQuest, * MsgHolo, * MsgCraft;
+    FOMsg*       MsgText, * MsgDlg, * MsgItem, * MsgGame, * MsgGM, * MsgCombat, * MsgQuest, * MsgHolo;
 
     // Map text
     struct MapText

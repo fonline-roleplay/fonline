@@ -3672,7 +3672,7 @@ Client::SendCallback Client::SendData = NULL;
 
 Client::Client(): ZstrmInit( false ), Access( ACCESS_DEFAULT ), pingOk( true ), LanguageMsg( 0 ),
                   GameState( STATE_NONE ), IsDisconnected( false ), DisconnectTick( 0 ), DisableZlib( false ),
-                  LastSendScoresTick( 0 ), LastSendCraftTick( 0 ), LastSendEntrancesTick( 0 ), LastSendEntrancesLocId( 0 ),
+                  LastSendScoresTick( 0 ), LastSendEntrancesTick( 0 ), LastSendEntrancesLocId( 0 ),
                   ScreenCallbackBindId( 0 ), ConnectTime( 0 ), LastSendedMapTick( 0 ), RadioMessageSended( 0 )
 {
     CritterIsNpc = false;
@@ -5446,7 +5446,6 @@ void Client::BarterEraseItem( uint item_id )
 void Client::DropTimers( bool send )
 {
     LastSendScoresTick = 0;
-    LastSendCraftTick = 0;
     LastSendEntrancesTick = 0;
     LastSendEntrancesLocId = 0;
     if( send )

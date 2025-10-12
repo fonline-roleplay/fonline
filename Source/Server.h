@@ -11,7 +11,6 @@
 #include "ItemManager.h"
 #include "Dialogs.h"
 #include "Vars.h"
-#include "CraftManager.h"
 #include "ConstantsManager.h"
 #include "CritterType.h"
 #include "NetProtocol.h"
@@ -73,8 +72,6 @@ public:
     static void Process_SetUserHoloStr( Client* cl );
     static void Process_GetUserHoloStr( Client* cl );
     static void Process_LevelUp( Client* cl );
-    static void Process_CraftAsk( Client* cl );
-    static void Process_Craft( Client* cl );
     static void Process_Ping( Client* cl );
     static void Process_PlayersBarter( Client* cl );
     static void Process_ScreenAnswer( Client* cl );
@@ -275,7 +272,6 @@ public:
 
     // Lang packs
     static LangPackVec LangPacks;     // Todo: synchronize
-    static bool InitCrafts( LangPackVec& lang_packs );
     static bool InitLangPacks( LangPackVec& lang_packs );
     static bool InitLangPacksDialogs( LangPackVec& lang_packs );
     static void FinishLangPacks();
@@ -553,13 +549,6 @@ public:
         static uint  Item_get_Flags( Item* item );
         static void  Item_set_TrapValue( Item* item, short value );
         static short Item_get_TrapValue( Item* item );
-
-        static uint CraftItem_GetShowParams( CraftItem* craft, CScriptArray* nums, CScriptArray* vals, CScriptArray* ors );
-        static uint CraftItem_GetNeedParams( CraftItem* craft, CScriptArray* nums, CScriptArray* vals, CScriptArray* ors );
-        static uint CraftItem_GetNeedTools( CraftItem* craft, CScriptArray* pids, CScriptArray* vals, CScriptArray* ors );
-        static uint CraftItem_GetNeedItems( CraftItem* craft, CScriptArray* pids, CScriptArray* vals, CScriptArray* ors );
-        static uint CraftItem_GetOutItems( CraftItem* craft, CScriptArray* pids, CScriptArray* vals );
-		static ScriptString* CraftItem_GetScriptName(CraftItem* craft);
 
         static bool         Crit_IsPlayer( Critter* cr );
         static bool         Crit_IsNpc( Critter* cr );
@@ -874,7 +863,6 @@ public:
         static void          Global_DeleteLocation( uint loc_id );
         static void          Global_GetProtoCritter( ushort proto_id, CScriptArray& data );
         static Critter*      Global_GetCritter( uint crid );
-        static CraftItem*    Global_GetCraftItem( uint num );
         static Critter*      Global_GetPlayer( ScriptString& name );
         static uint          Global_GetPlayerId( ScriptString& name );
         static ScriptString* Global_GetPlayerName( uint id );

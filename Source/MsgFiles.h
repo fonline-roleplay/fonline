@@ -4,17 +4,21 @@
 #include "Common.h"
 #include "MsgStr.h"
 
-#define TEXTMSG_TEXT        ( 0 )
-#define TEXTMSG_DLG         ( 1 )
-#define TEXTMSG_ITEM        ( 2 )
-#define TEXTMSG_GAME        ( 3 )
-#define TEXTMSG_GM          ( 4 )
-#define TEXTMSG_COMBAT      ( 5 )
-#define TEXTMSG_QUEST       ( 6 )
-#define TEXTMSG_HOLO        ( 7 )
-#define TEXTMSG_CRAFT       ( 8 )
-#define TEXTMSG_INTERNAL    ( 9 )
-#define TEXTMSG_COUNT       ( 10 )
+enum TEXTMSG_TYPES
+{
+	TEXTMSG_TEXT = 0,
+	TEXTMSG_DLG,
+	TEXTMSG_ITEM,
+	TEXTMSG_GAME,
+	TEXTMSG_GM,
+	TEXTMSG_COMBAT,
+	TEXTMSG_QUEST,
+	TEXTMSG_HOLO,
+	TEXTMSG_INTERNAL,
+	
+	TEXTMSG_COUNT
+};
+
 extern const char* TextMsgFileName[ TEXTMSG_COUNT ];
 
 #define DEFAULT_LANGUAGE    "russ"

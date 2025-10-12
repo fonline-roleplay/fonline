@@ -125,9 +125,6 @@
     <ClInclude Include="..\Source\ConstantsManager.h">
       <Filter>Client</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\CraftManager.h">
-      <Filter>Client</Filter>
-    </ClInclude>
     <ClInclude Include="..\Source\CritterCl.h">
       <Filter>Client</Filter>
     </ClInclude>
@@ -650,9 +647,6 @@
       <Filter>Client</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\ConstantsManager.cpp">
-      <Filter>Client</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Source\CraftManager.cpp">
       <Filter>Client</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\CritterCl.cpp">

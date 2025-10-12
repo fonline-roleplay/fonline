@@ -219,7 +219,6 @@ bool FOMapper::Init()
     MsgCombat = &CurLang.Msg[ TEXTMSG_COMBAT ];
     MsgQuest = &CurLang.Msg[ TEXTMSG_QUEST ];
     MsgHolo = &CurLang.Msg[ TEXTMSG_HOLO ];
-    MsgCraft = &CurLang.Msg[ TEXTMSG_CRAFT ];
 
     // Critter types
     CritType::InitFromFile( NULL );

@@ -53,7 +53,6 @@ const char ClientSaveSignature[ 4 ] = { 'F', 'O', 0, CLIENT_SAVE_LAST };
 // Generic
 #define WORLD_START_TIME             "07:00 30:10:2246 x00"
 #define MAX_FOPATH                   ( 1024 )
-#define CRAFT_SEND_TIME              ( 60000 )
 #define LEXEMS_SIZE                  ( 128 )
 #define MAX_HOLO_INFO                ( 250 )
 #define MAX_PARAMETERS_ARRAYS        ( 100 )
@@ -175,12 +174,6 @@ const char ClientSaveSignature[ 4 ] = { 'F', 'O', 0, CLIENT_SAVE_LAST };
 // Pick types
 #define PICK_CRIT_LOOT               ( 0 )
 #define PICK_CRIT_PUSH               ( 1 )
-
-// Craft results
-#define CRAFT_RESULT_NONE            ( 0 )
-#define CRAFT_RESULT_SUCC            ( 1 )
-#define CRAFT_RESULT_FAIL            ( 2 )
-#define CRAFT_RESULT_TIMEOUT         ( 3 )
 
 // Locker
 #define LOCKER_ISOPEN                ( 0x01 )

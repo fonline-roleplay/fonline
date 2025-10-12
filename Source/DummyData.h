@@ -522,18 +522,6 @@ struct ProtoMap
     void Release() {}
 };
 
-struct CraftItem
-{
-    int  Num;
-    int  Name;
-    int  Info;
-    int  Experience;
-    int  Script;
-
-    void AddRef()  {}
-    void Release() {}
-};
-
 struct BindClass
 {
     #ifdef BIND_SERVER
@@ -1070,13 +1058,6 @@ struct BindClass
     static void Global_GetCritterTypeName()             {}
     static void Global_GetCritterSoundName()            {}
     static void Global_GetGlobalMapRelief()             {}
-    static void Global_GetCraftItem()                   {}
-
-	static void CraftItem_GetShowParams() {}
-	static void CraftItem_GetNeedParams() {}
-	static void CraftItem_GetNeedTools() {}
-	static void CraftItem_GetNeedItems() {}
-	static void CraftItem_GetOutItems() {}
     #endif
 
     #ifdef BIND_MAPPER
