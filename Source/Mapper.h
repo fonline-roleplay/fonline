@@ -164,12 +164,10 @@ public:
     ushort     SelectHX1, SelectHY1, SelectHX2, SelectHY2;
     int        SelectX, SelectY;
 
-	enum SelectTypes {
-		SELECT_TYPE_OLD = 0,
-		SELECT_TYPE_NEW,
-		SELECT_TYPE_TILES,
-		SELECT_TYPE_MAX
-	};
+	#define SELECT_TYPE_OLD				( 0 )
+	#define SELECT_TYPE_NEW				( 1 )
+	#define SELECT_TYPE_TILES			( 2 )
+	#define SLECT_TYPE_MAX				( 3 )
 
     int  SelectType;
 	bool StrictTilePlasing;
