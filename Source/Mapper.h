@@ -167,7 +167,7 @@ public:
 	#define SELECT_TYPE_OLD				( 0 )
 	#define SELECT_TYPE_NEW				( 1 )
 	#define SELECT_TYPE_TILES			( 2 )
-	#define SLECT_TYPE_MAX				( 3 )
+	#define SELECT_TYPE_MAX				( 3 )
 
     int  SelectType;
 	bool StrictTilePlasing;

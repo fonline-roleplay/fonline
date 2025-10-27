@@ -5448,8 +5448,22 @@ void FOMapper::SaveMapFile(string map_name)
 
 	SelectClear();
 	HexMngr.RefreshMap();
-	FileManager::SetDataPath(GameOpt.ServerPath.c_str());
-	if (CurProtoMap->Save(map_name.c_str(), PT_SERVER_MAPS))
+
+	bool isSuccess = false;
+
+	if (map_name[1] != ':')
+	{
+		FileManager::SetDataPath(GameOpt.ServerPath.c_str());
+		if (CurProtoMap->Save(map_name.c_str(), PT_SERVER_MAPS))
+			isSuccess = true;
+	}
+	else
+	{
+		if (CurProtoMap->Save(map_name.c_str(), -1))
+			isSuccess = true;
+	}
+
+	if(isSuccess)
 		AddMess("Save map success.");
 	else
 		AddMess("Save map fail, see log.");
