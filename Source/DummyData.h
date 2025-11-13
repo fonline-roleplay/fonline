@@ -1029,7 +1029,6 @@ struct BindClass
     static void Global_SetDebugLookMode()       {}
     static void Global_IsDebugLookMode()        {}
 
-    static int  ConsoleActive;
     static int  GmapActive, GmapWait;
     static int  GmapZoom;
     static int  GmapOffsetX, GmapOffsetY;
@@ -1185,6 +1184,7 @@ struct BindClass
     static void Global_SendFileToServer()   {}
 	static void Global_OpenWebLink()        {}
 	static void Global_ChosenRefreshMap()   {}
+	static int  ConsoleActive;
     #endif
 
     static void Global_GetLastError()           {}
@@ -1212,7 +1212,7 @@ struct BindClass
     static void Global_WindowsExplorer_OpenFileName( ){}
 };
 
-#ifdef BIND_CLIENT
+#if defined ( BIND_CLIENT ) || defined ( BIND_MAPPER )
 int BindClass::ConsoleActive;
 int BindClass::GmapActive;
 int BindClass::GmapWait;

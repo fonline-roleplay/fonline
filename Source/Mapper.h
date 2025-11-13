@@ -362,7 +362,6 @@ public:
     // Console
     AnyFrames*       ConsolePic;
     int              ConsolePicX, ConsolePicY, ConsoleTextX, ConsoleTextY;
-    bool             ConsoleEdit;
     char             ConsoleStr[ MAX_NET_TEXT + 1 ];
     int              ConsoleCur;
 
@@ -374,6 +373,7 @@ public:
     int  ConsoleLastKey;
     uint ConsoleKeyTick;
     int  ConsoleAccelerate;
+	static bool ConsoleActive;
 
 	uint LastSaveCall;
 	uint NextCursorEnabling;
@@ -572,6 +572,8 @@ public:
         static ScriptString* Global_GetCritterTypeName( uint cr_type );
         static ScriptString* Global_GetCritterSoundName( uint cr_type );
 		static ScriptString* Global_WindowsExplorer_OpenFileName(ScriptString& filter);
+
+		static bool&         ConsoleActive;
     };
 };
 
