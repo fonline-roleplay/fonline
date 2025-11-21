@@ -500,6 +500,7 @@ bool CritterCl::IsItemAim( uchar num_slot )
 
 bool CritterCl::CheckFind( int find_type )
 {
+	// Critter Type Flags - APAMk2
     if( IsNpc() )
     {
         if( FLAG( find_type, FIND_ONLY_PLAYERS ) )
@@ -510,10 +511,21 @@ bool CritterCl::CheckFind( int find_type )
         if( FLAG( find_type, FIND_ONLY_NPC ) )
             return false;
     }
-    return FLAG( find_type, FIND_ALL ) ||
-           ( IsLife() && FLAG( find_type, FIND_LIFE ) ) ||
-           ( IsKnockout() && FLAG( find_type, FIND_KO ) ) ||
-           ( IsDead() && FLAG( find_type, FIND_DEAD ) );
+
+	// Critter State Flags - APAMk2
+	if( FLAG( find_type, FIND_ALL ) )
+		return true;
+
+	if( IsLife() && FLAG( find_type, FIND_LIFE ) )
+		return true;
+
+	if( IsKnockout() && FLAG( find_type, FIND_KO ) )
+		return true;
+
+	if( IsDead() && FLAG( find_type, FIND_DEAD ) )
+		return true;
+
+	return false;
 }
 
 uint CritterCl::GetLook()

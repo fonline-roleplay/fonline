@@ -10984,7 +10984,7 @@ uint FOClient::SScriptFunc::Global_GetCrittersByPids( ushort pid, int find_type,
 uint FOClient::SScriptFunc::Global_GetCrittersInPath( ushort from_hx, ushort from_hy, ushort to_hx, ushort to_hy, float angle, uint dist, int find_type, CScriptArray* critters )
 {
     CritVec cr_vec;
-    Self->HexMngr.TraceBullet( from_hx, from_hy, to_hx, to_hy, dist, angle, NULL, false, &cr_vec, FIND_LIFE | FIND_KO, NULL, NULL, NULL, true, nullptr);
+    Self->HexMngr.TraceBullet( from_hx, from_hy, to_hx, to_hy, dist, angle, NULL, false, &cr_vec, find_type, NULL, NULL, NULL, true, nullptr);
     if( critters )
         Script::AppendVectorToArrayRef< CritterCl* >( cr_vec, critters );
     return (uint) cr_vec.size();
