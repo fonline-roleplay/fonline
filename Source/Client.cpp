@@ -4107,7 +4107,6 @@ void FOClient::Net_OnAddCritter( bool is_npc )
             cr->MoveSteps.clear();
             HexMngr.FindSetCenter( cr->HexX, cr->HexY );
             cr->AnimateStay();
-            SndMngr.PlayAmbient( MsgGM->GetStr( STR_MAP_AMBIENT_( HexMngr.GetCurPidMap() ) ) );
             ShowMainScreen( SCREEN_GAME );
             ScreenFadeOut();
             HexMngr.RebuildLight();
@@ -7603,7 +7602,7 @@ void FOClient::Net_OnViewMap()
         return;
 
     HexMngr.FindSetCenter( hx, hy );
-    SndMngr.PlayAmbient( MsgGM->GetStr( STR_MAP_AMBIENT_( HexMngr.GetCurPidMap() ) ) );
+    //SndMngr.PlayAmbient( MsgGM->GetStr( STR_MAP_AMBIENT_( HexMngr.GetCurPidMap() ) ) );
     ShowMainScreen( SCREEN_GAME );
     ScreenFadeOut();
     HexMngr.RebuildLight();
@@ -9621,15 +9620,6 @@ void FOClient::SoundProcess()
 {
     // Manager
     SndMngr.Process();
-
-    // Ambient
-    static uint next_ambient = 0;
-    if( Timer::GameTick() > next_ambient )
-    {
-        if( IsMainScreen( SCREEN_GAME ) )
-            SndMngr.PlayAmbient( MsgGM->GetStr( STR_MAP_AMBIENT_( HexMngr.GetCurPidMap() ) ) );
-        next_ambient = Timer::GameTick() + Random( AMBIENT_SOUND_TIME / 2, AMBIENT_SOUND_TIME );
-    }
 }
 
 #ifndef FO_D3D
