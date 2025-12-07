@@ -12671,6 +12671,11 @@ ushort FOClient::SScriptFunc::Global_GetMapHeight()
     return Self->HexMngr.GetMaxHexY();
 }
 
+int FOClient::SScriptFunc::Global_GetMapTime()
+{
+	return Self->HexMngr.GetMapTime();
+}
+
 int FOClient::SScriptFunc::Global_GetCurrentCursor()
 {
     return Self->CurMode;

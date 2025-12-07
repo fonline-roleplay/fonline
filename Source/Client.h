@@ -661,6 +661,7 @@ public:
         static CritterCl*    Global_GetMonitorCritter( int x, int y, bool ignore_interface );
         static ushort        Global_GetMapWidth();
         static ushort        Global_GetMapHeight();
+		static int			 Global_GetMapTime();
         static int           Global_GetCurrentCursor();
         static int           Global_GetLastCursor();
         static void          Global_ChangeCursor( int cursor );
