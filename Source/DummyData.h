@@ -977,6 +977,7 @@ struct BindClass
     static void Global_GetChosenActions()       {}
     static void Global_SetChosenActions()       {}
     static void Global_GetItem()                {}
+	static void Global_GetItems()				{}
     static void Global_GetCrittersDistantion()  {}
     static void Global_GetCritter()             {}
     static void Global_GetCritters()            {}

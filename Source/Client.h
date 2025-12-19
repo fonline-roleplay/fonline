@@ -546,6 +546,7 @@ public:
         static uint          Global_GetChosenActions( CScriptArray* actions );
         static void          Global_SetChosenActions( CScriptArray* actions );
         static Item*         Global_GetItem( uint item_id );
+		static uint			 Global_GetItems( ushort hx, ushort hy, CScriptArray* items );
         static uint          Global_GetCrittersDistantion( CritterCl* cr1, CritterCl* cr2 );
         static CritterCl*    Global_GetCritter( uint critter_id );
         static uint          Global_GetCritters( ushort hx, ushort hy, uint radius, int find_type, CScriptArray* critters );

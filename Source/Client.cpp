@@ -9036,7 +9036,7 @@ label_EndMove:
 
 void FOClient::TryPickItemOnGround()
 {
-    if( !Chosen )
+    if( !Chosen ) 
         return;
     ItemHexVec items;
     HexMngr.GetItems( Chosen->GetHexX(), Chosen->GetHexY(), items );
@@ -10897,6 +10897,40 @@ Item* FOClient::SScriptFunc::Global_GetItem( uint item_id )
     if( !item || item->IsNotValid )
         return NULL;
     return item;
+}
+
+uint FOClient::SScriptFunc::Global_GetItems( ushort hx, ushort hy, CScriptArray* itemsVec )
+{
+	if (hx >= Self->HexMngr.GetMaxHexX() || hy >= Self->HexMngr.GetMaxHexY())
+		SCRIPT_ERROR_R0("Invalid hexes args.");
+	ItemHexVec itemsHex;
+	Self->HexMngr.GetItems(hx, hy, itemsHex);
+	for (auto it = itemsHex.begin(); it != itemsHex.end();)
+	{
+		ItemHex* item = *it;
+		if (item->IsFinishing() || item->Proto->IsDoor() || !item->IsUsable())
+			it = itemsHex.erase(it);
+		else
+			++it;
+	}
+	if (itemsHex.empty())
+		return 0;
+
+	ItemPtrVec items;
+	items.resize(itemsHex.size());
+	int index = 0;
+	for (auto it = itemsHex.begin(); it != itemsHex.end(); it++)
+	{
+		Item* item = *it;
+		items[index] = item;
+		index++;
+	}
+
+	if (itemsVec)
+	{
+		Script::AppendVectorToArrayRef< Item* >(items, itemsVec);
+	}
+	return (uint)items.size();
 }
 
 uint FOClient::SScriptFunc::Global_GetCrittersDistantion( CritterCl* cr1, CritterCl* cr2 )

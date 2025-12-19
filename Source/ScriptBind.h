@@ -1018,6 +1018,7 @@ BIND_ASSERT( engine->RegisterGlobalFunction( "CritterCl@+ GetChosen()", asFUNCTI
 BIND_ASSERT( engine->RegisterGlobalFunction( "uint GetChosenActions(uint[]@+ actions)", asFUNCTION( BIND_CLASS Global_GetChosenActions ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "void SetChosenActions(uint[]@+ actions)", asFUNCTION( BIND_CLASS Global_SetChosenActions ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "ItemCl@+ GetItem(uint itemId)", asFUNCTION( BIND_CLASS Global_GetItem ), asCALL_CDECL ) );
+BIND_ASSERT( engine->RegisterGlobalFunction( "uint GetItems(uint16 hexX, uint16 hexY, ItemCl@[]@+ itemsVec)", asFUNCTION( BIND_CLASS Global_GetItems ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "uint GetCrittersDistantion(CritterCl& cr1, CritterCl& cr2)", asFUNCTION( BIND_CLASS Global_GetCrittersDistantion ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "CritterCl@+ GetCritter(uint critterId)", asFUNCTION( BIND_CLASS Global_GetCritter ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "uint GetCrittersHex(uint16 hexX, uint16 hexY, uint radius, int findType, CritterCl@[]@+ critters)", asFUNCTION( BIND_CLASS Global_GetCritters ), asCALL_CDECL ) );
