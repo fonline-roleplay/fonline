@@ -9209,7 +9209,7 @@ void FOClient::PupDraw()
         return;
 
     // Info window
-    if( PupTransferType == TRANSFER_HEX_CONT_UP || PupTransferType == TRANSFER_HEX_CONT_DOWN || PupTransferType == TRANSFER_FAR_CONT )
+    if( PupTransferType == TRANSFER_HEX_CONT_UP || PupTransferType == TRANSFER_HEX_CONT_DOWN || PupTransferType == TRANSFER_FAR_CONT || PupTransferType == TRANSFER_SELF_CONT )
     {
         ProtoItem* proto_item = ItemMngr.GetProtoItem( PupContPid );
         if( proto_item )

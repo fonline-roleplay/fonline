@@ -6420,7 +6420,7 @@ void FOClient::Net_OnContainerInfo()
     else
     {
         PupTransferType = transfer_type;
-        PupContPid = ( transfer_type == TRANSFER_HEX_CONT_UP || transfer_type == TRANSFER_HEX_CONT_DOWN || transfer_type == TRANSFER_FAR_CONT ? cont_pid : 0 );
+        PupContPid = ( transfer_type == TRANSFER_HEX_CONT_UP || transfer_type == TRANSFER_HEX_CONT_DOWN || transfer_type == TRANSFER_FAR_CONT || transfer_type == TRANSFER_SELF_CONT ? cont_pid : 0 );
         PupCount = items_count;
         PupCont2Init.clear();
         PupCont2Init = item_container;
