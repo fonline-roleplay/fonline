@@ -12745,6 +12745,50 @@ bool FOClient::SScriptFunc::Global_IsDebugLookMode( )
     return Self->DebugLookBorder.IsDrawView;
 }
 
+void FOClient::SScriptFunc::Global_SetConsoleMode( bool shouldEnable )
+{
+	if (shouldEnable && !ConsoleActive )
+	{
+		Self->ConsoleActive = true;
+		Self->ConsoleStr[0] = 0;
+		Self->ConsoleCur = 0;
+		Self->ConsoleHistoryCur = (int)Self->ConsoleHistory.size();
+		return;
+	}
+
+	if ( !shouldEnable && !Self->ConsoleStr[0] )
+	{
+		Self->ConsoleActive = false;
+		return;
+	}
+
+	if (!shouldEnable)
+	{
+		Self->ConsoleHistory.push_back(string(Self->ConsoleStr));
+		for (uint i = 0; i < Self->ConsoleHistory.size() - 1; i++)
+		{
+			if (Self->ConsoleHistory[i] == Self->ConsoleHistory[Self->ConsoleHistory.size() - 1])
+			{
+				Self->ConsoleHistory.erase(Self->ConsoleHistory.begin() + i);
+				i = -1;
+			}
+		}
+		Self->ConsoleHistoryCur = (int)Self->ConsoleHistory.size();
+
+		if (Keyb::CtrlDwn)
+			Self->Net_SendText(Self->ConsoleStr, SAY_SHOUT);
+		else if (Keyb::AltDwn)
+			Self->Net_SendText(Self->ConsoleStr, SAY_WHISP);
+		else if (Keyb::ShiftDwn)
+			Self->Net_SendText(Self->ConsoleStr, SAY_RADIO);
+		else
+			Self->Net_SendText(Self->ConsoleStr, SAY_NORM);
+
+		Self->ConsoleStr[0] = 0;
+		Self->ConsoleCur = 0;
+	}
+}
+
 bool&  FOClient::SScriptFunc::ConsoleActive = FOClient::ConsoleActive;
 bool&  FOClient::SScriptFunc::GmapActive = FOClient::GmapActive;
 bool&  FOClient::SScriptFunc::GmapWait = FOClient::GmapWait;

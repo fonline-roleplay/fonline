@@ -1031,6 +1031,8 @@ struct BindClass
     static void Global_SetDebugLookMode()       {}
     static void Global_IsDebugLookMode()        {}
 
+	static void Global_SetConsoleMode()			{}
+
     static int  GmapActive, GmapWait;
     static int  GmapZoom;
     static int  GmapOffsetX, GmapOffsetY;

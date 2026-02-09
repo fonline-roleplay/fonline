@@ -687,6 +687,8 @@ public:
         static void Global_SetDebugLookMode( bool isDebug );
         static bool Global_IsDebugLookMode( );
 
+		static void Global_SetConsoleMode( bool shouldEnable );
+
         static bool&         ConsoleActive;
         static bool&         GmapActive, & GmapWait;
         static float&        GmapZoom;

@@ -1118,6 +1118,8 @@ BIND_ASSERT( engine->RegisterGlobalFunction( "void OpenWebLink(string& text)", a
 BIND_ASSERT( engine->RegisterGlobalFunction( "void ChosenRefreshMap()", asFUNCTION( BIND_CLASS Global_ChosenRefreshMap ), asCALL_CDECL ) );
 //===================================================================
 
+BIND_ASSERT( engine->RegisterGlobalFunction( "void SetConsoleMode( bool shouldEnable )", asFUNCTION( BIND_CLASS Global_SetConsoleMode ), asCALL_CDECL ) );
+
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __GmapActive", &BIND_CLASS GmapActive ) );
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __GmapWait", &BIND_CLASS GmapWait ) );
 BIND_ASSERT( engine->RegisterGlobalProperty( "float __GmapZoom", &BIND_CLASS GmapZoom ) );
