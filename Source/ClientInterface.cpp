@@ -3783,7 +3783,7 @@ void FOClient::DlgLMouseDown( bool is_dialog )
         else if( IsCurInRect( DlgBScrDn, DlgX, DlgY ) && BarterIsPlayers )
             IfaceHold = IFACE_DLG_SCR_DN;
 
-        if( IsCurMode( CUR_DEFAULT ) && (!Keyb::ShiftDwn && !Keyb::CtrlDwn) && ( IfaceHold == IFACE_BARTER_CONT1 || IfaceHold == IFACE_BARTER_CONT2 || IfaceHold == IFACE_BARTER_CONT1O || IfaceHold == IFACE_BARTER_CONT2O ) )
+        if( IsCurMode( CUR_DEFAULT ) && (!Keyb::ShiftDwn && !Keyb::CtrlDwn && !Keyb::AltDwn) && ( IfaceHold == IFACE_BARTER_CONT1 || IfaceHold == IFACE_BARTER_CONT2 || IfaceHold == IFACE_BARTER_CONT1O || IfaceHold == IFACE_BARTER_CONT2O ) )
         {
             IfaceHold = IFACE_NONE;
             LMenuTryActivate();
@@ -3867,7 +3867,7 @@ void FOClient::DlgLMouseUp( bool is_dialog )
     {
         if( IfaceHold == IFACE_BARTER_CONT1 )
         {
-            if( IsCurInRect( BarterWCont1o, DlgX, DlgY ) || Keyb::ShiftDwn || Keyb::CtrlDwn )
+            if( IsCurInRect( BarterWCont1o, DlgX, DlgY ) || Keyb::ShiftDwn || Keyb::CtrlDwn || Keyb::AltDwn )
             {
                 auto it = std::find( BarterCont1.begin(), BarterCont1.end(), BarterHoldId );
                 if( it != BarterCont1.end() )
@@ -3875,54 +3875,54 @@ void FOClient::DlgLMouseUp( bool is_dialog )
                     Item& item = *it;
                     if( item.GetCount() > 1 && !Keyb::ShiftDwn && !Keyb::CtrlDwn )
                         SplitStart( &item, IFACE_BARTER_CONT1 );
-                    else if (!Keyb::ShiftDwn)
+                    else if (!Keyb::CtrlDwn && !Keyb::AltDwn)
                         BarterTransfer( BarterHoldId, IFACE_BARTER_CONT1, item.GetCount() );
-                    else
+                    else if (!Keyb::AltDwn && !Keyb::ShiftDwn)
                         AddActionBack(CHOSEN_MOVE_ITEM, BarterHoldId, item.GetCount(), SLOT_GROUND, 0);
                 }
             }
         }
         else if( IfaceHold == IFACE_BARTER_CONT2 )
         {
-            if( (IsCurInRect( BarterWCont2o, DlgX, DlgY ) || Keyb::CtrlDwn) && !( BarterIsPlayers && BarterOpponentHide ) )
+            if( (IsCurInRect( BarterWCont2o, DlgX, DlgY ) || Keyb::ShiftDwn || Keyb::AltDwn) && !( BarterIsPlayers && BarterOpponentHide ) )
             {
                 auto it = std::find( BarterCont2.begin(), BarterCont2.end(), BarterHoldId );
                 if( it != BarterCont2.end() )
                 {
                     Item& item = *it;
-                    if( item.GetCount() > 1 && !Keyb::CtrlDwn )
+                    if( item.GetCount() > 1 && !Keyb::ShiftDwn )
                         SplitStart( &item, IFACE_BARTER_CONT2 );
-                    else
+                    else if(!Keyb::AltDwn)
                         BarterTransfer( BarterHoldId, IFACE_BARTER_CONT2, item.GetCount() );
                 }
             }
         }
         else if( IfaceHold == IFACE_BARTER_CONT1O )
         {
-            if( IsCurInRect( BarterWCont1, DlgX, DlgY ) || Keyb::CtrlDwn )
+            if( IsCurInRect( BarterWCont1, DlgX, DlgY ) || Keyb::ShiftDwn || Keyb::AltDwn )
             {
                 auto it = std::find( BarterCont1o.begin(), BarterCont1o.end(), BarterHoldId );
                 if( it != BarterCont1o.end() )
                 {
                     Item& item = *it;
-                    if( item.GetCount() > 1 && !Keyb::CtrlDwn )
+                    if( item.GetCount() > 1 && !Keyb::ShiftDwn )
                         SplitStart( &item, IFACE_BARTER_CONT1O );
-                    else
+                    else if (!Keyb::AltDwn)
                         BarterTransfer( BarterHoldId, IFACE_BARTER_CONT1O, item.GetCount() );
                 }
             }
         }
         else if( IfaceHold == IFACE_BARTER_CONT2O )
         {
-            if( (IsCurInRect( BarterWCont2, DlgX, DlgY ) || Keyb::CtrlDwn) && !( BarterIsPlayers && BarterOpponentHide ) )
+            if( (IsCurInRect( BarterWCont2, DlgX, DlgY ) || Keyb::ShiftDwn || Keyb::AltDwn) && !( BarterIsPlayers && BarterOpponentHide ) )
             {
                 auto it = std::find( BarterCont2o.begin(), BarterCont2o.end(), BarterHoldId );
                 if( it != BarterCont2o.end() )
                 {
                     Item& item = *it;
-                    if( item.GetCount() > 1 && !Keyb::CtrlDwn )
+                    if( item.GetCount() > 1 && !Keyb::ShiftDwn )
                         SplitStart( &item, IFACE_BARTER_CONT2O );
-                    else
+                    else if (!Keyb::AltDwn)
                         BarterTransfer( BarterHoldId, IFACE_BARTER_CONT2O, item.GetCount() );
                 }
             }
@@ -9353,23 +9353,23 @@ void FOClient::PupLMouseUp()
     {
     case IFACE_PUP_CONT2:
     {
-        if( !IsCurInRect( PupWCont1, PupX, PupY ) && !Keyb::CtrlDwn )
+        if( !IsCurInRect( PupWCont1, PupX, PupY ) && !Keyb::ShiftDwn && !Keyb::AltDwn )
             break;
 
         auto it = std::find( PupCont2.begin(), PupCont2.end(), PupHoldId );
         if( it != PupCont2.end() )
         {
             Item& item = *it;
-            if( item.GetCount() > 1 && !Keyb::CtrlDwn )
+            if( item.GetCount() > 1 && !Keyb::ShiftDwn)
                 SplitStart( &item, IFACE_PUP_CONT2 );
-            else
+            else if(!Keyb::AltDwn)
                 SetAction( CHOSEN_MOVE_ITEM_CONT, PupHoldId, IFACE_PUP_CONT2, item.GetCount() );
         }
     }
     break;
     case IFACE_PUP_CONT1:
     {
-        if( !IsCurInRect( PupWCont2, PupX, PupY ) && !Keyb::ShiftDwn && !Keyb::CtrlDwn )
+        if( !IsCurInRect( PupWCont2, PupX, PupY ) && !Keyb::ShiftDwn && !Keyb::CtrlDwn && !Keyb::AltDwn )
             break;
 
         auto it = std::find( PupCont1.begin(), PupCont1.end(), PupHoldId );
@@ -9378,9 +9378,9 @@ void FOClient::PupLMouseUp()
             Item& item = *it;
             if( item.GetCount() > 1 && !Keyb::ShiftDwn && !Keyb::CtrlDwn )
                 SplitStart( &item, IFACE_PUP_CONT1 );
-            else if (!Keyb::ShiftDwn)
+            else if (!Keyb::CtrlDwn && !Keyb::AltDwn)
                 SetAction( CHOSEN_MOVE_ITEM_CONT, PupHoldId, IFACE_PUP_CONT1, item.GetCount() );
-            else
+            else if (!Keyb::ShiftDwn && !Keyb::AltDwn)
                 AddActionBack(CHOSEN_MOVE_ITEM, PupHoldId, item.GetCount(), SLOT_GROUND, 0);
         }
     }
@@ -9790,7 +9790,7 @@ DrawCurHand:
         }
         else if( GetActiveScreen() == SCREEN__BARTER )
         {
-            if( IfaceHold && BarterHoldId && ( !Keyb::CtrlDwn && !Keyb::ShiftDwn ) )
+            if( IfaceHold && BarterHoldId && ( !Keyb::CtrlDwn && !Keyb::ShiftDwn && !Keyb::AltDwn ) )
             {
                 ItemVec* cont = NULL;
                 switch( IfaceHold )
