@@ -1276,9 +1276,6 @@ void FOClient::ParseKeyboard()
             // F Buttons
             switch( dikdw )
             {
-            case DIK_F1:
-                GameOpt.HelpInfo = !GameOpt.HelpInfo;
-                break;
             case DIK_F2:
                 if( SaveLogFile() )
                     AddMess( FOMB_GAME, MsgGame->GetStr( STR_LOG_SAVED ) );
@@ -1299,23 +1296,6 @@ void FOClient::ParseKeyboard()
                 IntAddMess = !IntAddMess;
                 MessBoxGenerate();
                 break;
-            case DIK_F6:
-                GameOpt.ShowPlayerNames = !GameOpt.ShowPlayerNames;
-                break;
-
-            case DIK_F7:
-                if( GameOpt.DebugInfo )
-                    GameOpt.ShowNpcNames = !GameOpt.ShowNpcNames;
-                break;
-
-            case DIK_F8:
-                GameOpt.MouseScroll = !GameOpt.MouseScroll;
-                GameOpt.ScrollMouseRight = false;
-                GameOpt.ScrollMouseLeft = false;
-                GameOpt.ScrollMouseDown = false;
-                GameOpt.ScrollMouseUp = false;
-                break;
-
             case DIK_F9:
                 if( GameOpt.DebugInfo )
                     HexMngr.SwitchShowTrack();
@@ -1324,7 +1304,6 @@ void FOClient::ParseKeyboard()
                 if( GameOpt.DebugInfo )
                     HexMngr.SwitchShowHex();
                 break;
-
             case DIK_F11:
                 if( GameOpt.DebugInfo )
                     SprMngr.SaveSufaces();
@@ -1364,47 +1343,6 @@ void FOClient::ParseKeyboard()
             {
                 switch( dikdw )
                 {
-                case DIK_C:
-                    if( GetActiveScreen() == SCREEN__CHARACTER )
-                    {
-                        TryExit();
-                        continue;
-                    }
-                    break;
-                case DIK_P:
-                    if( GetActiveScreen() == SCREEN__PIP_BOY )
-					{
-                        /*if( PipMode == PIP__NONE )
-                            PipMode = PIP__STATUS;
-                        else
-                            TryExit();Anuri said to block possibility to open statistics window in pipboy - APAMk2*/ 
-						TryExit();
-                        continue;
-                    }
-                    break;
-                case DIK_I:
-                    if( GetActiveScreen() == SCREEN__INVENTORY )
-                    {
-                        TryExit();
-                        continue;
-                    }
-                    break;
-                case DIK_Q:
-                    if( IsMainScreen( SCREEN_GAME ) && GetActiveScreen() == SCREEN_NONE )
-                    {
-                        if ( ChosenLookBorder.IsDrawView)
-                        {
-                            if ( ChosenLookBorder.IsDrawHear )
-                            {
-                                ChosenLookBorder.IsDrawHear = false;
-                                ChosenLookBorder.IsDrawView = false;
-                            }
-                            else ChosenLookBorder.IsDrawHear = true;
-                        }
-                        else ChosenLookBorder.IsDrawView = true;
-                        ChosenLookBorder.IsRebuild = true;
-                    }
-                    break;
                 case DIK_SPACE:
                     if( Singleplayer )
                         SingleplayerData.Pause = !SingleplayerData.Pause;
@@ -1418,19 +1356,10 @@ void FOClient::ParseKeyboard()
         {
             switch( dikdw )
             {
-            case DIK_F6:
-                if( GameOpt.DebugInfo && Keyb::CtrlDwn )
-                    GameOpt.ShowCritId = !GameOpt.ShowCritId;
-                break;
-            case DIK_F7:
-                if( GameOpt.DebugInfo && Keyb::CtrlDwn )
-                    GameOpt.ShowCritId = !GameOpt.ShowCritId;
-                break;
             case DIK_F11:
                 if( Keyb::ShiftDwn )
                     SprMngr.SaveSufaces();
                 break;
-
             // Num Pad
             case DIK_EQUALS:
             case DIK_ADD:
@@ -1453,11 +1382,6 @@ void FOClient::ParseKeyboard()
                     SndMngr.SetMusicVolume( SndMngr.GetMusicVolume() - 2 );
                 else if( Keyb::AltDwn && GameOpt.FixedFPS > -10000 )
                     GameOpt.FixedFPS--;
-                break;
-            // Escape
-            case DIK_ESCAPE:
-                //if( Keyb::ShiftDwn )
-                //    GameOpt.Quit = true;  // Cvet pidarass - APAMk2
                 break;
             // Switch fullscreen
             case DIK_RETURN:
@@ -12787,6 +12711,21 @@ void FOClient::SScriptFunc::Global_SetConsoleMode( bool shouldEnable )
 		Self->ConsoleStr[0] = 0;
 		Self->ConsoleCur = 0;
 	}
+}
+
+void FOClient::SScriptFunc::Global_ChangeViewBorder( )
+{
+    if ( Self->ChosenLookBorder.IsDrawView )
+    {
+        if ( Self->ChosenLookBorder.IsDrawHear )
+        {
+            Self->ChosenLookBorder.IsDrawHear = false;
+            Self->ChosenLookBorder.IsDrawView = false;
+        }
+        else Self->ChosenLookBorder.IsDrawHear = true;
+    }
+    else Self->ChosenLookBorder.IsDrawView = true;
+    Self->ChosenLookBorder.IsRebuild = true;
 }
 
 bool&  FOClient::SScriptFunc::ConsoleActive = FOClient::ConsoleActive;

@@ -1119,6 +1119,7 @@ BIND_ASSERT( engine->RegisterGlobalFunction( "void ChosenRefreshMap()", asFUNCTI
 //===================================================================
 
 BIND_ASSERT( engine->RegisterGlobalFunction( "void SetConsoleMode( bool shouldEnable )", asFUNCTION( BIND_CLASS Global_SetConsoleMode ), asCALL_CDECL ) );
+BIND_ASSERT( engine->RegisterGlobalFunction( "void ChangeViewBorder()", asFUNCTION( BIND_CLASS Global_ChangeViewBorder ), asCALL_CDECL ) );
 
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __GmapActive", &BIND_CLASS GmapActive ) );
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __GmapWait", &BIND_CLASS GmapWait ) );
@@ -1627,7 +1628,7 @@ BIND_ASSERT( engine->RegisterGlobalProperty( "bool __NewChatFont", &GameOpt.NewC
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __ConsoleActive", &BIND_CLASS ConsoleActive ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "string@+ WindowsExplorer_OpenFile( string& filters )", asFUNCTION( BIND_CLASS Global_WindowsExplorer_OpenFileName ), asCALL_CDECL ) );
 
-
+BIND_ASSERT( engine->RegisterGlobalProperty( "bool __DebugInfo", &GameOpt.DebugInfo ) );
 #endif
 
 BIND_ASSERT( engine->RegisterGlobalProperty( "bool __MapHexagonal", &GameOpt.MapHexagonal ) );

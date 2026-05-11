@@ -2537,25 +2537,9 @@ void FOClient::GameKeyDown( uchar dik )
         switch( dik )
         {
         // Hot keys
-        /*case DIK_A: - Moved to Client
-            //if( Chosen->ItemSlotMain->IsWeapon() && Chosen->GetUse() < MAX_USES )
-             //   SetCurMode( CUR_USE_WEAPON );
-            break;*/
-        case DIK_C:
-            ShowScreen( SCREEN__CHARACTER );
-            if( Chosen->Params[ ST_UNSPENT_PERKS ] )
-                ShowScreen( SCREEN__PERK );
-            break;
         case DIK_G:
             TryPickItemOnGround();
             break;
-        case DIK_I:
-            ShowScreen( SCREEN__INVENTORY );
-            break;
-        case DIK_P:
-            ShowScreen( SCREEN__PIP_BOY );
-            break;
-        // case DIK_Z: PipBoy clock
         case DIK_O:
             ShowScreen( SCREEN__MENU_OPTION );
             break;
@@ -2573,9 +2557,6 @@ void FOClient::GameKeyDown( uchar dik )
         case DIK_S:
             SboxUseOn.Clear();
             ShowScreen( SCREEN__SKILLBOX );
-            break;
-        case DIK_SLASH:
-            AddMess( FOMB_GAME, Str::FormatBuf( "Time: %02d.%02d.%d %02d:%02d:%02d x%u", GameOpt.Day, GameOpt.Month, GameOpt.Year, GameOpt.Hour, GameOpt.Minute, GameOpt.Second, GameOpt.TimeMultiplier ) );
             break;
         case DIK_COMMA:
             SetAction( CHOSEN_DIR, 1 /*CW*/ );
