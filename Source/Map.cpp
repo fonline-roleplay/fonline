@@ -28,7 +28,7 @@ Map::Map(): RefCounter( 1 ), IsNotValid( false ), hexFlags( NULL ),
             mapLocation( NULL ), Proto( NULL ), NeedProcess( false ),
             IsTurnBasedOn( false ), TurnBasedEndTick( 0 ), TurnSequenceCur( 0 ),
             IsTurnBasedTimeout( false ), TurnBasedBeginSecond( 0 ), NeedEndTurnBased( false ),
-            TurnBasedRound( 0 ), TurnBasedTurn( 0 ), TurnBasedWholeTurn( 0 )
+            TurnBasedRound( 0 ), TurnBasedTurn( 0 ), TurnBasedWholeTurn( 0 ), LastVisionRefreshTick( 0 )
 {
     MEMORY_PROCESS( MEMORY_MAP, sizeof( Map ) );
     memzero( &Data, sizeof( Data ) );

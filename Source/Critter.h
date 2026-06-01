@@ -799,6 +799,7 @@ public:
 
     // Screen callback
     int ScreenCallbackBindId;
+    uint LastVisionRefreshTick;
 
     Client();
     ~Client();

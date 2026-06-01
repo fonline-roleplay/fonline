@@ -88,7 +88,7 @@ public:
     ushort    GetMaxHexX() const { return Proto->Header.MaxHexX; }
     ushort    GetMaxHexY() const { return Proto->Header.MaxHexY; }
     void      RefreshVision( ) { Data.RefreshVisionFlag = true; }
-    void      RefreshVisionComplited( ) { Data.RefreshVisionFlag = false; }
+    void      RefreshVisionComplited( ) { Data.RefreshVisionFlag = false; LastVisionRefreshTick = Timer::FastTick(); }
     bool      IsRefreshVision( ) { return Data.RefreshVisionFlag; }
     void      SetLoopTime( uint loop_num, uint ms );
     uchar     GetRain() const { return Data.MapRain; };
@@ -256,6 +256,8 @@ public:
         RefCounter--;
         if( RefCounter <= 0 ) delete this;
     }
+
+    uint    LastVisionRefreshTick;
 };
 
 class MapExt

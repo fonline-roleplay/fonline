@@ -296,6 +296,8 @@ void Critter::ProcessVisibleCritters()
         return;
 
     Data.LookRefreshFlag = false;
+    if ( IsPlayer() )
+        ((Client*)this)->LastVisionRefreshTick = Timer::FastTick();
 
     // Global map
     if( !GetMap() )
@@ -357,6 +359,9 @@ void Critter::ProcessVisibleCritters()
     {
         Critter* cr = *it;
         if( cr == this || cr->IsNotValid )
+            continue;
+
+        if( cr->IsNpc() && ( cr->IsKnockout() || cr->IsDead()) )
             continue;
 
         int dist = DistGame( GetHexX(), GetHexY(), cr->GetHexX(), cr->GetHexY() );
@@ -3673,7 +3678,8 @@ Client::SendCallback Client::SendData = NULL;
 Client::Client(): ZstrmInit( false ), Access( ACCESS_DEFAULT ), pingOk( true ), LanguageMsg( 0 ),
                   GameState( STATE_NONE ), IsDisconnected( false ), DisconnectTick( 0 ), DisableZlib( false ),
                   LastSendScoresTick( 0 ), LastSendEntrancesTick( 0 ), LastSendEntrancesLocId( 0 ),
-                  ScreenCallbackBindId( 0 ), ConnectTime( 0 ), LastSendedMapTick( 0 ), RadioMessageSended( 0 )
+                  ScreenCallbackBindId( 0 ), ConnectTime( 0 ), LastSendedMapTick( 0 ), RadioMessageSended( 0 ),
+                  LastVisionRefreshTick( 0 )
 {
     CritterIsNpc = false;
     MEMORY_PROCESS( MEMORY_CLIENT, sizeof( Client ) + sizeof( GlobalMapGroup ) + 40 + sizeof( Item ) * 2 );

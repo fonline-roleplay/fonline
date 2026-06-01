@@ -738,7 +738,7 @@ void FOServer::Logic_Work( void* data )
                 CLOSE_CALLSTACK();
                 continue;
             }
-            if( map->IsRefreshVision( ) )
+            if( map->IsRefreshVision( ) && (Timer::FastTick() - map->LastVisionRefreshTick) >= 500)
             {
                 CrVec& critters = map->GetCrittersNoLock();
                 for( uint i = 0, iend = critters.size( ); i < iend; i++ )
