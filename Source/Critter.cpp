@@ -299,6 +299,9 @@ void Critter::ProcessVisibleCritters()
     if ( IsPlayer() )
         ((Client*)this)->LastVisionRefreshTick = Timer::FastTick();
 
+    if( IsNpc() && ( IsKnockout() || IsDead() ) )
+        return;
+
     // Global map
     if( !GetMap() )
     {
@@ -359,9 +362,6 @@ void Critter::ProcessVisibleCritters()
     {
         Critter* cr = *it;
         if( cr == this || cr->IsNotValid )
-            continue;
-
-        if( cr->IsNpc() && ( cr->IsKnockout() || cr->IsDead()) )
             continue;
 
         int dist = DistGame( GetHexX(), GetHexY(), cr->GetHexX(), cr->GetHexY() );
