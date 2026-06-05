@@ -335,6 +335,27 @@
     <ClCompile Include="..\Source\md5.cpp">
       <Filter>Server</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\zlib\gzclose.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\zlib\gzlib.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\zlib\gzread.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\zlib\gzwrite.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\zlib\iowin32.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\zlib\mztools.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\zlib\zip.c">
+      <Filter>zlib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\zlib\crc32.h">
@@ -687,6 +708,21 @@
     </ClInclude>
     <ClInclude Include="..\Source\md5.h">
       <Filter>Server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\zlib\crypt.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\zlib\gzguts.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\zlib\iowin32.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\zlib\mztools.h">
+      <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\zlib\zip.h">
+      <Filter>zlib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -18,6 +18,8 @@
 # include "FL/Fl_File_Icon.H"
 #endif
 
+#include "BugTrap/BugTrap.h"
+
 void InitAdminManager( IniParser* cfg );
 
 /************************************************************************/
@@ -82,7 +84,7 @@ int main( int argc, char** argv )
     # endif
 
     // Exceptions catcher
-    CatchExceptions( "FOnlineServer", SERVER_VERSION );
+    SetupExceptionHandler( "FOnlineServer", SERVER_VERSION );
 
     // Timer
     Timer::Init();
@@ -511,6 +513,7 @@ void GUICallback( Fl_Widget* widget, void* data )
 
 void GUIUpdate( void* )
 {
+    BT_SetTerminate();
     while( true )
     {
         static int dummy = 0;
@@ -728,6 +731,7 @@ void CheckTextBoxSize( bool force )
 
 void GameLoopThread( void* )
 {
+    BT_SetTerminate();
     GetServerOptions();
 
     if( Server.Init() )
@@ -956,7 +960,7 @@ int main( int argc, char** argv )
     setlocale( LC_ALL, "Russian" );
     SetCommandLine( argc, argv );
     RestoreMainDirectory();
-    CatchExceptions( "FOnlineServer", SERVER_VERSION );
+    SetupExceptionHandler( "FOnlineServer", SERVER_VERSION );
     Timer::Init();
     Thread::SetCurrentName( "Daemon" );
     LogToFile( "./FOnlineServerDaemon.log" );
@@ -1086,6 +1090,7 @@ void InitAdminManager( IniParser* cfg )
 
 void AdminManager( void* port_ )
 {
+    BT_SetTerminate();
     // Listen socket
     #ifdef FO_WINDOWS
     WSADATA wsa;
@@ -1223,6 +1228,7 @@ void AdminManager( void* port_ )
 
 void AdminWork( void* session_ )
 {
+    BT_SetTerminate();
     // Data
     Session* s = (Session*) session_;
     char     admin_name[ MAX_FOTEXT ] = { "Not authorized" };

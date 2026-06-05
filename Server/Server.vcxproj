@@ -233,6 +233,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\Source\zlib\gzclose.c" />
+    <ClCompile Include="..\Source\zlib\gzlib.c" />
+    <ClCompile Include="..\Source\zlib\gzread.c" />
+    <ClCompile Include="..\Source\zlib\gzwrite.c" />
     <ClCompile Include="..\Source\zlib\infback.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
@@ -263,6 +267,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\Source\zlib\iowin32.c" />
+    <ClCompile Include="..\Source\zlib\mztools.c" />
     <ClCompile Include="..\Source\zlib\trees.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
@@ -281,6 +287,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\Source\zlib\zip.c" />
     <ClCompile Include="..\Source\zlib\zutil.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
@@ -600,15 +607,20 @@
     <ClInclude Include="..\Source\LookData.h" />
     <ClInclude Include="..\Source\md5.h" />
     <ClInclude Include="..\Source\zlib\crc32.h" />
+    <ClInclude Include="..\Source\zlib\crypt.h" />
     <ClInclude Include="..\Source\zlib\deflate.h" />
+    <ClInclude Include="..\Source\zlib\gzguts.h" />
     <ClInclude Include="..\Source\zlib\inffast.h" />
     <ClInclude Include="..\Source\zlib\inffixed.h" />
     <ClInclude Include="..\Source\zlib\inflate.h" />
     <ClInclude Include="..\Source\zlib\inftrees.h" />
     <ClInclude Include="..\Source\zlib\ioapi.h" />
+    <ClInclude Include="..\Source\zlib\iowin32.h" />
+    <ClInclude Include="..\Source\zlib\mztools.h" />
     <ClInclude Include="..\Source\zlib\trees.h" />
     <ClInclude Include="..\Source\zlib\unzip.h" />
     <ClInclude Include="..\Source\zlib\zconf.h" />
+    <ClInclude Include="..\Source\zlib\zip.h" />
     <ClInclude Include="..\Source\zlib\zlib.h" />
     <ClInclude Include="..\Source\zlib\zutil.h" />
     <ClInclude Include="..\Source\Access.h" />

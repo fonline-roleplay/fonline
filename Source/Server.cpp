@@ -7,6 +7,8 @@
 
 #include "md5.h"
 
+#include "BugTrap/BugTrap.h"
+
 void* zlib_alloc( void* opaque, unsigned int items, unsigned int size ) { return calloc( items, size ); }
 void  zlib_free( void* opaque, void* address )                          { free( address ); }
 
@@ -634,6 +636,7 @@ bool FOServer::Logic_CritterProccess(Critter* cr)
 
 void FOServer::Logic_Work( void* data )
 {
+    BT_SetTerminate();
     Sleep( 10 );
 
     // Init scripts
@@ -956,6 +959,7 @@ void FOServer::Logic_Work( void* data )
 
 void FOServer::Net_Listen( void* )
 {
+    BT_SetTerminate();
     while( true )
     {
         // Blocked
@@ -1319,6 +1323,7 @@ void FOServer::NetIO_Output( bufferevent* bev, void* arg )
 
 void FOServer::NetIO_Work( void* )
 {
+    BT_SetTerminate();
     while( true )
     {
         DWORD             bytes;
@@ -4810,6 +4815,7 @@ void FOServer::AddClientSaveData( Client* cl )
 
 void FOServer::Dump_Work( void* data )
 {
+    BT_SetTerminate();
     char fname[ MAX_FOPATH ];
 
     while( true )

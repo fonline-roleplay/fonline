@@ -540,7 +540,7 @@ bool FOClient::Init()
 
     // Disable dumps if multiple window detected
     if( MulWndArray[ 11 ] )
-        CatchExceptions( NULL, 0 );
+        SetupExceptionHandler( NULL, 0 );
 
 	InitMD5( );
 

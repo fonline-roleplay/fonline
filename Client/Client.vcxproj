@@ -561,15 +561,20 @@
     <ClInclude Include="..\Source\ScriptWindow.h" />
     <ClInclude Include="..\Source\Sprites.h" />
     <ClInclude Include="..\Source\Zlib\crc32.h" />
+    <ClInclude Include="..\Source\zlib\crypt.h" />
     <ClInclude Include="..\Source\Zlib\deflate.h" />
+    <ClInclude Include="..\Source\zlib\gzguts.h" />
     <ClInclude Include="..\Source\Zlib\inffast.h" />
     <ClInclude Include="..\Source\Zlib\inffixed.h" />
     <ClInclude Include="..\Source\Zlib\inflate.h" />
     <ClInclude Include="..\Source\Zlib\inftrees.h" />
     <ClInclude Include="..\Source\Zlib\ioapi.h" />
+    <ClInclude Include="..\Source\zlib\iowin32.h" />
+    <ClInclude Include="..\Source\zlib\mztools.h" />
     <ClInclude Include="..\Source\Zlib\trees.h" />
     <ClInclude Include="..\Source\Zlib\unzip.h" />
     <ClInclude Include="..\Source\Zlib\zconf.h" />
+    <ClInclude Include="..\Source\zlib\zip.h" />
     <ClInclude Include="..\Source\Zlib\zlib.h" />
     <ClInclude Include="..\Source\Zlib\zutil.h" />
     <ClInclude Include="..\Source\Acm\acmstrm.h" />
@@ -812,6 +817,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseD3D|x64'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\Source\zlib\gzclose.c" />
+    <ClCompile Include="..\Source\zlib\gzlib.c" />
+    <ClCompile Include="..\Source\zlib\gzread.c" />
+    <ClCompile Include="..\Source\zlib\gzwrite.c" />
     <ClCompile Include="..\Source\Zlib\infback.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
@@ -882,6 +891,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseD3D|x64'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\Source\zlib\iowin32.c" />
+    <ClCompile Include="..\Source\zlib\mztools.c" />
     <ClCompile Include="..\Source\Zlib\trees.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
@@ -924,6 +935,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseD3D|x64'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\Source\zlib\zip.c" />
     <ClCompile Include="..\Source\Zlib\zutil.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>

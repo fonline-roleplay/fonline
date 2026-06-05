@@ -13,6 +13,8 @@
 #include "AngelScript/Preprocessor/preprocess.h"
 #include <strstream>
 
+#include "BugTrap/BugTrap.h"
+
 const char* ContextStatesStr[] =
 {
     "Finished",
@@ -1369,6 +1371,7 @@ void Script::CollectGarbage( bool force )
 
 void RunTimeout( void* data )
 {
+    BT_SetTerminate();
     while( RunTimeoutSuspend )
     {
         #ifndef FONLINE_SERVER

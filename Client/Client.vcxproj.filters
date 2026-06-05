@@ -590,6 +590,21 @@
     <ClInclude Include="..\Source\md5.h">
       <Filter>Client</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\zlib\crypt.h">
+      <Filter>Zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\zlib\gzguts.h">
+      <Filter>Zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\zlib\iowin32.h">
+      <Filter>Zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\zlib\mztools.h">
+      <Filter>Zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\zlib\zip.h">
+      <Filter>Zlib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Zlib\adler32.c">
@@ -939,6 +954,27 @@
     </ClCompile>
     <ClCompile Include="..\Source\md5.cpp">
       <Filter>Client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\zlib\gzclose.c">
+      <Filter>Zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\zlib\gzlib.c">
+      <Filter>Zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\zlib\gzread.c">
+      <Filter>Zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\zlib\gzwrite.c">
+      <Filter>Zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\zlib\iowin32.c">
+      <Filter>Zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\zlib\mztools.c">
+      <Filter>Zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\zlib\zip.c">
+      <Filter>Zlib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

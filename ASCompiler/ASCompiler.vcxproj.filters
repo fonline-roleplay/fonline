@@ -262,6 +262,18 @@
     <ClInclude Include="..\Source\AngelScript\Preprocessor\expressions.h">
       <Filter>AngelScript\Preprocessor</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\zlib\crypt.h">
+      <Filter>Zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\zlib\iowin32.h">
+      <Filter>Zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\zlib\mztools.h">
+      <Filter>Zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\zlib\zip.h">
+      <Filter>Zlib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\ASCompiler.cpp">
@@ -482,6 +494,15 @@
     </ClCompile>
     <ClCompile Include="..\Source\AngelScript\Preprocessor\expressions.cpp">
       <Filter>AngelScript\Preprocessor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\zlib\iowin32.c">
+      <Filter>Zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\zlib\mztools.c">
+      <Filter>Zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\zlib\zip.c">
+      <Filter>Zlib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

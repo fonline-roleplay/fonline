@@ -4,6 +4,8 @@
 #include "Version.h"
 #include <locale.h>
 
+#include "BugTrap/BugTrap.h"
+
 FOWindow* MainWindow = NULL;
 FOMapper* Mapper = NULL;
 Thread    Game;
@@ -21,7 +23,7 @@ int main( int argc, char** argv )
     Thread::SetCurrentName( "GUI" );
 
     // Exceptions
-    CatchExceptions( "FOnlineMapper", MAPPER_VERSION );
+    SetupExceptionHandler( "FOnlineMapper", MAPPER_VERSION );
 
     // Make command line
     SetCommandLine( argc, argv );
@@ -117,6 +119,7 @@ int main( int argc, char** argv )
 
 void GameThread( void* )
 {
+    BT_SetTerminate();
     // Start
     Mapper = new FOMapper();
     if( !Mapper || !Mapper->Init() )

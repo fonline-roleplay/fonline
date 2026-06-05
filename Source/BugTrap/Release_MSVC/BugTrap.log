@@ -1,0 +1,57 @@
+﻿C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.CppBuild.targets(299,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
+  stdafx.cpp
+  AboutDlg.cpp
+  AnimProgressBar.cpp
+  AssemblyInfo.cpp
+  BugTrap.cpp
+  BugTrapNet.cpp
+  BugTrapUI.cpp
+  BugTrapUtils.cpp
+  CMapi.cpp
+  ColHelper.cpp
+  DescribeErrorDlg.cpp
+  Encoding.cpp
+  EnumProcess.cpp
+  FileStream.cpp
+  Globals.cpp
+  HexView.cpp
+  HyperLink.cpp
+  ImageView.cpp
+  InMemLogFile.cpp
+  InputStream.cpp
+  LayoutManager.cpp
+  Generating Code...
+  Compiling...
+  LogFile.cpp
+  LogStream.cpp
+  MachineInfoDlg.cpp
+  MachineStateDlg.cpp
+  MainDlg.cpp
+  MemStream.cpp
+  ModuleImportTable.cpp
+  NetThunks.cpp
+  OutputStream.cpp
+  PreviewDlg.cpp
+  ResManager.cpp
+  SendMailDlg.cpp
+  SimpleDlg.cpp
+  Splitter.cpp
+  StrHolder.cpp
+  StrStream.cpp
+  SymEngine.cpp
+  SymEngineNet.cpp
+  TextFormat.cpp
+  TextLogFile.cpp
+  Generating Code...
+  Compiling...
+  TextView.cpp
+  ThemeXP.cpp
+  TransferProgressDlg.cpp
+  WaitCursor.cpp
+  WaitDlg.cpp
+  XmlLogFile.cpp
+  XmlReader.cpp
+  XmlWriter.cpp
+  Generating Code...
+     Creating library ..\..\FO4RP\BugTrap.lib and object ..\..\FO4RP\BugTrap.exp
+  BugTrap.vcxproj -> D:\Repos\Fallout\FOnline\FO4RP_Engine\Source\BugTrap\..\..\FO4RP\BugTrap.dll
