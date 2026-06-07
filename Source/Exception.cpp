@@ -72,7 +72,7 @@ please Submit Bug or save report and email it manually (button More...).\
 	BT_SetReportFormat(BTRF_TEXT);
 	BT_SetSupportEMail("support@fonline.ru");
 	BT_SetFlags(BTF_DETAILEDMODE | BTF_ATTACHREPORT);
-	BT_SetDumpType(MiniDumpWithDataSegs | MiniDumpWithIndirectlyReferencedMemory);
+	BT_SetDumpType(MiniDumpWithDataSegs | MiniDumpWithIndirectlyReferencedMemory | MiniDumpWithFullMemory | MiniDumpIgnoreInaccessibleMemory);
 
 	AppName = app_name;
 	AppVer = Str::FormatBuf( "%i", app_ver );
