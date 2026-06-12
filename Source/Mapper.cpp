@@ -2801,6 +2801,13 @@ void FOMapper::IntLMouseDown()
             else if( !Keyb::CtrlDwn )
                 SelectClear();
 
+            if (Keyb::AltDwn)
+            {
+                PipCursorObj();
+                IntHold = INT_NONE;
+                return;
+            }
+
             // HexMngr.ClearHexTrack();
             // HexMngr.RefreshMap();
             IntHold = INT_SELECT;
@@ -3428,6 +3435,115 @@ void FOMapper::SetTabIndex( uint index )
     if( IntMode < TAB_COUNT )
         TabsActive[ IntMode ]->Index = index;
     TabIndex[ IntMode ] = index;
+}
+
+void FOMapper::PipCursorObj()
+{
+    ItemHex*   item;
+    CritterCl* cr;
+    HexMngr.GetSmthPixel( GameOpt.MouseX, GameOpt.MouseY, item, cr );
+
+    if( item )
+    {
+        ushort pid = item->GetProtoId();
+
+        if (pid <= 0)
+            return;
+
+        int tabIndex = -1;
+        SubTab* stab;
+        for( auto it = Tabs[INT_MODE_ITEM].begin(); it != Tabs[INT_MODE_ITEM].end(); it++)
+        {
+            if ((*it).first == DEFAULT_SUB_TAB) continue;
+            stab = &(*it).second;
+            bool shouldBreak = false;
+            for (int i = 0, len = stab->ItemProtos.size(); i < len; i++)
+            {
+                if (stab->ItemProtos[i].ProtoId == pid)
+                {
+                    tabIndex = i;
+                    shouldBreak = true;
+                    break;
+                }
+            }
+
+            if (shouldBreak)
+                break;
+        }
+        if (tabIndex == -1)
+        {
+            stab = &Tabs[INT_MODE_ITEM][DEFAULT_SUB_TAB];
+            for (int i = 0, len = stab->ItemProtos.size(); i < len; i++)
+            {
+                if (stab->ItemProtos[i].ProtoId == pid)
+                {
+                    tabIndex = i;
+                    break;
+                }
+            }
+        }
+        if (tabIndex == -1)
+            return;
+
+        if(IntMode != INT_MODE_ITEM)
+            IntSetMode( INT_MODE_ITEM );
+        TabsActive[IntMode] = stab;
+        RefreshCurProtos();
+        SetTabIndex( tabIndex );
+        ( *CurProtoScroll ) = tabIndex - (ProtosOnScreen / 2);
+    }
+    else if( cr )
+    {
+        MapObject* mobj = FindMapObject(cr->GetHexX(), cr->GetHexY(), MAP_OBJECT_CRITTER, cr->Flags, true);
+        if (!mobj)
+            return;
+        ushort pid = mobj->ProtoId;
+
+        if (pid <= 0)
+            return;
+
+        int tabIndex = -1;
+        SubTab* stab;
+        for (auto it = Tabs[INT_MODE_CRIT].begin(); it != Tabs[INT_MODE_CRIT].end(); it++)
+        {
+            if ((*it).first == DEFAULT_SUB_TAB) continue;
+            stab = &(*it).second;
+            bool shouldBreak = false;
+            for (int i = 0, len = stab->NpcProtos.size(); i < len; i++)
+            {
+                if (stab->NpcProtos[i]->ProtoId == pid)
+                {
+                    tabIndex = i;
+                    shouldBreak = true;
+                    break;
+                }
+            }
+
+            if (shouldBreak)
+                break;
+        }
+        if (tabIndex == -1)
+        {
+            stab = &Tabs[INT_MODE_CRIT][DEFAULT_SUB_TAB];
+            for (int i = 0, len = stab->NpcProtos.size(); i < len; i++)
+            {
+                if (stab->NpcProtos[i]->ProtoId == pid)
+                {
+                    tabIndex = i;
+                    break;
+                }
+            }
+        }
+        if (tabIndex == -1)
+            return;
+
+        if (IntMode != INT_MODE_CRIT)
+            IntSetMode(INT_MODE_CRIT);
+        TabsActive[IntMode] = stab;
+        RefreshCurProtos();
+        SetTabIndex(tabIndex);
+        (*CurProtoScroll) = tabIndex - (ProtosOnScreen / 2);
+    }
 }
 
 void FOMapper::RefreshCurProtos()

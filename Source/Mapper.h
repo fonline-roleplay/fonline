@@ -241,6 +241,7 @@ public:
 
     uint GetTabIndex();
     void SetTabIndex( uint index );
+    void PipCursorObj();
     void RefreshCurProtos();
     bool IsObjectMode() { return CurItemProtos && CurProtoScroll; }
     bool IsTileMode()   { return CurTileHashes && CurTileNames && CurProtoScroll; }
