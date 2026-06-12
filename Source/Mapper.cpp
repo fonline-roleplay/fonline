@@ -3490,7 +3490,8 @@ void FOMapper::PipCursorObj()
         TabsActive[IntMode] = stab;
         RefreshCurProtos();
         SetTabIndex( tabIndex );
-        ( *CurProtoScroll ) = tabIndex - (ProtosOnScreen / 2);
+        if (CurProtoScroll)
+            (*CurProtoScroll) = tabIndex;
     }
     else if( cr )
     {
@@ -3542,7 +3543,8 @@ void FOMapper::PipCursorObj()
         TabsActive[IntMode] = stab;
         RefreshCurProtos();
         SetTabIndex(tabIndex);
-        (*CurProtoScroll) = tabIndex - (ProtosOnScreen / 2);
+        if (CurProtoScroll)
+            (*CurProtoScroll) = tabIndex;
     }
 }
 
