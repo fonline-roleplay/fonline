@@ -3542,6 +3542,56 @@ void FOMapper::PipCursorObj()
         
         destIntMode = INT_MODE_CRIT;
     }
+    else if (tabIndex == -1 && !cr && !item)
+    {
+        ushort hx = 0, hy = 0;
+        if(!HexMngr.GetHexPixel(GameOpt.MouseX, GameOpt.MouseY, hx, hy))
+            return;
+
+        // To make it by tile-grid
+        hx = (hx >> 1) * 2;
+        hy = (hy >> 1) * 2;
+
+        ProtoMap::TileVec& tiles = CurProtoMap->GetTiles(hx, hy, false);
+        if (tiles.size() <= 0)
+            return;
+
+        uint tileHash = tiles[0].NameHash;
+        if (tileHash == 0)
+            return;
+        for (auto it = Tabs[INT_MODE_TILE].begin(); it != Tabs[INT_MODE_TILE].end(); it++)
+        {
+            if ((*it).first == DEFAULT_SUB_TAB) continue;
+            stab = &(*it).second;
+            bool shouldBreak = false;
+            for (int i = 0, len = stab->TileHashes.size(); i < len; i++)
+            {
+                if (stab->TileHashes[i] == tileHash)
+                {
+                    tabIndex = i;
+                    shouldBreak = true;
+                    break;
+                }
+            }
+
+            if (shouldBreak)
+                break;
+        }
+        if (tabIndex == -1)
+        {
+            stab = &Tabs[INT_MODE_TILE][DEFAULT_SUB_TAB];
+            for (int i = 0, len = stab->TileHashes.size(); i < len; i++)
+            {
+                if (stab->TileHashes[i] == tileHash)
+                {
+                    tabIndex = i;
+                    break;
+                }
+            }
+        }
+
+        destIntMode = INT_MODE_TILE;
+    }
 
     if (tabIndex == -1)
         return;
