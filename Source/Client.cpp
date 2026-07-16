@@ -12636,6 +12636,26 @@ int FOClient::SScriptFunc::Global_GetMapTime()
 	return Self->HexMngr.GetMapTime();
 }
 
+uint FOClient::SScriptFunc::Global_GetAllMapObjects(CScriptArray* items)
+{
+    ItemHexVec& item_hexes = FOClient::Self->HexMngr.GetItems();
+    ItemPtrVec item_vec;
+    for (auto it = item_hexes.begin(), end = item_hexes.end(); it != end; ++it)
+    {
+        ItemHex* item_hex = *it;
+        if (item_hex && !item_hex->IsNotValid)
+        {
+            Item* item = item_hex;
+            item_vec.push_back(item);
+        }
+    }
+    if (item_vec.empty())
+        return 0;
+    if (items)
+        Script::AppendVectorToArrayRef< Item* >(item_vec, items);
+    return (uint)item_vec.size();
+}
+
 int FOClient::SScriptFunc::Global_GetCurrentCursor()
 {
     return Self->CurMode;

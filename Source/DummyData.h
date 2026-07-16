@@ -1020,6 +1020,7 @@ struct BindClass
     static void Global_GetMapWidth()            {}
     static void Global_GetMapHeight()           {}
 	static void Global_GetMapTime()				{}
+    static void Global_GetAllMapObjects()       {}
     static void Global_GetCurrentCursor()       {}
     static void Global_GetLastCursor()          {}
     static void Global_ChangeCursor()           {}

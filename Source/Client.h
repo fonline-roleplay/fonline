@@ -663,6 +663,7 @@ public:
         static ushort        Global_GetMapWidth();
         static ushort        Global_GetMapHeight();
 		static int			 Global_GetMapTime();
+        static uint          Global_GetAllMapObjects(CScriptArray* items);
         static int           Global_GetCurrentCursor();
         static int           Global_GetLastCursor();
         static void          Global_ChangeCursor( int cursor );

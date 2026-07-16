@@ -1092,6 +1092,7 @@ BIND_ASSERT( engine->RegisterGlobalFunction( "CritterCl@+ GetMonitorCritter(int 
 BIND_ASSERT( engine->RegisterGlobalFunction( "uint16 GetMapWidth()", asFUNCTION( BIND_CLASS Global_GetMapWidth ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "uint16 GetMapHeight()", asFUNCTION( BIND_CLASS Global_GetMapHeight ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "int GetMapTime()", asFUNCTION( BIND_CLASS Global_GetMapTime ), asCALL_CDECL ) );
+BIND_ASSERT( engine->RegisterGlobalFunction( "uint GetAllMapObjects(ItemCl@[]@+ items)", asFUNCTION( BIND_CLASS Global_GetAllMapObjects), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "int GetCurrentCursor()", asFUNCTION( BIND_CLASS Global_GetCurrentCursor ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "int GetLastCursor()", asFUNCTION( BIND_CLASS Global_GetLastCursor ), asCALL_CDECL ) );
 BIND_ASSERT( engine->RegisterGlobalFunction( "void ChangeCursor(int cursor)", asFUNCTION( BIND_CLASS Global_ChangeCursor ), asCALL_CDECL ) );
