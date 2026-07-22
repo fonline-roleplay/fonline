@@ -120,7 +120,7 @@ public:
 
     // Actions
     static bool Act_Move( Critter* cr, ushort hx, ushort hy, uint move_params );
-    static bool Act_Attack( Critter* cr, uchar rate_weap, uint target_id );
+    static bool Act_Attack( Critter* cr, uchar rate_weap, uint target_id, ushort target_hx, ushort target_hy );
     static bool Act_Reload( Critter* cr, uint weap_id, uint ammo_id );
     static bool Act_Use( Critter* cr, uint item_id, int skill, int target_type, uint target_id, ushort target_pid, uint param );
     static bool Act_PickItem( Critter* cr, ushort hx, ushort hy, ushort pid );
@@ -234,7 +234,7 @@ public:
     static bool AI_Move( Npc* npc, ushort hx, ushort hy, bool is_run, uint cut, uint trace );
     static bool AI_MoveToCrit( Npc* npc, uint targ_id, uint cut, uint trace, bool is_run );
     static bool AI_MoveItem( Npc* npc, Map* map, uchar from_slot, uchar to_slot, uint item_id, uint count );
-    static bool AI_Attack( Npc* npc, Map* map, uchar mode, uint targ_id );
+    static bool AI_Attack( Npc* npc, Map* map, uchar mode, uint targ_id, ushort targ_hx, ushort targ_hy );
     static bool AI_PickItem( Npc* npc, Map* map, ushort hx, ushort hy, ushort pid, uint use_item_id );
     static bool AI_ReloadWeapon( Npc* npc, Map* map, Item* weap, uint ammo_id );
     static bool TransferAllNpc();

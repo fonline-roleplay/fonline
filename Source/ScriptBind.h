@@ -243,6 +243,8 @@ BIND_ASSERT( engine->RegisterObjectProperty( "NpcPlane", "uint16 Attack_GagHexX"
 BIND_ASSERT( engine->RegisterObjectProperty( "NpcPlane", "uint16 Attack_GagHexY", OFFSETOF( AIDataPlane, Attack.GagHexY ) ) );
 BIND_ASSERT( engine->RegisterObjectProperty( "NpcPlane", "uint16 Attack_LastHexX", OFFSETOF( AIDataPlane, Attack.LastHexX ) ) );
 BIND_ASSERT( engine->RegisterObjectProperty( "NpcPlane", "uint16 Attack_LastHexY", OFFSETOF( AIDataPlane, Attack.LastHexY ) ) );
+BIND_ASSERT( engine->RegisterObjectProperty( "NpcPlane", "uint16 Attack_TargHexX", OFFSETOF( AIDataPlane, Attack.TargHexX ) ) );
+BIND_ASSERT( engine->RegisterObjectProperty( "NpcPlane", "uint16 Attack_TargHexY", OFFSETOF( AIDataPlane, Attack.TargHexY ) ) );
 BIND_ASSERT( engine->RegisterObjectProperty( "NpcPlane", "uint16 Walk_HexX", OFFSETOF( AIDataPlane, Walk.HexX ) ) );
 BIND_ASSERT( engine->RegisterObjectProperty( "NpcPlane", "uint16 Walk_HexY", OFFSETOF( AIDataPlane, Walk.HexY ) ) );
 BIND_ASSERT( engine->RegisterObjectProperty( "NpcPlane", "uint8 Walk_Dir", OFFSETOF( AIDataPlane, Walk.Dir ) ) );

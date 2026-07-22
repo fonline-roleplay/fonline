@@ -151,7 +151,7 @@ bool FOServer::InitScriptSystem()
         { &ServerFunctions.Loop, "loop", "uint %s()" },
         { &ServerFunctions.GlobalProcess, "global_process", "void %s(int,Critter&,Item@,float&,float&,float&,float&,float&,uint&,bool&)" },
         { &ServerFunctions.GlobalInvite, "global_invite", "void %s(Critter&,Item@,uint,int,uint&,uint16&,uint16&,uint8&)" },
-        { &ServerFunctions.CritterAttack, "critter_attack", "void %s(Critter&,Critter&,ProtoItem&,uint8,ProtoItem@)" },
+        { &ServerFunctions.CritterAttack, "critter_attack", "void %s(Critter&,Critter&,uint16,uint16,ProtoItem&,uint8,ProtoItem@)" },
         { &ServerFunctions.CritterAttacked, "critter_attacked", "void %s(Critter&,Critter&)" },
         { &ServerFunctions.CritterStealing, "critter_stealing", "bool %s(Critter&,Critter&,Item&,uint)" },
         { &ServerFunctions.CritterUseItem, "critter_use_item", "bool %s(Critter&,Item&,Critter@,Item@,Scenery@,uint)" },

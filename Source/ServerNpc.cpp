@@ -446,8 +446,8 @@ void FOServer::ProcessAI( Npc* npc )
             int   use;
             Item* weap = NULL;
             uint r0 = targ->GetId();
-			uint r1 = 0;
-			uint r2 = 0;
+			uint r1 = plane->Attack.TargHexX;
+			uint r2 = plane->Attack.TargHexY;
             int   sss = 0;
 
             if( !npc->RunPlane( REASON_ATTACK_WEAPON, r0, r1, r2 ) )
@@ -532,8 +532,8 @@ void FOServer::ProcessAI( Npc* npc )
 			uint max_dist = 0;
             
 			r0 = targ->GetId();
-			r1 = 0;
-			r2 = 0;
+            r1 = plane->Attack.TargHexX;
+            r2 = plane->Attack.TargHexY;
 
             if( !npc->RunPlane( REASON_ATTACK_DISTANTION, r0, r1, r2 ) )
             {
@@ -687,8 +687,8 @@ void FOServer::ProcessAI( Npc* npc )
             /* Step 3: Attack                                                       */
             /************************************************************************/
             r0 = targ->GetId();
-            r1 = 0;
-            r2 = 0;
+            r1 = plane->Attack.TargHexX;
+            r2 = plane->Attack.TargHexY;
             if( !npc->RunPlane( REASON_ATTACK_USE_AIM, r0, r1, r2 ) )
             {
                 WriteLog( "REASON_ATTACK_USE_AIM fail. Skip attack.\n" );
@@ -713,7 +713,7 @@ void FOServer::ProcessAI( Npc* npc )
 			}
 
             weap->SetMode( MAKE_ITEM_MODE( use, aim ) );
-            AI_Attack( npc, map, MAKE_ITEM_MODE( use, aim ), targ->GetId() );
+            AI_Attack( npc, map, MAKE_ITEM_MODE( use, aim ), targ->GetId(), plane->Attack.TargHexX, plane->Attack.TargHexY );
         }
         /************************************************************************/
         /* Target not visible, try find by last stored position                 */
@@ -888,14 +888,13 @@ bool FOServer::AI_MoveItem( Npc* npc, Map* map, uchar from_slot, uchar to_slot, 
     return npc->MoveItem( from_slot, to_slot, item_id, count );
 }
 
-bool FOServer::AI_Attack( Npc* npc, Map* map, uchar mode, uint targ_id )
+bool FOServer::AI_Attack( Npc* npc, Map* map, uchar mode, uint targ_id, ushort targ_hx, ushort targ_hy )
 {
     int ap_cost = ( GameOpt.GetUseApCost ? GameOpt.GetUseApCost( npc, npc->ItemSlotMain, mode ) : 1 );
 
     CHECK_NPC_AP_R0( npc, map, ap_cost );
 
-    Critter* targ = npc->GetCritSelf( targ_id, false );
-    if( !targ || !Act_Attack( npc, mode, targ_id ) )
+    if( !Act_Attack( npc, mode, targ_id, targ_hx, targ_hy ) )
 	{
 		//WriteLog( "AI_Attack false \n" );
         return false;

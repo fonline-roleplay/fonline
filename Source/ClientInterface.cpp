@@ -2640,21 +2640,35 @@ void FOClient::GameLMouseDown()
             SetAction( CHOSEN_MOVE, hx, hy, is_run, 0, act ? 0 : 1, Timer::FastTick() );
         }
     }
-    else if( IsCurMode( CUR_USE_ITEM ) || IsCurMode( CUR_USE_WEAPON ) )
+    else if( IsCurMode( CUR_USE_ITEM ) )
     {
         CritterCl* cr;
         ItemHex* item;
-        if( Chosen->ItemSlotMain->IsWeapon() && Chosen->GetUse() < MAX_USES )
+        HexMngr.GetSmthPixel( GameOpt.MouseX, GameOpt.MouseY, item, cr );
+
+        if( cr )
         {
-            cr = HexMngr.GetCritterPixel( GameOpt.MouseX, GameOpt.MouseY, true );
-            if( cr == Chosen )
-                cr = NULL;
-            item = NULL;
+            // Memory target id
+            TargetSmth.SetCritter( cr->GetId() );
+
+            // Use item
+            SetAction( CHOSEN_USE_ITEM, Chosen->ItemSlotMain->GetId(), Chosen->ItemSlotMain->GetProtoId(), TARGET_CRITTER, cr->GetId(), Chosen->GetFullRate() );
         }
-        else
+        else if( item )
         {
-            HexMngr.GetSmthPixel( GameOpt.MouseX, GameOpt.MouseY, item, cr );
+            TargetSmth.SetItem( item->GetId() );
+            SetAction( CHOSEN_USE_ITEM, Chosen->ItemSlotMain->GetId(), Chosen->ItemSlotMain->GetProtoId(), item->IsItem() ? TARGET_ITEM : TARGET_SCENERY, item->GetId(), USE_USE );
         }
+    }
+    else if( IsCurMode( CUR_USE_WEAPON ) && Chosen->ItemSlotMain->IsWeapon() && Chosen->GetUse() < MAX_USES )
+    {
+        CritterCl* cr;
+        ushort thx;
+        ushort thy;
+        HexMngr.GetHexPixel( GameOpt.MouseX, GameOpt.MouseY, thx, thy );
+        cr = HexMngr.GetCritterPixel( GameOpt.MouseX, GameOpt.MouseY, true );
+        if( cr == Chosen )
+            cr = NULL;
 
         if( cr )
         {
@@ -2674,10 +2688,9 @@ void FOClient::GameLMouseDown()
             // Use item
             SetAction( CHOSEN_USE_ITEM, Chosen->ItemSlotMain->GetId(), Chosen->ItemSlotMain->GetProtoId(), TARGET_CRITTER, cr->GetId(), Chosen->GetFullRate() );
         }
-        else if( item )
+        else
         {
-            TargetSmth.SetItem( item->GetId() );
-            SetAction( CHOSEN_USE_ITEM, Chosen->ItemSlotMain->GetId(), Chosen->ItemSlotMain->GetProtoId(), item->IsItem() ? TARGET_ITEM : TARGET_SCENERY, item->GetId(), USE_USE );
+            SetAction( CHOSEN_USE_ITEM, Chosen->ItemSlotMain->GetId(), Chosen->ItemSlotMain->GetProtoId(), TARGET_HEX, ( thx << 16 ) | ( thy & 0xFFFF ), Chosen->GetFullRate() );
         }
     }
     else if( IsCurMode( CUR_USE_SKILL ) )

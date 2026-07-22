@@ -8204,7 +8204,7 @@ label_EndMove:
             target_item = GetItem( target_id );
         else if( target_type == TARGET_SCENERY )
             target_item = GetItem( target_id );
-        else
+        else if( target_type != TARGET_HEX )
             break;
         if( target_type == TARGET_CRITTER && Chosen == target_cr )
             target_type = TARGET_SELF;
@@ -8218,11 +8218,11 @@ label_EndMove:
             break;
         else if( target_type == TARGET_SCENERY && !target_item )
             break;
-        if( target_type != TARGET_CRITTER && !item->GetId() )
+        if( target_type != TARGET_CRITTER && target_type != TARGET_HEX && !item->GetId() )
             break;
 
         // Parse use
-        bool is_attack = ( target_type == TARGET_CRITTER && is_main_item && item->IsWeapon() && use < MAX_USES );
+        bool is_attack = ( ( target_type == TARGET_HEX || target_type == TARGET_CRITTER ) && is_main_item && item->IsWeapon() && use < MAX_USES );
         bool is_reload = ( target_type == TARGET_SELF_ITEM && use == USE_RELOAD && item->IsWeapon() );
         bool is_self = ( target_type == TARGET_SELF || target_type == TARGET_SELF_ITEM );
         if( !is_attack && !is_reload && ( IsCurMode( CUR_USE_ITEM ) || IsCurMode( CUR_USE_WEAPON ) ) )
@@ -8335,10 +8335,15 @@ label_EndMove:
                 hx = target_cr->GetHexX();
                 hy = target_cr->GetHexY();
             }
-            else
+            else if( target_item )
             {
                 hx = target_item->GetHexX();
                 hy = target_item->GetHexY();
+            }
+            else
+            {
+                hx = target_id >> 16;
+                hy = target_id & 0xFFFF;
             }
 
             uint max_dist = ( is_attack ? Chosen->GetAttackDist() : Chosen->GetUseDist() ) + ( target_cr ? target_cr->GetMultihex() : 0 );

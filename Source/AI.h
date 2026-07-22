@@ -50,6 +50,7 @@ struct AIDataPlane
             bool   IsGag;
             ushort GagHexX, GagHexY;
             ushort LastHexX, LastHexY;
+            ushort TargHexX, TargHexY;
         } Attack;
 
         struct
